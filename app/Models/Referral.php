@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Referral extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'patient_id',
+        'referring_facility_id',
+        'receiving_facility_id',
+        'status',
+        'reason',
+        'notes',
+        'referred_by',
+    ];
+
+    // ── Relationships ──────────────────────────────────────────────────────
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    // FIX: use actual DB column names
+    public function fromFacility()
+    {
+        return $this->belongsTo(Facility::class, 'referring_facility_id');
+    }
+
+    public function toFacility()
+    {
+        return $this->belongsTo(Facility::class, 'receiving_facility_id');
+    }
+
+    public function referredBy()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+}
