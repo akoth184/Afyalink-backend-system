@@ -94,7 +94,7 @@
         <h1 class="page-title">Admin Dashboard</h1>
         <p class="page-subtitle">System overview and management</p>
 
-        <div class="stats-grid">
+        <div class="metrics-row">
             <div class="stat-card">
                 <div class="stat-icon teal">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
@@ -125,7 +125,7 @@
             </div>
         </div>
 
-        <div class="stats-grid">
+        <div class="metrics-row">
             <div class="stat-card">
                 <div class="stat-icon amber">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#e07b1a" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>

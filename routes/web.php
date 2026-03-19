@@ -19,6 +19,11 @@ use App\Http\Controllers\MpesaController;
 // Landing page
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+// Redirect /home to /
+Route::get('/home', function() {
+    return redirect('/');
 });
 
 // Professional Portal Routes
@@ -112,8 +117,7 @@ Route::middleware('auth')->group(function () {
 
     // Role-specific dashboards (generic fallback - for direct URL access)
     // Note: Doctor-specific dashboard is handled in the doctor prefix group above
-    Route::get('/hospital/dashboard', [DashboardController::class, 'index'])->name('hospital.dashboard');
-    Route::get('/patient/dashboard', [DashboardController::class, 'index'])->name('patient.dashboard');
+    Route::get('/patient/dashboard', [DashboardController::class, 'patientDashboard'])->name('patient.dashboard');
 
     // ── PATIENT REFERRALS ──
     // Dedicated route for patients to view their own referrals

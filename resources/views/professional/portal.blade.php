@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Professional Portal — AfyaLink</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <style>
         :root {
             --teal: #0d6e6e; --teal-mid: #0f8080; --teal-lt: #e6f4f4;

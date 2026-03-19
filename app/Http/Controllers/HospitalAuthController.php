@@ -92,6 +92,9 @@ class HospitalAuthController extends Controller
     {
         $user = Auth::user();
         $facility = $user->facility;
+        if (!$facility) {
+            return redirect('/hospital/login')->with('error', 'No facility linked to your account. Please contact admin.');
+        }
 
         $stats = [
             'total_patients' => \App\Models\Patient::where('facility_id', $facility->id)->count(),

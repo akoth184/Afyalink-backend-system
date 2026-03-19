@@ -91,7 +91,7 @@
         <h1 class="page-title">Hospital Dashboard</h1>
         <p class="page-subtitle">{{ $facility->name }} — {{ $facility->county }} County</p>
 
-        <div class="stats-grid">
+        <div class="metrics-row">
             <div class="stat-card">
                 <div class="stat-icon teal">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
@@ -122,7 +122,7 @@
             </div>
         </div>
 
-        <div class="stats-grid">
+        <div class="metrics-row">
             <div class="stat-card">
                 <div class="stat-icon teal">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>
