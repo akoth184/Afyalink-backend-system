@@ -10,7 +10,7 @@
     <main class="content">
         <div class="form-card">
             <div class="form-header"><h2>New Medical Record</h2><p>Document a patient visit or clinical entry</p></div>
-            <form method="POST" action="{{ route('records.store') }}">@csrf
+            <form method="POST" action="{{ route('records.store') }}" enctype="multipart/form-data">@csrf
                 <div class="form-body">
                     <div class="section-divider">Patient &amp; Visit Info</div>
                     <div class="form-row">
@@ -27,6 +27,7 @@
                     <div class="form-group"><label>Treatment</label><textarea name="treatment" placeholder="Treatment plan and procedures...">{{ old('treatment') }}</textarea></div>
                     <div class="form-group"><label>Prescription</label><textarea name="prescription" placeholder="Medications prescribed...">{{ old('prescription') }}</textarea></div>
                     <div class="form-group"><label>Notes</label><textarea name="notes" placeholder="Additional clinical notes...">{{ old('notes') }}</textarea></div>
+                    <div class="form-group"><label>Attach File (PDF, DOC, Images)</label><input type="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="padding:8px"><p style="font-size:0.75rem;color:var(--muted);margin-top:4px">Maximum file size: 10MB</p></div>
                 </div>
                 <div class="form-footer"><button type="submit" class="btn btn-primary">Save Record</button><a href="{{ route('records.index') }}" class="btn btn-sm" style="background:#f0f2f5;color:var(--muted)">Cancel</a></div>
             </form>

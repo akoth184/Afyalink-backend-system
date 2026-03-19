@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\IdGenerator;
 
 class Patient extends Model
 {
     protected $fillable = [
+        'patient_id',
         'patient_number',
         'first_name',
         'last_name',
@@ -72,6 +74,11 @@ class Patient extends Model
         parent::boot();
 
         static::creating(function ($patient) {
+
+            // ✅ Generate patient_id automatically (PAT-000001)
+            if (empty($patient->patient_id)) {
+                $patient->patient_id = IdGenerator::generatePatientId();
+            }
 
             // ✅ Automatically assign logged-in user
             if (Auth::check()) {

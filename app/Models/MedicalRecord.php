@@ -23,7 +23,8 @@ class MedicalRecord extends Model
         'medications',
         'lab_results',
         'notes',
-        'status'
+        'status',
+        'file_path'
     ];
 
     protected $casts = [

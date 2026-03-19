@@ -24,6 +24,7 @@ class CreateMedicalRecordsTable extends Migration
             $table->text('lab_results')->nullable();
             $table->text('notes')->nullable();
             $table->enum('status', ['draft', 'finalized'])->default('draft');
+            $table->string('file_path')->nullable(); // for uploaded file or PDF
             $table->timestamps();
         });
     }

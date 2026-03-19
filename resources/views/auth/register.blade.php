@@ -56,10 +56,16 @@
         <span class="logo-text">AfyaLink</span>
     </div>
 
-    <h1>Create account</h1>
-    <p class="subtitle">Join AfyaLink — Kenya's connected health platform</p>
+    <h1>{{ request('role') === 'patient' ? 'Patient Registration' : 'Create account' }}</h1>
+    <p class="subtitle">
+        @if(request('role') === 'patient')
+            Register as a patient to access AfyaLink services
+        @else
+            Join AfyaLink — Kenya's connected health platform
+        @endif
+    </p>
 
-    <form method="POST" action="{{ route('register.submit') }}">
+    <form method="POST" action="{{ route('register.submit') }}{{ request('role') === 'patient' ? '?role=patient' : '' }}">
         @csrf
 
         <div class="row">
@@ -77,21 +83,25 @@
 
         <div class="field">
             <label for="email">Email address</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="you@facility.ke">
+            <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="you@example.com">
             @error('email') <div class="field-error">{{ $message }}</div> @enderror
         </div>
 
+        {{-- Role field hidden for patient registration (auto-assigned) - shown only for admin-managed registrations --}}
+        @if(request('role') !== 'patient')
         <div class="field">
             <label for="role">Role</label>
             <select id="role" name="role">
-                <option value="staff"      {{ old('role') == 'staff'      ? 'selected' : '' }}>Clinical Staff</option>
-                <option value="doctor"     {{ old('role') == 'doctor'     ? 'selected' : '' }}>Doctor</option>
-                <option value="nurse"      {{ old('role') == 'nurse'      ? 'selected' : '' }}>Nurse</option>
-                <option value="admin"      {{ old('role') == 'admin'      ? 'selected' : '' }}>Administrator</option>
-                <option value="lab_tech"   {{ old('role') == 'lab_tech'   ? 'selected' : '' }}>Lab Technician</option>
+                <option value="doctor" {{ old('role') == 'doctor' ? 'selected' : '' }}>Doctor</option>
+                <option value="nurse" {{ old('role') == 'nurse' ? 'selected' : '' }}>Nurse</option>
+                <option value="receptionist" {{ old('role') == 'receptionist' ? 'selected' : '' }}>Receptionist</option>
+                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
             </select>
             @error('role') <div class="field-error">{{ $message }}</div> @enderror
         </div>
+        @else
+        <input type="hidden" name="role" value="patient">
+        @endif
 
         <div class="field">
             <label for="password">Password</label>

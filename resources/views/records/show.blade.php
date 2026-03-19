@@ -8,7 +8,7 @@
 <div class="main">
     <header class="topbar">
         <div class="topbar-title">{{ $record->title ?? 'Record #'.str_pad($record->id,4,'0',STR_PAD_LEFT) }}</div>
-        <div style="display:flex;gap:8px"><a href="{{ route('records.edit', $record) }}" class="btn btn-sm" style="background:var(--teal-lt);color:var(--teal)">Edit</a><a href="{{ route('records.index') }}" class="btn btn-sm" style="background:#f0f2f5;color:var(--muted)">← Back</a></div>
+        <div style="display:flex;gap:8px"><a href="{{ route('records.download', $record->id) }}" class="btn btn-sm" style="background:var(--green-lt);color:var(--green)">Download PDF</a><a href="{{ route('records.edit', $record) }}" class="btn btn-sm" style="background:var(--teal-lt);color:var(--teal)">Edit</a><a href="{{ route('records.index') }}" class="btn btn-sm" style="background:#f0f2f5;color:var(--muted)">← Back</a></div>
     </header>
     <main class="content">
         <div class="card">
