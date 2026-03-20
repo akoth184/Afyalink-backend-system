@@ -7,16 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --teal: #0d6e6e; --teal-mid: #0f8080; --teal-lt: #e6f4f4;
+            --teal: #2563eb; --teal-mid: #2563eb; --teal-lt: #e6f4f4;
             --green: #22a85a; --amber: #e07b1a; --red: #e53e3e;
             --ink: #1a1f2e; --muted: #5a6275; --border: #dde4e4;
-            --cream: #f7f5f1;
+            --cream: #f0f6ff;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); }
 
         /* Header */
-        header { background: white; border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        header { background: white;padding: 16px 28px;border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .logo { display: flex; align-items: center; gap: 10px; }
         .logo-mark { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
         .logo-mark svg { width: 18px; height: 18px; fill: white; }
@@ -94,7 +94,7 @@
         <h1 class="page-title">Admin Dashboard</h1>
         <p class="page-subtitle">System overview and management</p>
 
-        <div class="metrics-row">
+        <div class="metrics-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 28px 0;">
             <div class="stat-card">
                 <div class="stat-icon teal">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>

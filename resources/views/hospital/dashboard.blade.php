@@ -1,211 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hospital Dashboard — AfyaLink</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --teal: #0d6e6e; --teal-mid: #0f8080; --teal-lt: #e6f4f4;
-            --green: #22a85a; --amber: #e07b1a; --red: #e53e3e;
-            --ink: #1a1f2e; --muted: #5a6275; --border: #dde4e4;
-            --cream: #f7f5f1;
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); }
-
-        /* Header */
-        header { background: white; border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { display: flex; align-items: center; gap: 10px; }
-        .logo-mark { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .logo-mark svg { width: 18px; height: 18px; fill: white; }
-        .logo-text { font-weight: 700; font-size: 1.2rem; }
-        .logo-text span { color: var(--teal); }
-        .user-info { display: flex; align-items: center; gap: 16px; }
-        .facility-name { font-weight: 600; font-size: 0.9rem; color: var(--teal); }
-        .user-name { font-weight: 600; font-size: 0.9rem; }
-        .logout-btn { padding: 8px 16px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; transition: all .2s; }
-        .logout-btn:hover { border-color: var(--teal); color: var(--teal); }
-
-        /* Main */
-        .main { padding: 32px; max-width: 1200px; margin: 0 auto; }
-        .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-        .page-subtitle { color: var(--muted); margin-bottom: 32px; }
-
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
-        .stat-card { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
-        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-        .stat-icon.teal { background: var(--teal-lt); }
-        .stat-icon.green { background: #e6f8ee; }
-        .stat-icon.amber { background: #fef3e4; }
-        .stat-icon.red { background: #fff5f5; }
-        .stat-icon svg { width: 20px; height: 20px; }
-        .stat-value { font-size: 1.8rem; font-weight: 700; }
-        .stat-label { font-size: 0.85rem; color: var(--muted); }
-
-        /* Section */
-        .section { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .section-title { font-size: 1.1rem; font-weight: 600; }
-        .btn { padding: 10px 20px; background: var(--teal); color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn:hover { background: var(--teal-mid); }
-
-        /* Table */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        td { padding: 14px 16px; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
-        tr:last-child td { border-bottom: none; }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .status-pending { background: #fef3e4; color: #e07b1a; }
-        .status-accepted { background: #e6f8ee; color: #22a85a; }
-        .status-completed { background: var(--teal-lt); color: var(--teal); }
-
-        @media (max-width: 960px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } .main { padding: 20px; } }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hospital Dashboard — AfyaLink</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:'Inter',sans-serif;}
+.slink{display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;cursor:pointer;}
+.slink:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05);}
+.slink.on{color:white;background:rgba(59,130,246,.2);border-left-color:#3b82f6;}
+.section{display:none;}
+.section.active{display:block;}
+.badge-accepted{background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-pending{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-rejected{background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.card{background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;}
+</style>
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <div class="logo-mark">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-            </div>
-            <span class="logo-text">Afya<span>Link</span></span>
+<body style="background:#f0f6ff;">
+<div style="display:flex;min-height:100vh;">
+<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;">
+  <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
+    <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Hospital Portal</div>
+  </div>
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;">
+    <div style="width:34px;height:34px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">{{ strtoupper(substr(Auth::user()->first_name ?? 'H', 0, 1)) }}</div>
+    <div>
+      <div style="font-size:13px;color:white;font-weight:600;">{{ Auth::user()->first_name ?? 'Hospital' }}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">{{ optional($facility)->name ?? 'Hospital' }}</div>
+    </div>
+  </div>
+  <nav style="flex:1;padding:8px 0;">
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Main</div>
+    <div class="slink on" onclick="showSection('dashboard',this)">Dashboard</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Referrals</div>
+    <div class="slink" onclick="showSection('referrals',this)">Incoming Referrals</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Records</div>
+    <div class="slink" onclick="showSection('records',this)">Medical Records</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Tools</div>
+    <div class="slink" onclick="showSection('facilities',this)">Nearby Facilities</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Account</div>
+    <div class="slink" onclick="showSection('hours',this)">Working Hours</div>
+  </nav>
+  <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);">
+    <form method="POST" action="{{ route('logout') }}">@csrf
+      <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;font-family:inherit;">Sign Out</button>
+    </form>
+  </div>
+</aside>
+<div style="flex:1;overflow:auto;" id="main-content">
+<div id="sec-dashboard" class="section active">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:20px;font-weight:700;color:#0f172a;">Hospital Dashboard</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">{{ optional($facility)->name ?? 'Hospital' }} — {{ optional($facility)->county ?? '' }} County</div></div>
+  </div>
+  <div style="padding:24px 28px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_patients'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Referred in</div></div>
+      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Pending Referrals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['pending_referrals'] ?? 0 }}</div><div style="font-size:11px;color:#d97706;margin-top:5px;">Need action</div></div>
+      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Accepted</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['accepted_referrals'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">This week</div></div>
+      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Staff Members</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['staff_count'] ?? 1 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Active</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent Referrals</span><span style="font-size:12px;color:#2563eb;cursor:pointer;" onclick="showSection('referrals',document.querySelectorAll('.slink')[1])">View all →</span></div>
+      @forelse($referrals as $referral)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($referral->patient)->first_name ?? 'P',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</div><div style="font-size:11px;color:#94a3b8;">{{ optional($referral->referringFacility)->name ?? 'N/A' }} → {{ optional($referral->receivingFacility)->name ?? 'N/A' }}</div></div>
+        <span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span>
+      </div>
+      @empty
+      <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No referrals yet</div>
+      @endforelse
+    </div>
+  </div>
+</div>
+<div id="sec-referrals" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;">
+    <div style="font-size:20px;font-weight:700;color:#0f172a;">Incoming Referrals</div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Manage referrals sent to your facility</div>
+  </div>
+  <div style="padding:24px 28px;">
+    <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Referrals ({{ $referrals->count() }})</span>
+      </div>
+      @forelse($referrals as $referral)
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($referral->patient)->first_name ?? 'P',0,1)) }}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }} <span style="font-size:11px;color:#94a3b8;font-weight:400;">{{ optional($referral->patient)->patient_id ?? '' }}</span></div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{{ optional($referral->referringFacility)->name ?? 'N/A' }} → {{ optional($referral->receivingFacility)->name ?? 'N/A' }}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px;">{{ $referral->reason ?? 'No reason specified' }}</div>
+          <div style="font-size:11px;color:#94a3b8;">{{ $referral->created_at->format('d M Y') }}</div>
         </div>
-        <div class="user-info">
-            <span class="facility-name">{{ $facility->name }}</span>
-            @if($facility->hospital_id)
-            <span style="font-size: 0.8rem; color: var(--muted); background: var(--teal-lt); padding: 4px 8px; border-radius: 4px;">{{ $facility->hospital_id }}</span>
-            @endif
-            <span class="user-name">{{ $user->first_name }} {{ $user->last_name }}</span>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn">Logout</button>
-            </form>
+        <span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span>
+        @if(($referral->status ?? 'pending') === 'pending')
+        <div style="display:flex;gap:6px;">
+          <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
+            @csrf @method('PATCH')
+            <input type="hidden" name="status" value="accepted">
+            <button type="submit" style="background:#2563eb;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Accept</button>
+          </form>
+          <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
+            @csrf @method('PATCH')
+            <input type="hidden" name="status" value="rejected">
+            <button type="submit" style="background:white;color:#dc2626;border:1.5px solid #fca5a5;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button>
+          </form>
         </div>
-    </header>
-
-    <main class="main">
-        <h1 class="page-title">Hospital Dashboard</h1>
-        <p class="page-subtitle">{{ $facility->name }} — {{ $facility->county }} County</p>
-
-        <div class="metrics-row">
-            <div class="stat-card">
-                <div class="stat-icon teal">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_patients'] }}</div>
-                <div class="stat-label">Total Patients</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#22a85a" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['patients_today'] }}</div>
-                <div class="stat-label">Patients Today</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon amber">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#e07b1a" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_staff'] }}</div>
-                <div class="stat-label">Staff Members</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon red">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#e07b1a" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['pending_referrals'] }}</div>
-                <div class="stat-label">Pending Referrals</div>
-            </div>
+        @else
+        <span style="font-size:12px;color:#94a3b8;">No action needed</span>
+        @endif
+      </div>
+      @empty
+      <div style="text-align:center;padding:40px;color:#94a3b8;font-size:13px;">No referrals yet</div>
+      @endforelse
+    </div>
+  </div>
+</div>
+<div id="sec-records" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:20px;font-weight:700;color:#0f172a;">Medical Records</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">View and create patient medical records</div></div>
+  </div>
+  <div style="padding:24px 28px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Create New Record</div>
+      <form method="POST" action="{{ route('records.store') }}">
+        @csrf
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:5px;">Patient</label>
+          <select name="patient_id" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;">
+            <option value="">Select patient...</option>
+            @foreach(\App\Models\User::where('role','patient')->get() as $p)
+            <option value="{{ $p->id }}">{{ $p->first_name }} {{ $p->last_name }} — {{ $p->patient_id }}</option>
+            @endforeach
+          </select>
         </div>
-
-        <div class="metrics-row">
-            <div class="stat-card">
-                <div class="stat-icon teal">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_records'] }}</div>
-                <div class="stat-label">Medical Records</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon amber">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#e07b1a" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['outgoing_referrals'] }}</div>
-                <div class="stat-label">Outgoing Referrals</div>
-            </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:5px;">Visit Date</label>
+          <input type="date" name="visit_date" value="{{ date('Y-m-d') }}" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;">
         </div>
-
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">Quick Actions</h2>
-            </div>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <a href="{{ route('facilities.create') }}" class="btn">Add Staff</a>
-                <a href="{{ route('referrals.index') }}" style="background:#0d9488;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:inline-block">View All Referrals</a>
-                <a href="{{ route('records.create') }}" class="btn">New Medical Record</a>
-            </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:5px;">Diagnosis</label>
+          <textarea name="diagnosis" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px;" placeholder="Primary diagnosis and findings..."></textarea>
         </div>
-
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">Recent Referrals</h2>
-                <a href="{{ route('referrals.index') }}" class="btn" style="padding: 6px 14px; font-size: 0.8rem;">View All</a>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Referral #</th>
-                        <th>Patient</th>
-                        <th>From/To</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse(\App\Models\Referral::with(['patient', 'referringFacility', 'receivingFacility'])->latest()->take(5)->get() as $referral)
-                    <tr>
-                        <td style="padding:12px 16px;font-size:13px;font-weight:600">{{ $referral->referral_number ?? 'REF-'.str_pad($referral->id,5,'0',STR_PAD_LEFT) }}</td>
-                        <td style="padding:12px 16px;font-size:13px">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
-                        <td style="padding:12px 16px;font-size:13px">{{ optional($referral->referringFacility)->name ?? 'N/A' }} → {{ optional($referral->receivingFacility)->name ?? 'N/A' }}</td>
-                        <td style="padding:12px 16px">
-                            <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
-                                background:{{ $referral->status === 'accepted' ? '#d1fae5' : ($referral->status === 'rejected' ? '#fee2e2' : '#fef3c7') }};
-                                color:{{ $referral->status === 'accepted' ? '#065f46' : ($referral->status === 'rejected' ? '#991b1b' : '#92400e') }}">
-                                {{ ucfirst($referral->status ?? 'pending') }}
-                            </span>
-                        </td>
-                        <td style="padding:12px 16px;font-size:12px;color:#6b7280">{{ $referral->created_at->format('d M Y') }}</td>
-                        <td style="padding:12px 16px">
-                            @if($referral->status === 'pending')
-                            <div style="display:flex;gap:6px">
-                                <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="accepted">
-                                    <button type="submit" style="background:#0d9488;color:white;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Accept</button>
-                                </form>
-                                <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="rejected">
-                                    <button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reject</button>
-                                </form>
-                            </div>
-                            @else
-                            <span style="font-size:12px;color:#9ca3af">No action needed</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="6" style="text-align: center; color: var(--muted);">No referrals yet</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:5px;">Treatment Plan</label>
+          <textarea name="treatment_plan" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;resize:vertical;min-height:60px;" placeholder="Prescribed treatment..."></textarea>
         </div>
-    </main>
+        <input type="hidden" name="facility_id" value="{{ optional($facility)->id }}">
+        <input type="hidden" name="doctor_id" value="{{ Auth::id() }}">
+        <input type="hidden" name="chief_complaint" value="Hospital visit">
+        <button type="submit" style="width:100%;background:#2563eb;color:white;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save Medical Record</button>
+      </form>
+    </div>
+    <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Past Records</div>
+      <div style="text-align:center;padding:40px 20px;color:#94a3b8;">
+        <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:6px;">No records yet</div>
+        <div style="font-size:13px;">Records created will appear here</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="sec-facilities" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:20px;font-weight:700;color:#0f172a;">Nearby Facilities</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">Find hospitals near you for emergency referrals</div></div>
+    <button onclick="getHospitalLocation()" style="background:#2563eb;color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Use My Location</button>
+  </div>
+  <div style="padding:24px 28px;">
+    <div id="map" style="width:100%;height:300px;border-radius:10px;margin-bottom:16px;border:1px solid #e2e8f0;"></div>
+    <div style="background:#dbeafe;border-radius:10px;height:300px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;border:1px dashed #93c5fd;margin-bottom:16px;display:none;" id="map-placeholder">
+      <div style="font-size:14px;font-weight:600;color:#1d4ed8;">Google Maps</div>
+      <div style="font-size:12px;color:#3b82f6;">Click Use My Location to find nearby hospitals</div>
+    </div>
+    <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Active Facilities</div>
+      @foreach(\App\Models\Facility::where('is_active',true)->get() as $f)
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $f->name }}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{{ $f->county }} · {{ ucfirst($f->type) }} · {{ $f->phone ?? 'No phone' }}</div>
+        </div>
+        <span style="font-size:11px;color:#2563eb;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:600;">{{ ucfirst($f->type) }}</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+  <script>
+  function getHospitalLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(pos) {
+        document.getElementById('map-placeholder').style.display = 'none';
+        document.getElementById('map').style.display = 'block';
+      });
+    }
+  }
+  </script>
+</div>
+<div id="sec-hours" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:20px;font-weight:700;color:#0f172a;">Working Hours</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">View your facility operating hours</div></div>
+  </div>
+  <div style="padding:24px 28px;">
+    <div style="background:white;border-radius:10px;padding:24px;border:1px solid #e2e8f0;max-width:500px;">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Operating Hours</div>
+      @php
+        $hours = is_string(optional($facility)->working_hours)
+          ? json_decode($facility->working_hours, true)
+          : (optional($facility)->working_hours ?? []);
+      @endphp
+      @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $day)
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+        <span style="font-size:13px;font-weight:500;color:#0f172a;">{{ $day }}</span>
+        <span style="font-size:13px;color:#64748b;background:#f8fafc;padding:4px 12px;border-radius:6px;border:1px solid #e2e8f0;">{{ $hours[$day] ?? 'Not set' }}</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<script>
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
+  document.getElementById('sec-' + name).classList.add('active');
+  if(el) el.classList.add('on');
+}
+</script>
 </body>
 </html>

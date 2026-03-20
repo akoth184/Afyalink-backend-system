@@ -35,17 +35,17 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .sidebar-link:hover { background-color: rgba(255,255,255,0.1); }
-        .sidebar-link.active { background-color: rgba(255,255,255,0.15); border-left: 3px solid #5eead4; }
+        .sidebar-link.active { background-color: rgba(59,130,246,.2); border-left: 3px solid #3b82f6; }
         @media print { .no-print { display: none; } }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-[#f0f6ff]">
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-64 bg-teal-900 text-white flex flex-col no-print">
+        <aside class="w-64 bg-[#1e3a5f] text-white flex flex-col no-print">
             <div class="p-6 border-b border-teal-800">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center">
                         <i class="fas fa-heartbeat text-white text-lg"></i>
                     </div>
                     <div>
@@ -78,7 +78,7 @@
 
             <div class="p-4 border-t border-teal-800">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-teal-700 rounded-full flex items-center justify-center">
+                    <div class="w-10 h-10 bg-[#1e3a8a] rounded-full flex items-center justify-center">
                         <span class="text-sm font-semibold">{{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}</span>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -88,7 +88,7 @@
                 </div>
                 <form method="POST" action="{{ route('logout') }}" class="mt-3">
                     @csrf
-                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-teal-200 hover:text-white transition-colors">
+                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#bfdbfe] hover:text-white transition-colors">
                         <i class="fas fa-sign-out-alt"></i> Sign Out
                     </button>
                 </form>
@@ -184,7 +184,7 @@
                             <div id="searchResults" style="border:1px solid #e2e8f0;border-radius:8px;background:white;display:none;max-height:320px;overflow-y:auto;margin-bottom:16px;"></div>
 
                             <!-- Selected Patient Details -->
-                            <div id="selectedPatientDetails" class="hidden mt-4 p-4 bg-teal-50 rounded-lg border border-teal-200">
+                            <div id="selectedPatientDetails" class="hidden mt-4 p-4 bg-teal-50 rounded-lg border border-[#bfdbfe]">
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <h3 class="font-semibold text-gray-800" id="patientFullName"></h3>

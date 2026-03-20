@@ -97,18 +97,18 @@ class HospitalAuthController extends Controller
         }
 
         $stats = [
-            'total_patients' => \App\Models\Patient::where('facility_id', $facility->id)->count(),
-            'patients_today' => \App\Models\Patient::where('facility_id', $facility->id)
-                ->whereDate('created_at', today())->count(),
-            'total_staff' => User::where('facility_id', $facility->id)->count(),
-            'pending_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)
-                ->where('status', 'pending')->count(),
-            'total_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->count(),
-            'outgoing_referrals' => \App\Models\Referral::where('referring_facility_id', $facility->id)->count(),
-            'total_records' => \App\Models\MedicalRecord::where('facility_id', $facility->id)->count(),
+            'total_patients' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->distinct('patient_id')->count(),
+            'pending_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->where('status', 'pending')->count(),
+            'accepted_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->where('status', 'accepted')->count(),
+            'staff_count' => \App\Models\User::where('facility_id', $facility->id)->count(),
         ];
 
-        return view('hospital.dashboard', compact('stats', 'user', 'facility'));
+        $referrals = \App\Models\Referral::where('receiving_facility_id', $facility->id)
+            ->with(['patient', 'referringFacility', 'receivingFacility'])
+            ->latest()
+            ->get();
+
+        return view('hospital.dashboard', compact('stats', 'user', 'facility', 'referrals'));
     }
 
     /**
