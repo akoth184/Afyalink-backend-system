@@ -85,12 +85,18 @@ class DoctorAuthController extends Controller
         $facilityId = $user->facility_id;
 
         $stats = [
-            'patients_today' => \App\Models\Patient::where('facility_id', $facilityId)
+            'patients_today' => \App\Models\User::where('role', 'patient')
                 ->whereDate('created_at', today())->count(),
-            'total_patients' => \App\Models\Patient::where('facility_id', $facilityId)->count(),
-            'pending_referrals' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
-                ->where('status', 'pending')->count(),
+            'total_patients' => \App\Models\User::where('role', 'patient')->count(),
+            'pending_referrals' => \App\Models\Referral::where('status', 'pending')
+                ->where('referred_by', $user->id)->count(),
+            'medical_records' => \App\Models\MedicalRecord::where('doctor_id', $user->id)->count(),
             'total_records' => \App\Models\MedicalRecord::where('doctor_id', $user->id)->count(),
+            'total_referrals' => \App\Models\Referral::where('referred_by', $user->id)->count(),
+            'accepted_referrals' => \App\Models\Referral::where('referred_by', $user->id)
+                ->where('status', 'accepted')->count(),
+            'rejected_referrals' => \App\Models\Referral::where('referred_by', $user->id)
+                ->where('status', 'rejected')->count(),
         ];
 
         // Get recent patients at this facility
