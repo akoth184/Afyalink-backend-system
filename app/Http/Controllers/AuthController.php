@@ -12,6 +12,9 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        if (Auth::check()) {
+            return redirect()->to($this->redirectBasedOnRole(Auth::user()->role));
+        }
         return view('auth.login');
     }
 
@@ -22,16 +25,20 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // Clear any existing session first
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
-            // Redirect based on user role
-            return redirect()->intended($this->redirectBasedOnRole(Auth::user()->role));
+            $user = Auth::user();
+            return redirect()->to($this->redirectBasedOnRole($user->role));
         }
 
-        throw ValidationException::withMessages([
-            'email' => __('The provided credentials do not match our records.'),
-        ]);
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->withInput($request->only('email'));
     }
 
     /**
@@ -50,6 +57,9 @@ class AuthController extends Controller
 
     public function showRegister()
     {
+        if (Auth::check()) {
+            return redirect()->to($this->redirectBasedOnRole(Auth::user()->role));
+        }
         return view('auth.register');
     }
 
@@ -169,7 +179,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+        return redirect()->route('home');
     }
 
     public function me(Request $request)

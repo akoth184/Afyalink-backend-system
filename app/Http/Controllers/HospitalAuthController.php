@@ -109,4 +109,15 @@ class HospitalAuthController extends Controller
 
         return view('hospital.dashboard', compact('stats', 'user', 'facility'));
     }
+
+    /**
+     * Handle hospital logout
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('hospital.login');
+    }
 }

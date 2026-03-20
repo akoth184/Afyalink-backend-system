@@ -133,7 +133,7 @@
             transition:all .18s;
         }
         .hospital-card:last-child{border-bottom:none}
-        .hospital-card:hover{background:var(--blue-50)}
+        .hospital-card:hover{background:var(--blue-50);box-shadow:0 4px 16px rgba(37,99,235,0.12);transform:translateX(4px)}
 
         .hospital-icon{
             width:56px;height:56px;border-radius:12px;
@@ -262,7 +262,7 @@
                     </div>
                 @else
                     @foreach($facilitiesWithDistance as $facility)
-                        <div class="hospital-card">
+                        <div class="hospital-card" onclick="focusHospital({{ $loop->index }})" style="cursor:pointer">
                             <div class="hospital-icon">
                                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                             </div>
@@ -502,6 +502,26 @@
                     }
                 })
                 .catch(err => console.error('Error fetching hospitals:', err));
+        }
+
+        // Focus on a hospital (center map and show info)
+        function focusHospital(index) {
+            const hospital = hospitals[index];
+            if (!hospital || !hospital.latitude || !hospital.longitude) {
+                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            if (map) {
+                map.setCenter({
+                    lat: parseFloat(hospital.latitude),
+                    lng: parseFloat(hospital.longitude)
+                });
+                map.setZoom(15);
+                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+                if (markers[index]) {
+                    google.maps.event.trigger(markers[index], 'click');
+                }
+            }
         }
 
         // Initialize on load
