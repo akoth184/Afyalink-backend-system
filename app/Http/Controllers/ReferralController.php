@@ -209,22 +209,16 @@ class ReferralController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $referral = Referral::findOrFail($id);
+        $referral = \App\Models\Referral::findOrFail($id);
         $user = Auth::user();
 
-        // Check authorization - only the receiving facility or admins can update status
-        if ($user->role !== 'admin') {
-            if (!in_array($user->role, ['hospital', 'facility']) ||
-                $user->facility_id !== $referral->receiving_facility_id) {
-                abort(403, 'You are not authorized to update this referral status.');
-            }
-        }
-
         $request->validate([
-            'status' => 'required|in:pending,accepted,rejected,completed',
+            'status' => 'required|in:pending,accepted,rejected,completed'
         ]);
 
-        $referral->update(['status' => $request->status]);
-        return redirect()->back()->with('success', 'Referral status updated.');
+        $referral->status = $request->input('status');
+        $referral->save();
+
+        return back()->with('success', 'Referral ' . $request->input('status') . ' successfully');
     }
 }

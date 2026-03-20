@@ -79,7 +79,7 @@ class AdminController extends Controller
         $user = Auth::user();
 
         $stats = [
-            'total_patients' => Patient::count(),
+            'total_patients' => \App\Models\User::where('role', 'patient')->count(),
             'total_doctors' => User::where('role', 'doctor')->count(),
             'total_hospitals' => Facility::count(),
             'total_referrals' => Referral::count(),
@@ -98,6 +98,9 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Get pending facilities
+        $pendingFacilities = \App\Models\Facility::where('is_active', false)->get();
+
         $recent_patients = Patient::latest()->take(5)->get();
         $recent_referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
             ->latest()->take(5)->get();
@@ -107,7 +110,8 @@ class AdminController extends Controller
             'user',
             'recent_patients',
             'recent_referrals',
-            'pendingDoctorApplications'
+            'pendingDoctorApplications',
+            'pendingFacilities'
         ));
     }
 

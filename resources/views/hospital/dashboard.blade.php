@@ -144,9 +144,8 @@
                 <h2 class="section-title">Quick Actions</h2>
             </div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <a href="{{ route('patients.create') }}" class="btn">Register Patient</a>
                 <a href="{{ route('facilities.create') }}" class="btn">Add Staff</a>
-                <a href="{{ route('referrals.create') }}" class="btn">Send Referral</a>
+                <a href="{{ route('referrals.index') }}" style="background:#0d9488;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:inline-block">View All Referrals</a>
                 <a href="{{ route('records.create') }}" class="btn">New Medical Record</a>
             </div>
         </div>
@@ -167,20 +166,42 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse(\App\Models\Referral::with(['patient', 'fromFacility', 'toFacility'])->latest()->take(5)->get() as $referral)
+                    @forelse(\App\Models\Referral::with(['patient', 'referringFacility', 'receivingFacility'])->latest()->take(5)->get() as $referral)
                     <tr>
-                        <td>REF-{{ str_pad($referral->id, 5, '0', STR_PAD_LEFT) }}</td>
-                        <td>{{ $referral->patient->first_name }} {{ $referral->patient->last_name }}</td>
-                        <td>{{ $referral->fromFacility->name ?? 'N/A' }} → {{ $referral->toFacility->name ?? 'N/A' }}</td>
-                        <td>
-                            <span class="status-badge status-{{ $referral->status }}">
-                                {{ ucfirst($referral->status) }}
+                        <td style="padding:12px 16px;font-size:13px;font-weight:600">{{ $referral->referral_number ?? 'REF-'.str_pad($referral->id,5,'0',STR_PAD_LEFT) }}</td>
+                        <td style="padding:12px 16px;font-size:13px">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
+                        <td style="padding:12px 16px;font-size:13px">{{ optional($referral->referringFacility)->name ?? 'N/A' }} → {{ optional($referral->receivingFacility)->name ?? 'N/A' }}</td>
+                        <td style="padding:12px 16px">
+                            <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;
+                                background:{{ $referral->status === 'accepted' ? '#d1fae5' : ($referral->status === 'rejected' ? '#fee2e2' : '#fef3c7') }};
+                                color:{{ $referral->status === 'accepted' ? '#065f46' : ($referral->status === 'rejected' ? '#991b1b' : '#92400e') }}">
+                                {{ ucfirst($referral->status ?? 'pending') }}
                             </span>
                         </td>
-                        <td>{{ $referral->created_at->format('M d, Y') }}</td>
+                        <td style="padding:12px 16px;font-size:12px;color:#6b7280">{{ $referral->created_at->format('d M Y') }}</td>
+                        <td style="padding:12px 16px">
+                            @if($referral->status === 'pending')
+                            <div style="display:flex;gap:6px">
+                                <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="accepted">
+                                    <button type="submit" style="background:#0d9488;color:white;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Accept</button>
+                                </form>
+                                <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="rejected">
+                                    <button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">Reject</button>
+                                </form>
+                            </div>
+                            @else
+                            <span style="font-size:12px;color:#9ca3af">No action needed</span>
+                            @endif
+                        </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" style="text-align: center; color: var(--muted);">No referrals yet</td></tr>
+                    <tr><td colspan="6" style="text-align: center; color: var(--muted);">No referrals yet</td></tr>
                     @endforelse
                 </tbody>
             </table>

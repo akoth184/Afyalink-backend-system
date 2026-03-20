@@ -217,6 +217,33 @@
             @endif
         </div>
 
+        <div class="card" style="margin-top:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e7eb">
+                <h3 style="font-size:15px;font-weight:600">Pending Hospital Applications</h3>
+                <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">{{ $pendingFacilities->count() }} Pending</span>
+            </div>
+            @forelse($pendingFacilities as $facility)
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #f3f4f6">
+                <div>
+                    <div style="font-weight:600;font-size:14px">{{ $facility->name }}</div>
+                    <div style="font-size:12px;color:#6b7280">{{ $facility->county }} · {{ ucfirst($facility->type) }} · {{ $facility->email }}</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <form method="POST" action="{{ route('admin.facility.approve', $facility->id) }}" style="display:inline">
+                        @csrf
+                        <button type="submit" style="background:#0d9488;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Approve</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.facility.reject', $facility->id) }}" style="display:inline">
+                        @csrf
+                        <button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Reject</button>
+                    </form>
+                </div>
+            </div>
+            @empty
+            <div style="padding:20px;text-align:center;color:#9ca3af;font-size:14px">No pending hospital applications</div>
+            @endforelse
+        </div>
+
         <div class="section">
             <div class="section-header">
                 <h2 class="section-title">Recent Patients</h2>
@@ -270,7 +297,7 @@
                     @forelse($recent_referrals as $referral)
                     <tr>
                         <td>REF-{{ str_pad($referral->id, 5, '0', STR_PAD_LEFT) }}</td>
-                        <td>{{ $referral->patient->first_name }} {{ $referral->patient->last_name }}</td>
+                        <td>{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
                         <td>{{ $referral->fromFacility->name ?? 'N/A' }}</td>
                         <td>{{ $referral->toFacility->name ?? 'N/A' }}</td>
                         <td>

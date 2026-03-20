@@ -23,7 +23,7 @@ class Referral extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(\App\Models\User::class, 'patient_id');
     }
 
     // FIX: use actual DB column names
@@ -35,6 +35,16 @@ class Referral extends Model
     public function toFacility()
     {
         return $this->belongsTo(Facility::class, 'receiving_facility_id');
+    }
+
+    public function referringFacility()
+    {
+        return $this->belongsTo(\App\Models\Facility::class, 'referring_facility_id');
+    }
+
+    public function receivingFacility()
+    {
+        return $this->belongsTo(\App\Models\Facility::class, 'receiving_facility_id');
     }
 
     public function referredBy()

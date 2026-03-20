@@ -103,6 +103,7 @@ class HospitalAuthController extends Controller
             'total_staff' => User::where('facility_id', $facility->id)->count(),
             'pending_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)
                 ->where('status', 'pending')->count(),
+            'total_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->count(),
             'outgoing_referrals' => \App\Models\Referral::where('referring_facility_id', $facility->id)->count(),
             'total_records' => \App\Models\MedicalRecord::where('facility_id', $facility->id)->count(),
         ];

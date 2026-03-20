@@ -23,25 +23,10 @@ class PatientController extends Controller
     public function myReferrals()
     {
         $user = Auth::user();
-
-        // Only patients can access this page
-        if ($user->role !== 'patient') {
-            abort(403, 'This page is only for patients.');
-        }
-
-        // Find patient record associated with this user
-        $patient = Patient::where('email', $user->email)->first();
-
-        if (!$patient) {
-            return view('patient.referrals', ['referrals' => collect()]);
-        }
-
-        // Get referrals for this patient
-        $referrals = Referral::with(['patient', 'fromFacility', 'toFacility', 'referredBy'])
-            ->where('patient_id', $patient->id)
+        $referrals = \App\Models\Referral::where('patient_id', $user->id)
+            ->with(['referringFacility', 'receivingFacility'])
             ->latest()
             ->get();
-
         return view('patient.referrals', compact('referrals'));
     }
 
