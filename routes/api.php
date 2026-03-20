@@ -18,12 +18,24 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ── PATIENTS ──
     // Patients can only be managed by doctors, nurses, admins
-    Route::apiResource('patients', PatientController::class);
+    Route::apiResource('patients', PatientController::class)->names([
+        'index' => 'api.patients.index',
+        'store' => 'api.patients.store',
+        'show' => 'api.patients.show',
+        'update' => 'api.patients.update',
+        'destroy' => 'api.patients.destroy',
+    ]);
     Route::get('/patients/{id}/records', [PatientController::class, 'records']);
 
     // ── REFERRALS ──
     // All authenticated users can access referrals (authorization handled in controller)
-    Route::apiResource('referrals', ReferralController::class);
+    Route::apiResource('referrals', ReferralController::class)->names([
+        'index' => 'api.referrals.index',
+        'store' => 'api.referrals.store',
+        'show' => 'api.referrals.show',
+        'update' => 'api.referrals.update',
+        'destroy' => 'api.referrals.destroy',
+    ]);
     Route::patch('/referrals/{id}/status', [ReferralController::class, 'updateStatus']);
 
     // ── MEDICAL RECORDS ──
@@ -32,5 +44,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ── FACILITIES ──
     // Only admins can manage facilities via API
-    Route::apiResource('facilities', FacilityController::class);
+    Route::apiResource('facilities', FacilityController::class)->names([
+        'index' => 'api.facilities.index',
+        'store' => 'api.facilities.store',
+        'show' => 'api.facilities.show',
+        'update' => 'api.facilities.update',
+        'destroy' => 'api.facilities.destroy',
+    ]);
 });
