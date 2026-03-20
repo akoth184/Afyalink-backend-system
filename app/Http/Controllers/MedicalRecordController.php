@@ -26,58 +26,20 @@ class MedicalRecordController extends Controller
      * - Doctors: See records from their facility
      * - Admins: See all records
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-
-        // Patients can only see their own records
+        $query = $request->get('search');
         if ($user->role === 'patient') {
-            // Find patient record associated with this user
-            $patient = Patient::where('email', $user->email)->first();
-
-            if (!$patient) {
-                return view('records.index', ['records' => collect()]);
-            }
-
-            $records = MedicalRecord::with(['patient', 'facility', 'doctor'])
-                ->where('patient_id', $patient->id)
-                ->latest()
-                ->paginate(15);
-
-            return view('records.index', compact('records'));
+            $records = \App\Models\MedicalRecord::where('patient_id', $user->id)
+                ->latest()->paginate(10);
+        } elseif ($user->role === 'doctor' || $user->role === 'nurse') {
+            $records = \App\Models\MedicalRecord::where('doctor_id', $user->id)
+                ->latest()->paginate(10);
+        } else {
+            $records = \App\Models\MedicalRecord::latest()->paginate(10);
         }
-
-        // Doctors see records from their facility
-        if ($user->role === 'doctor' && $user->facility_id) {
-            $records = MedicalRecord::with(['patient', 'facility', 'doctor'])
-                ->where('facility_id', $user->facility_id)
-                ->latest()
-                ->paginate(15);
-
-            return view('records.index', compact('records'));
-        }
-
-        // Hospital/facility admins see all records for their facility
-        if (in_array($user->role, ['hospital', 'facility']) && $user->facility_id) {
-            $records = MedicalRecord::with(['patient', 'facility', 'doctor'])
-                ->where('facility_id', $user->facility_id)
-                ->latest()
-                ->paginate(15);
-
-            return view('records.index', compact('records'));
-        }
-
-        // Admins see all records
-        if ($user->role === 'admin') {
-            $records = MedicalRecord::with(['patient', 'facility', 'doctor'])
-                ->latest()
-                ->paginate(15);
-
-            return view('records.index', compact('records'));
-        }
-
-        // Fallback - no records
-        return view('records.index', ['records' => collect()]);
+        return view('records.index', compact('records'));
     }
 
     /**

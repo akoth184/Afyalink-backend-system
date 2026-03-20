@@ -38,7 +38,7 @@ class ReferralController extends Controller
             $referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
                 ->where('patient_id', $patient->id)
                 ->latest()
-                ->paginate(15);
+                ->paginate(10);
 
             return view('referrals.index', compact('referrals'));
         }
@@ -51,7 +51,7 @@ class ReferralController extends Controller
                         ->orWhere('receiving_facility_id', $user->facility_id);
                 })
                 ->latest()
-                ->paginate(15);
+                ->paginate(10);
 
             return view('referrals.index', compact('referrals'));
         }
@@ -64,7 +64,7 @@ class ReferralController extends Controller
                         ->orWhere('receiving_facility_id', $user->facility_id);
                 })
                 ->latest()
-                ->paginate(15);
+                ->paginate(10);
 
             return view('referrals.index', compact('referrals'));
         }
@@ -73,7 +73,7 @@ class ReferralController extends Controller
         if ($user->role === 'admin') {
             $referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
                 ->latest()
-                ->paginate(15);
+                ->paginate(10);
 
             return view('referrals.index', compact('referrals'));
         }
@@ -124,13 +124,10 @@ class ReferralController extends Controller
      */
     public function create()
     {
-        // Check if user can create referrals
-        if (!Gate::allows('create-referrals')) {
-            abort(403, 'Only doctors can create referrals.');
-        }
-
-        $patients   = Patient::orderBy('first_name')->get();
-        $facilities = Facility::orderBy('name')->get();
+        $patients = \App\Models\User::where('role', 'patient')
+            ->orderBy('first_name')->get();
+        $facilities = \App\Models\Facility::where('is_active', true)
+            ->orderBy('name')->get();
         return view('referrals.create', compact('patients', 'facilities'));
     }
 
@@ -145,7 +142,7 @@ class ReferralController extends Controller
         }
 
         $data = $request->validate([
-            'patient_id'            => 'required|exists:patients,id',
+            'patient_id'            => 'required|exists:users,id',
             'referring_facility_id' => 'required|exists:facilities,id',
             'receiving_facility_id' => 'required|exists:facilities,id|different:referring_facility_id',
             'reason'               => 'required|string',
@@ -181,7 +178,7 @@ class ReferralController extends Controller
         }
 
         $data = $request->validate([
-            'patient_id'            => 'required|exists:patients,id',
+            'patient_id'            => 'required|exists:users',
             'referring_facility_id' => 'required|exists:facilities,id',
             'receiving_facility_id' => 'required|exists:facilities,id',
             'reason'               => 'required|string',

@@ -167,14 +167,21 @@
                             <h2 class="text-lg font-semibold text-gray-800 mb-4">
                                 <i class="fas fa-search text-teal-600 mr-2"></i>Quick Patient Search
                             </h2>
-                            <div class="relative">
-                                <input type="text" id="patientSearch"
-                                    placeholder="Search by name, patient ID, phone, or email..."
-                                    class="input-field pl-12"
-                                    autocomplete="off">
-                                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                                <div id="patientResults" class="hidden absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto"></div>
+                            <div style="display:flex;gap:8px;margin-bottom:8px;">
+                                <input
+                                    type="text"
+                                    id="searchInput"
+                                    placeholder="Search by name or Patient ID..."
+                                    style="flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
+                                    onkeypress="if(event.key==='Enter') doSearch()"
+                                >
+                                <button
+                                    onclick="window.doSearch()"
+                                    style="background:#0d9488;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+                                    Search
+                                </button>
                             </div>
+                            <div id="searchResults" style="border:1px solid #e2e8f0;border-radius:8px;background:white;display:none;max-height:320px;overflow-y:auto;margin-bottom:16px;"></div>
 
                             <!-- Selected Patient Details -->
                             <div id="selectedPatientDetails" class="hidden mt-4 p-4 bg-teal-50 rounded-lg border border-teal-200">
@@ -253,49 +260,17 @@
                                 </h2>
                             </div>
                             <div class="p-6">
-                                @if(count($nearbyHospitals) > 0)
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    @foreach($nearbyHospitals as $hospital)
-                                    <div class="p-4 border border-gray-200 rounded-lg hover:border-teal-300 transition-colors">
-                                        <div class="flex items-start justify-between">
-                                            <div>
-                                                <h3 class="font-semibold text-gray-800">{{ $hospital['name'] }}</h3>
-                                                <p class="text-sm text-gray-500 capitalize">{{ $hospital['type'] }}</p>
-                                                <p class="text-sm text-gray-500">{{ $hospital['county'] }}</p>
-                                            </div>
-                                            <span class="px-2 py-1 bg-teal-50 text-teal-700 text-xs font-medium rounded">
-                                                {{ $hospital['distance'] }} km
-                                            </span>
+                                @forelse($nearbyHospitals as $hospital)
+                                    <div class="flex items-center justify-between p-3 border-b last:border-0 hover:bg-gray-50">
+                                        <div>
+                                            <div class="font-medium text-sm">{{ $hospital->name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $hospital->county }} · {{ ucfirst($hospital->type) }}</div>
                                         </div>
-                                        <div class="mt-3 flex items-center gap-4 text-sm text-gray-500">
-                                            @if($hospital['phone'])
-                                            <span><i class="fas fa-phone mr-1"></i>{{ $hospital['phone'] }}</span>
-                                            @endif
-                                        </div>
-                                        @if(isset($hospital['working_hours']) && $hospital['working_hours'])
-                                        <div class="mt-2 text-xs text-gray-500">
-                                            @php
-                                                $hours = is_array($hospital['working_hours']) ? $hospital['working_hours'] : json_decode($hospital['working_hours'], true);
-                                            @endphp
-                                            @if(is_array($hours) && count($hours) > 0)
-                                                <div class="flex flex-wrap gap-1 mt-1">
-                                                    @foreach($hours as $day => $time)
-                                                    <span class="px-2 py-0.5 bg-teal-50 text-teal-700 text-xs rounded">{{ $day }}: {{ $time }}</span>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        </div>
-                                        @endif
+                                        <span class="text-xs text-teal-600 font-medium bg-teal-50 px-2 py-1 rounded-full">Active</span>
                                     </div>
-                                    @endforeach
-                                </div>
-                                @else
-                                <div class="text-center py-8 text-gray-500">
-                                    <i class="fas fa-map-marker-alt text-4xl mb-3 text-gray-300"></i>
-                                    <p>No nearby hospitals found</p>
-                                    <p class="text-sm">Configure your facility location to see nearby hospitals</p>
-                                </div>
-                                @endif
+                                @empty
+                                    <div class="p-4 text-center text-gray-500 text-sm">No facilities found</div>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -308,10 +283,7 @@
                                 <i class="fas fa-bolt text-teal-600 mr-2"></i>Quick Actions
                             </h2>
                             <div class="space-y-3">
-                                <a href="{{ route('patients.create') }}" class="flex items-center gap-3 p-3 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100 transition-colors">
-                                    <i class="fas fa-user-plus w-5"></i>
-                                    <span class="font-medium">Register Patient</span>
-                                </a>
+
                                 <button onclick="openModal('newRecordModal')" class="w-full flex items-center gap-3 p-3 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100 transition-colors">
                                     <i class="fas fa-file-medical w-5"></i>
                                     <span class="font-medium">New Medical Record</span>
@@ -444,48 +416,22 @@
         </div>
     </div>
 
-    <script>
-        // Modal functions
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+
+
+
         }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
 
-        // Close modal when clicking outside
-        document.getElementById('newRecordModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal('newRecordModal');
-            }
-        });
 
-        // Patient search functionality - Main search
-        const patientSearch = document.getElementById('patientSearch');
-        const patientResults = document.getElementById('patientResults');
-        const selectedPatientDetails = document.getElementById('selectedPatientDetails');
-        let searchTimeout;
 
-        patientSearch.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value;
 
-            if (query.length < 2) {
-                patientResults.classList.add('hidden');
-                return;
+
+
+
+
             }
 
-            searchTimeout = setTimeout(() => {
-                fetch('/patients/search?q=' + encodeURIComponent(query))
-                    .then(response => response.json())
-                    .then(patients => {
-                        if (patients.length > 0) {
-                            patientResults.innerHTML = patients.map(p => `
-                                <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
-                                    onclick="selectPatient(${p.id}, '${p.first_name} ${p.last_name}', '${p.patient_number || p.patient_id}', '${p.phone || ''}', '${p.email || ''}', '${p.date_of_birth || ''}', '${p.gender || ''}', '${p.blood_group || ''}', ${p.medical_records_count || 0})">
+
                                     <div class="font-medium text-gray-800">${p.first_name} ${p.last_name}</div>
                                     <div class="text-sm text-gray-500">${p.patient_number || p.patient_id} • ${p.phone || 'No phone'}</div>
                                 </div>
@@ -499,7 +445,7 @@
             }, 300);
         });
 
-        function selectPatient(id, name, patientNum, phone, email, dob, gender, bloodGroup, recordsCount) {
+
             document.getElementById('selectedPatientId').value = id;
             document.getElementById('patientFullName').textContent = name;
             document.getElementById('patientId').textContent = patientNum;
@@ -574,6 +520,115 @@
                 modalPatientResults.classList.add('hidden');
             }
         });
-    </script>
+document.getElementById('searchInput').addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    const results = document.getElementById('searchResults');
+    if (query.length === 0) {
+        results.classList.add('hidden');
+        return;
+    }
+    fetch(`/patients/search?query=${query}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!results) return;
+        results.classList.remove('hidden');
+        if (!data.length) {
+            results.innerHTML = '<div class="p-3 text-gray-500 text-sm">No patients found</div>';
+            return;
+        }
+        results.innerHTML = data.map(p => `
+            <div class="p-3 border-b hover:bg-gray-50 cursor-pointer flex justify-between items-center">
+                <div>
+                    <div class="font-medium text-sm">${p.first_name} ${p.last_name}</div>
+                    <div class="text-xs text-gray-500">${p.patient_id ?? 'No ID'}</div>
+                </div>
+                <a href="/patients/${p.id}" class="text-teal-600 text-xs font-medium">View →</a>
+            </div>
+        `).join('');
+    });
+});
+
+function doSearch() {
+    var input = document.getElementById('searchInput');
+    var results = document.getElementById('searchResults');
+    if (!input || !results) {
+        alert('Search elements not found');
+        return;
+    }
+    var query = input.value.trim();
+    if (!query) {
+        results.style.display = 'none';
+        return;
+    }
+    results.style.display = 'block';
+    results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;font-size:13px;">Searching...</div>';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/patients/search?query=' + encodeURIComponent(query), true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var data = JSON.parse(xhr.responseText);
+            if (!data || data.length === 0) {
+                results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;font-size:13px;">No patients found</div>';
+                return;
+            }
+            var html = '';
+            for (var i = 0; i < data.length; i++) {
+                var p = data[i];
+                html += '<div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">';
+                html += '<div>';
+                html += '<div style="font-weight:600;font-size:14px;color:#0f172a;">' + p.first_name + ' ' + p.last_name + '</div>';
+<script>
+window.doSearch = function() {
+    var input = document.getElementById('searchInput');
+    var results = document.getElementById('searchResults');
+    if (!input || !results) return;
+    var query = input.value.trim();
+    if (!query) {
+        results.style.display = 'none';
+        return;
+    }
+    results.style.display = 'block';
+    results.innerHTML = '<div style="padding:12px;text-align:center;color:#6b7280;font-size:14px;">Searching...</div>';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/patients/search?query=' + encodeURIComponent(query), true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            try {
+                var data = JSON.parse(xhr.responseText);
+                if (!data || data.length === 0) {
+                    results.innerHTML = '<div style="padding:12px;text-align:center;color:#6b7280;font-size:14px;">No patients found</div>';
+                    return;
+                }
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    var p = data[i];
+                    html += '<div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">';
+                    html += '<div>';
+                    html += '<div style="font-weight:600;font-size:14px;color:#0f172a;">' + p.first_name + ' ' + p.last_name + '</div>';
+                    html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">' + (p.patient_id || 'No ID') + ' &middot; ' + p.email + '</div>';
+                    html += '</div>';
+                    html += '<a href="/patients/' + p.id + '" style="background:#0d9488;color:white;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">View</a>';
+                    html += '</div>';
+                }
+                results.innerHTML = html;
+            } catch(e) {
+                results.innerHTML = '<div style="padding:12px;text-align:center;color:#e53e3e;font-size:14px;">Error: ' + e.message + '</div>';
+            }
+        } else {
+            results.innerHTML = '<div style="padding:12px;text-align:center;color:#e53e3e;font-size:14px;">Error ' + xhr.status + ' - please try again</div>';
+        }
+    };
+    xhr.onerror = function() {
+        results.innerHTML = '<div style="padding:12px;text-align:center;color:#e53e3e;font-size:14px;">Network error - please try again</div>';
+    };
+    xhr.send();
+};
+</script>
 </body>
 </html>

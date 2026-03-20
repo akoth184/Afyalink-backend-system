@@ -12,7 +12,7 @@
     <main class="content">
         @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         <div class="card">
-            <div class="card-header"><span class="card-title">All Records ({{ $records->total() }})</span></div>
+            <div class="card-header"><span class="card-title">All Records ({{ $records->count() }})</span></div>
             @if($records->isEmpty())
                 <div class="empty-state"><svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg><h3>No records yet</h3><p>Add the first medical record.</p><a href="{{ route('records.create') }}" class="btn btn-primary btn-sm">Add Record</a></div>
             @else

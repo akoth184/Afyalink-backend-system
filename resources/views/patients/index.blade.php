@@ -113,9 +113,7 @@
 <div class="main">
     <header class="topbar">
         <div class="topbar-title">Patients</div>
-        <a href="{{ route('patients.create') }}" class="btn btn-primary btn-sm">
-            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Patient
-        </a>
+
     </header>
     <main class="content">
         @if(session('success'))
@@ -124,7 +122,7 @@
 
         <div class="card">
             <div class="card-header">
-                <span class="card-title">All Patients ({{ $patients->total() }})</span>
+                <span class="card-title">All Patients ({{ $patients->total() ?? $patients->count() }})</span>
                 <form method="GET" action="{{ route('patients.index') }}" style="display:flex;gap:8px">
                     <input type="text" name="search" placeholder="Search name, email..." value="{{ request('search') }}" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;outline:none">
                     <button type="submit" class="btn btn-sm" style="background:var(--teal-lt);color:var(--teal)">Search</button>
@@ -133,9 +131,8 @@
             @if($patients->isEmpty())
                 <div class="empty-state">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                    <h3>No patients yet</h3>
-                    <p>Register your first patient to get started.</p>
-                    <a href="{{ route('patients.create') }}" class="btn btn-primary btn-sm">Register Patient</a>
+                    <h3>No patients found</h3>
+                    <p>No patients match your search.</p>
                 </div>
             @else
                 <table class="data-table">

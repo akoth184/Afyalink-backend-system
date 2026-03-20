@@ -98,6 +98,15 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+// Patient Search API (for doctor dashboard)
+Route::get('/patients/search', [PatientController::class, 'search'])
+    ->name('patients.search')
+    ->middleware('auth');
+
+Route::get('/patient/search', [PatientController::class, 'search'])
+    ->name('patient.search')
+    ->middleware('auth');
+
 // Protected routes (must be logged in)
 Route::middleware('auth')->group(function () {
 
@@ -182,8 +191,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/records/{record}', [MedicalRecordController::class, 'show'])->name('records.show');
     Route::get('/records/{id}/download', [MedicalRecordController::class, 'downloadPDF'])->name('records.download');
 
-    // Patient Search API (for doctor dashboard)
-    Route::get('/patients/search', [PatientController::class, 'search'])->name('patients.search')->middleware('auth');
+
 
     // Facilities
     Route::resource('facilities', FacilityController::class);

@@ -144,7 +144,14 @@ class DoctorAuthController extends Controller
             })->sortBy('distance')->take(10)->values();
         }
 
-        return view('doctor.dashboard', compact('stats', 'user', 'recentPatients', 'recentRecords', 'facilityId', 'nearbyHospitals'));
+        $patients = \App\Models\User::where('role', 'patient')
+            ->orderBy('first_name')->get();
+        $facilities = \App\Models\Facility::where('is_active', true)
+            ->orderBy('name')->get();
+        $nearbyHospitals = \App\Models\Facility::where('is_active', true)
+            ->take(6)->get();
+
+        return view('doctor.dashboard', compact('stats', 'user', 'recentPatients', 'recentRecords', 'facilityId', 'nearbyHospitals', 'patients', 'facilities'));
     }
 
     /**

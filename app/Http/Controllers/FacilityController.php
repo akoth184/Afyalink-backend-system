@@ -9,15 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 class FacilityController extends Controller
 {
-    /**
-     * List all facilities with optional filtering
-     */
-    public function index(Request $request)
+    public function index()
     {
-        $query = Facility::query();
-        if ($request->county) $query->where('county', $request->county);
-        if ($request->type) $query->where('type', $request->type);
-        return response()->json($query->where('is_active', true)->get());
+        $facilities = \App\Models\Facility::where('is_active', true)
+            ->orderBy('name')->paginate(10);
+        return view('facilities.index', compact('facilities'));
     }
 
     /**

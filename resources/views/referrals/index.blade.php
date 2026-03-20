@@ -95,7 +95,7 @@
     <main class="content">
         @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
         <div class="card">
-            <div class="card-header"><span class="card-title">All Referrals ({{ $referrals->total() }})</span></div>
+            <div class="card-header"><span class="card-title">All Referrals ({{ $referrals->count() }})</span></div>
             @if($referrals->isEmpty())
                 <div class="empty-state">
                     <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>

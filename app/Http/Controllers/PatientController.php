@@ -74,13 +74,21 @@ class PatientController extends Controller
         return view('patient.records', compact('records'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $patients = Patient::with('facility')
-            ->latest()
-            ->paginate(15);
-
-        return view('patients.index', compact('patients'));
+        $query = $request->get('search');
+        $patients = \App\Models\User::where('role', 'patient')
+            ->when($query, function($q) use ($query) {
+                $q->where(function($q2) use ($query) {
+                    $q2->where('first_name', 'like', "%{$query}%")
+                       ->orWhere('last_name', 'like', "%{$query}%")
+                       ->orWhere('email', 'like', "%{$query}%")
+                       ->orWhere('patient_id', 'like', "%{$query}%");
+                });
+            })
+            ->orderBy('first_name')
+            ->paginate(10);
+        return view('patients.index', compact('patients', 'query'));
     }
 
     public function create()
@@ -114,11 +122,15 @@ class PatientController extends Controller
             ->with('success', 'Patient registered successfully.');
     }
 
-    public function show(Patient $patient)
+    public function show($id)
     {
-        $patient->load(['facility', 'records', 'referrals']);
-
-        return view('patients.show', compact('patient'));
+        $patient = \App\Models\User::where('role', 'patient')
+            ->findOrFail($id);
+        $records = \App\Models\MedicalRecord::where('patient_id', $id)
+            ->latest()->get();
+        $referrals = \App\Models\Referral::where('patient_id', $id)
+            ->latest()->get();
+        return view('patients.show', compact('patient', 'records', 'referrals'));
     }
 
     public function edit(Patient $patient)
@@ -173,38 +185,19 @@ class PatientController extends Controller
      */
     public function search(Request $request)
     {
-        $query = $request->get('q', '');
-
-        if (strlen($query) < 2) {
+        if (!request()->wantsJson() && !request()->ajax()) {
             return response()->json([]);
         }
-
-        // Check if searching by exact patient ID
-        $exactIdMatch = null;
-        if (is_numeric($query) || str_starts_with($query, 'PAT-') || str_starts_with($query, 'AFL-')) {
-            $exactIdMatch = Patient::where('patient_id', $query)
-                ->orWhere('patient_number', $query)
-                ->first();
-        }
-
-        // If exact match found, return it with full details
-        if ($exactIdMatch) {
-            $exactIdMatch->load('medicalRecords');
-            return response()->json([$exactIdMatch]);
-        }
-
-        // Search by name, patient number, phone, or email
-        $patients = Patient::where(function($q) use ($query) {
+        $query = $request->get('query', '');
+        $patients = \App\Models\User::where('role', 'patient')
+            ->where(function($q) use ($query) {
                 $q->where('first_name', 'like', "%{$query}%")
                   ->orWhere('last_name', 'like', "%{$query}%")
-                  ->orWhere('patient_number', 'like', "%{$query}%")
-                  ->orWhere('phone', 'like', "%{$query}%")
-                  ->orWhere('email', 'like', "%{$query}%");
+                  ->orWhere('email', 'like', "%{$query}%")
+                  ->orWhere('patient_id', 'like', "%{$query}%");
             })
-            ->withCount('medicalRecords')
-            ->limit(20)
-            ->get(['id', 'patient_id', 'patient_number', 'first_name', 'last_name', 'phone', 'email', 'date_of_birth', 'gender', 'blood_group']);
-
+            ->take(10)
+            ->get(['id','first_name','last_name','email','patient_id']);
         return response()->json($patients);
     }
 }
