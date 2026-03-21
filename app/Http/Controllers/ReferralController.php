@@ -28,18 +28,10 @@ class ReferralController extends Controller
 
         // Patients can only see their own referrals
         if ($user->role === 'patient') {
-            // Find patient record associated with this user
-            $patient = Patient::where('email', $user->email)->first();
-
-            if (!$patient) {
-                return view('referrals.index', ['referrals' => collect()]);
-            }
-
-            $referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
-                ->where('patient_id', $patient->id)
+            $referrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
+                ->where('patient_id', $user->id)
                 ->latest()
                 ->paginate(10);
-
             return view('referrals.index', compact('referrals'));
         }
 
@@ -136,9 +128,9 @@ class ReferralController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if user can create referrals
-        if (!Gate::allows('create-referrals')) {
-            abort(403, 'Only doctors can create referrals.');
+        $user = Auth::user();
+        if (!Gate::allows('create-referrals') && !in_array($user->role, ['hospital', 'facility'])) {
+            abort(403, 'You are not authorized to create referrals.');
         }
 
         $data = $request->validate([

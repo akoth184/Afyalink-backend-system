@@ -39,6 +39,11 @@ class AuthServiceProvider extends ServiceProvider
                 return true;
             }
 
+            // Allow hospital and facility staff to create referrals
+            if (in_array($user->role, ['hospital', 'facility'])) {
+                return true;
+            }
+
             // Patients and other roles cannot create referrals
             return false;
         });

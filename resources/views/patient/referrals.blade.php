@@ -265,11 +265,7 @@
                                     <td>
                                         <div class="info-label">Doctor</div>
                                         <div class="info-value">
-                                            @if($referral->referredBy)
-                                                Dr. {{ $referral->referredBy->first_name }} {{ $referral->referredBy->last_name }}
-                                            @else
-                                                N/A
-                                            @endif
+                                            {{ optional($referral->referredBy)->role === 'doctor' ? 'Dr. ' : '' }}{{ optional($referral->referredBy)->first_name ?? 'N/A' }} {{ optional($referral->referredBy)->last_name ?? '' }}
                                         </div>
                                     </td>
                                     <td>
