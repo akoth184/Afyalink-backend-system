@@ -39,7 +39,7 @@ body{font-family:'Inter',sans-serif;}
     <a href="#transfer-form" class="slink" onclick="document.getElementById('transfer-form').scrollIntoView({behavior:'smooth'})">Transfer Patient</a>
     <a href="#incoming-referrals" onclick="document.getElementById('incoming-referrals').scrollIntoView({behavior:'smooth'})" class="slink">Referral Reports</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Management</div>
-    <div class="slink" onclick="alert('Medical Records feature available for doctors. Hospital staff can view records via the patient profile.')">Medical Records</div>
+    <div class="slink" onclick="document.getElementById('medical-records-section').scrollIntoView({behavior:'smooth'})">Medical Records</div>
     <div class="slink" onclick="document.getElementById('working-hours-section').scrollIntoView({behavior:'smooth'})">Working Hours</div>
     <div class="slink">Settings</div>
   </nav>
@@ -122,6 +122,41 @@ body{font-family:'Inter',sans-serif;}
       </div>
       @empty
       <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No referrals yet</div>
+      @endforelse
+    </div>
+
+    <!-- Referral Reports -->
+    <div id="referral-reports" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Referral Reports</span>
+      </div>
+      <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">Referral analytics and reports will appear here</div>
+    </div>
+
+    <!-- Medical Records Section -->
+    <div id="medical-records-section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Medical Records</span>
+        <span style="font-size:12px;color:#94a3b8;">Records of referred patients</span>
+      </div>
+      @php
+        $patientIds = $referrals->pluck('patient_id')->filter()->unique()->values();
+        $medicalRecords = \App\Models\MedicalRecord::whereIn('patient_id', $patientIds)->latest()->get();
+      @endphp
+      @forelse($medicalRecords as $record)
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($record->patient)->first_name ?? 'P',0,1)) }}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($record->patient)->first_name ?? 'N/A' }} {{ optional($record->patient)->last_name ?? '' }}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{{ $record->diagnosis ?? 'No diagnosis' }} · {{ $record->visit_date ? $record->visit_date->format('d M Y') : 'No date' }}</div>
+        </div>
+        <span style="font-size:11px;color:#2563eb;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:600;">{{ ucfirst($record->status ?? 'draft') }}</span>
+      </div>
+      @empty
+      <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">
+        <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:6px;">No medical records yet</div>
+        <div>Medical records for referred patients will appear here</div>
+      </div>
       @endforelse
     </div>
 

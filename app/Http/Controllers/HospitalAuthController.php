@@ -104,6 +104,7 @@ class HospitalAuthController extends Controller
         ];
 
         $referrals = \App\Models\Referral::where('receiving_facility_id', $facility->id)
+            ->orWhere('referring_facility_id', $facility->id)
             ->with(['patient', 'referringFacility', 'receivingFacility'])
             ->latest()
             ->get();

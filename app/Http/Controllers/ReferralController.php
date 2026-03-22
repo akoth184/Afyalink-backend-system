@@ -146,6 +146,11 @@ class ReferralController extends Controller
 
         $referral = Referral::create($data);
 
+        $user = Auth::user();
+        if (in_array($user->role, ['hospital', 'facility'])) {
+            return redirect()->route('hospital.dashboard')
+                            ->with('success', 'Transfer initiated successfully!');
+        }
         return redirect()->route('referrals.show', $referral)
                         ->with('success', 'Referral created successfully.');
     }
