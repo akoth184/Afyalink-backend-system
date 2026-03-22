@@ -1,634 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Doctor Dashboard — AfyaLink</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        teal: {
-                            50: '#f0fdfa',
-                            100: '#ccfbf1',
-                            200: '#99f6e4',
-                            300: '#5eead4',
-                            400: '#2dd4bf',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
-                            800: '#115e59',
-                            900: '#134e4a',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(255,255,255,0.1); }
-        .sidebar-link.active { background-color: rgba(59,130,246,.2); border-left: 3px solid #3b82f6; }
-        @media print { .no-print { display: none; } }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doctor Dashboard — AfyaLink</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:'Inter',sans-serif;}
+.slink{display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;transition:all .15s;}
+.slink:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05);}
+.slink.on{color:white;background:rgba(59,130,246,.2);border-left-color:#3b82f6;}
+.badge-accepted{background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-pending{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-rejected{background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.card{background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;}
+.stat-card{background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;}
+</style>
 </head>
-<body class="bg-[#f0f6ff]">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-[#1e3a5f] text-white flex flex-col no-print">
-            <div class="p-6 border-b border-teal-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center">
-                        <i class="fas fa-heartbeat text-white text-lg"></i>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-lg">AfyaLink</h1>
-                        <p class="text-xs text-teal-300">Doctor Portal</p>
-                    </div>
-                </div>
-            </div>
+<body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<div style="display:flex;min-height:100vh;">
 
-            <nav class="flex-1 p-4 space-y-1">
-                <a href="#" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium">
-                    <i class="fas fa-th-large w-5"></i> Dashboard
-                </a>
-                <a href="{{ route('patients.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-teal-100">
-                    <i class="fas fa-users w-5"></i> Patients
-                </a>
-                <a href="{{ route('records.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-teal-100">
-                    <i class="fas fa-file-medical w-5"></i> Medical Records
-                </a>
-                <a href="{{ route('referrals.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-teal-100">
-                    <i class="fas fa-share-alt w-5"></i> Referrals
-                    @if($stats['pending_referrals'] > 0)
-                    <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ $stats['pending_referrals'] }}</span>
-                    @endif
-                </a>
-                <a href="{{ route('facilities.index') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-teal-100">
-                    <i class="fas fa-hospital w-5"></i> Facilities
-                </a>
-            </nav>
+<!-- SIDEBAR -->
+<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;">
+  <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
+    <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Doctor Portal</div>
+  </div>
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(Auth::user()->first_name ?? 'D', 0, 1)) }}</div>
+    <div>
+      <div style="font-size:13px;color:white;font-weight:600;">Dr. {{ Auth::user()->first_name ?? '' }} {{ Auth::user()->last_name ?? '' }}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">{{ Auth::user()->specialization ?? 'General Practice' }}</div>
+    </div>
+  </div>
+  <nav style="flex:1;padding:8px 0;">
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Main</div>
+    <a href="{{ route('doctor.dashboard') }}" class="slink on">Dashboard</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Patients</div>
+    <a href="{{ route('patients.index') }}" class="slink">My Patients</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Clinical</div>
+    <a href="{{ route('referrals.create') }}" class="slink">Create Referral</a>
+    <a href="{{ route('referrals.index') }}" class="slink">My Referrals</a>
+    <a href="{{ route('records.index') }}" class="slink">Medical Records</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Tools</div>
+    <a href="{{ route('patient.nearby-hospitals') }}" class="slink">Nearby Hospitals</a>
+    <a href="{{ route('facilities.index') }}" class="slink">Facilities</a>
+  </nav>
+  <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);">
+    <form method="POST" action="{{ route('logout') }}">@csrf
+      <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;font-family:inherit;">Sign Out</button>
+    </form>
+  </div>
+</aside>
 
-            <div class="p-4 border-t border-teal-800">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#1e3a8a] rounded-full flex items-center justify-center">
-                        <span class="text-sm font-semibold">{{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}</span>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium truncate">Dr. {{ $user->first_name }} {{ $user->last_name }}</p>
-                        <p class="text-xs text-teal-300 truncate">{{ $user->specialization ?? 'Doctor' }}</p>
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('logout') }}" class="mt-3">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-[#bfdbfe] hover:text-white transition-colors">
-                        <i class="fas fa-sign-out-alt"></i> Sign Out
-                    </button>
-                </form>
-            </div>
-        </aside>
+<!-- MAIN CONTENT -->
+<div style="margin-left:220px;flex:1;">
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
-            <!-- Header -->
-            <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between no-print">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
-                    <p class="text-sm text-gray-500">Welcome back, Dr. {{ $user->last_name }}</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <button onclick="openModal('newRecordModal')" class="btn-primary flex items-center gap-2">
-                        <i class="fas fa-plus"></i> New Record
-                    </button>
-                </div>
-            </header>
+  <!-- TOPBAR -->
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#0f172a;">Dashboard</div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Welcome back, Dr. {{ Auth::user()->first_name ?? '' }}</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <a href="{{ route('records.create') }}" style="background:white;color:#2563eb;border:1.5px solid #2563eb;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">+ New Record</a>
+      <a href="{{ route('referrals.create') }}" style="background:#2563eb;color:white;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">+ New Referral</a>
+    </div>
+  </div>
 
-            <div class="p-8">
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="card p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Patients Today</p>
-                                <p class="text-3xl font-bold text-gray-800">{{ $stats['patients_today'] }}</p>
-                            </div>
-                            <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-user-injured text-teal-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Total Patients</p>
-                                <p class="text-3xl font-bold text-gray-800">{{ $stats['total_patients'] }}</p>
-                            </div>
-                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-users text-blue-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Pending Referrals</p>
-                                <p class="text-3xl font-bold text-gray-800">{{ $stats['pending_referrals'] }}</p>
-                            </div>
-                            <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-exchange-alt text-amber-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-500">Medical Records</p>
-                                <p class="text-3xl font-bold text-gray-800">{{ $stats['total_records'] }}</p>
-                            </div>
-                            <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                                <i class="fas fa-file-medical-alt text-purple-600 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <!-- SUCCESS MESSAGE -->
+  @if(session('success'))
+  <div style="background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;padding:12px 28px;font-size:13px;font-weight:500;">
+    ✓ {{ session('success') }}
+  </div>
+  @endif
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Left Column -->
-                    <div class="lg:col-span-2 space-y-8">
-                        <!-- Patient Search -->
-                        <div class="card p-6">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                                <i class="fas fa-search text-teal-600 mr-2"></i>Quick Patient Search
-                            </h2>
-                            <div style="display:flex;gap:8px;margin-bottom:8px;">
-                                <input
-                                    type="text"
-                                    id="searchInput"
-                                    placeholder="Search by name or Patient ID..."
-                                    style="flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;"
-                                    onkeypress="if(event.key==='Enter') doSearch()"
-                                >
-                                <button
-                                    onclick="window.doSearch()"
-                                    style="background:#0d9488;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
-                                    Search
-                                </button>
-                            </div>
-                            <div id="searchResults" style="border:1px solid #e2e8f0;border-radius:8px;background:white;display:none;max-height:320px;overflow-y:auto;margin-bottom:16px;"></div>
+  <!-- CONTENT -->
+  <div style="padding:24px 28px;">
 
-                            <!-- Selected Patient Details -->
-                            <div id="selectedPatientDetails" class="hidden mt-4 p-4 bg-teal-50 rounded-lg border border-[#bfdbfe]">
-                                <div class="flex items-start justify-between">
-                                    <div>
-                                        <h3 class="font-semibold text-gray-800" id="patientFullName"></h3>
-                                        <p class="text-sm text-gray-600">ID: <span id="patientId"></span></p>
-                                        <p class="text-sm text-gray-600">Phone: <span id="patientPhone"></span></p>
-                                        <p class="text-sm text-gray-600">Email: <span id="patientEmail"></span></p>
-                                        <p class="text-sm text-gray-600">DOB: <span id="patientDob"></span></p>
-                                        <p class="text-sm text-gray-600">Gender: <span id="patientGender"></span></p>
-                                        <p class="text-sm text-gray-600">Blood Group: <span id="patientBloodGroup"></span></p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-sm text-gray-500">Medical Records</p>
-                                        <p class="text-2xl font-bold text-teal-600" id="patientRecordsCount">0</p>
-                                    </div>
-                                </div>
-                                <input type="hidden" id="selectedPatientId">
-                                <div class="mt-4 flex gap-2">
-                                    <button onclick="createMedicalRecord()" class="btn-primary text-sm">
-                                        <i class="fas fa-file-medical mr-1"></i> Create Record
-                                    </button>
-                                    <a href="#" id="viewPatientLink" class="btn-secondary text-sm">
-                                        <i class="fas fa-eye mr-1"></i> View Details
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Recent Patients -->
-                        <div class="card">
-                            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                                <h2 class="text-lg font-semibold text-gray-800">
-                                    <i class="fas fa-users text-teal-600 mr-2"></i>Recent Patients
-                                </h2>
-                                <a href="{{ route('patients.index') }}" class="text-sm text-teal-600 hover:text-teal-700">View All</a>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient #</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Registered</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        @forelse($recentPatients as $patient)
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ $patient->patient_number }}</td>
-                                            <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ $patient->first_name }} {{ $patient->last_name }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ $patient->phone ?? 'N/A' }}</td>
-                                            <td class="px-6 py-4 text-sm text-gray-600">{{ $patient->created_at->format('M d, Y') }}</td>
-                                            <td class="px-6 py-4">
-                                                <a href="{{ route('patients.show', $patient->id) }}" class="text-teal-600 hover:text-teal-700 text-sm">View</a>
-                                            </td>
-                                        </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">No patients yet</td>
-                                        </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Nearby Hospitals -->
-                        <div class="card">
-                            <div class="p-6 border-b border-gray-100">
-                                <h2 class="text-lg font-semibold text-gray-800">
-                                    <i class="fas fa-hospital text-teal-600 mr-2"></i>Nearby Hospitals (50km radius)
-                                </h2>
-                            </div>
-                            <div class="p-6">
-                                @forelse($nearbyHospitals as $hospital)
-                                    <div class="flex items-center justify-between p-3 border-b last:border-0 hover:bg-gray-50">
-                                        <div>
-                                            <div class="font-medium text-sm">{{ $hospital->name }}</div>
-                                            <div class="text-xs text-gray-500">{{ $hospital->county }} · {{ ucfirst($hospital->type) }}</div>
-                                        </div>
-                                        <span class="text-xs text-teal-600 font-medium bg-teal-50 px-2 py-1 rounded-full">Active</span>
-                                    </div>
-                                @empty
-                                    <div class="p-4 text-center text-gray-500 text-sm">No facilities found</div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div class="space-y-8">
-                        <!-- Quick Actions -->
-                        <div class="card p-6">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-4">
-                                <i class="fas fa-bolt text-teal-600 mr-2"></i>Quick Actions
-                            </h2>
-                            <div class="space-y-3">
-
-                                <button onclick="openModal('newRecordModal')" class="w-full flex items-center gap-3 p-3 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100 transition-colors">
-                                    <i class="fas fa-file-medical w-5"></i>
-                                    <span class="font-medium">New Medical Record</span>
-                                </button>
-                                <a href="{{ route('referrals.create') }}" class="flex items-center gap-3 p-3 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100 transition-colors">
-                                    <i class="fas fa-share-alt w-5"></i>
-                                    <span class="font-medium">Create Referral</span>
-                                </a>
-                                <a href="{{ route('facilities.index') }}" class="flex items-center gap-3 p-3 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100 transition-colors">
-                                    <i class="fas fa-list w-5"></i>
-                                    <span class="font-medium">View Facilities</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Recent Medical Records -->
-                        <div class="card">
-                            <div class="p-6 border-b border-gray-100">
-                                <h2 class="text-lg font-semibold text-gray-800">
-                                    <i class="fas fa-file-medical-alt text-teal-600 mr-2"></i>Recent Records
-                                </h2>
-                            </div>
-                            <div class="divide-y divide-gray-100">
-                                @forelse($recentRecords as $record)
-                                <div class="p-4 hover:bg-gray-50">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <p class="font-medium text-gray-800">{{ $record->patient->first_name ?? 'N/A' }} {{ $record->patient->last_name ?? '' }}</p>
-                                            <p class="text-sm text-gray-500">{{ $record->chief_complaint ?? 'No complaint recorded' }}</p>
-                                        </div>
-                                        <span class="text-xs text-gray-400">{{ $record->visit_date ? $record->visit_date->format('M d') : '' }}</span>
-                                    </div>
-                                </div>
-                                @empty
-                                <div class="p-6 text-center text-gray-500 text-sm">No records yet</div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+    <!-- STATS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+      <div class="stat-card">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Patients Today</div>
+        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['patients_today'] ?? 0 }}</div>
+        <div style="font-size:11px;color:#16a34a;margin-top:5px;">Registered today</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div>
+        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_patients'] ?? 0 }}</div>
+        <div style="font-size:11px;color:#2563eb;margin-top:5px;">In system</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Pending Referrals</div>
+        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['pending_referrals'] ?? 0 }}</div>
+        <div style="font-size:11px;color:#d97706;margin-top:5px;">Awaiting response</div>
+      </div>
+      <div class="stat-card">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Medical Records</div>
+        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_records'] ?? 0 }}</div>
+        <div style="font-size:11px;color:#2563eb;margin-top:5px;">Created by you</div>
+      </div>
     </div>
 
-    <!-- New Medical Record Modal -->
-    <div id="newRecordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
-                <h2 class="text-xl font-semibold text-gray-800">New Medical Record</h2>
-                <button onclick="closeModal('newRecordModal')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
+    <!-- TWO COLUMN ROW -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
 
-            <form method="POST" action="{{ route('records.store') }}" enctype="multipart/form-data" class="p-6">
-                @csrf
-                <input type="hidden" name="facility_id" value="{{ $facilityId }}">
-                <input type="hidden" name="doctor_id" value="{{ $user->id }}">
-
-                <!-- Patient Selection -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Patient *</label>
-                    <div class="relative">
-                        <input type="text" id="modalPatientSearch"
-                            placeholder="Search by name, ID, phone..."
-                            class="input-field pl-12"
-                            autocomplete="off">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <div id="modalPatientResults" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto"></div>
-                    </div>
-                    <input type="hidden" name="patient_id" id="modalSelectedPatientId" required>
-                    <div id="modalSelectedPatientName" class="mt-2 text-sm text-teal-600 font-medium"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Visit Date *</label>
-                        <input type="date" name="visit_date" required class="input-field">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select name="status" class="input-field">
-                            <option value="completed">Completed</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="pending">Pending</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Chief Complaint *</label>
-                    <input type="text" name="chief_complaint" required placeholder="Primary reason for visit" class="input-field">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">History of Present Illness</label>
-                    <textarea name="history_of_present_illness" rows="2" placeholder="Describe the patient's current condition" class="input-field"></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Diagnosis</label>
-                    <input type="text" name="diagnosis" placeholder="Medical diagnosis" class="input-field">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Treatment Plan</label>
-                    <textarea name="treatment_plan" rows="2" placeholder="Recommended treatment" class="input-field"></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Medications</label>
-                    <textarea name="medications" rows="2" placeholder="Prescribed medications" class="input-field"></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                    <textarea name="notes" rows="2" placeholder="Additional notes" class="input-field"></textarea>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Attachment (PDF, DOC, JPG - max 10MB)</label>
-                    <input type="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="input-field">
-                </div>
-
-                <div class="flex gap-3 justify-end">
-                    <button type="button" onclick="closeModal('newRecordModal')" class="btn-secondary">Cancel</button>
-                    <button type="submit" class="btn-primary">Create Record</button>
-                </div>
-            </form>
+      <!-- RECENT PATIENTS -->
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent Patients</span>
+          <a href="{{ route('patients.index') }}" style="font-size:12px;color:#2563eb;font-weight:500;text-decoration:none;">View all →</a>
         </div>
+        @forelse($recentPatients ?? [] as $patient)
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+          <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($patient->first_name ?? 'P', 0, 1)) }}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $patient->first_name ?? '' }} {{ $patient->last_name ?? '' }}</div>
+            <div style="font-size:11px;color:#94a3b8;">{{ $patient->patient_id ?? '' }} · {{ $patient->email ?? '' }}</div>
+          </div>
+          <a href="{{ route('patients.show', $patient->id) }}" style="background:#2563eb;color:white;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">View</a>
+        </div>
+        @empty
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No patients yet</div>
+        @endforelse
+      </div>
+
+      <!-- RECENT REFERRALS -->
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent Referrals</span>
+          <a href="{{ route('referrals.index') }}" style="font-size:12px;color:#2563eb;font-weight:500;text-decoration:none;">View all →</a>
+        </div>
+        @forelse(\App\Models\Referral::where('referred_by', Auth::id())->with(['patient','receivingFacility'])->latest()->take(4)->get() as $referral)
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+          <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($referral->patient)->first_name ?? 'P', 0, 1)) }}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</div>
+            <div style="font-size:11px;color:#94a3b8;">→ {{ optional($referral->receivingFacility)->name ?? 'N/A' }} · {{ $referral->reason ?? '' }}</div>
+          </div>
+          <span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span>
+        </div>
+        @empty
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No referrals yet</div>
+        @endforelse
+      </div>
     </div>
 
+    <!-- QUICK SEARCH -->
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Quick Patient Search</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" id="searchInput" placeholder="Search by name or Patient ID..." style="flex:1;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;background:#f8fafc;outline:none;">
+        <button onclick="doSearch()" style="background:#2563eb;color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Search</button>
+      </div>
+      <div id="searchResults"></div>
+    </div>
 
+  </div>
+</div>
+</div>
 
-
-        }
-
-
-
-
-
-
-
-
-
-            }
-
-
-                                    <div class="font-medium text-gray-800">${p.first_name} ${p.last_name}</div>
-                                    <div class="text-sm text-gray-500">${p.patient_number || p.patient_id} • ${p.phone || 'No phone'}</div>
-                                </div>
-                            `).join('');
-                            patientResults.classList.remove('hidden');
-                        } else {
-                            patientResults.innerHTML = '<div class="p-3 text-gray-500 text-center">No patients found</div>';
-                            patientResults.classList.remove('hidden');
-                        }
-                    });
-            }, 300);
-        });
-
-
-            document.getElementById('selectedPatientId').value = id;
-            document.getElementById('patientFullName').textContent = name;
-            document.getElementById('patientId').textContent = patientNum;
-            document.getElementById('patientPhone').textContent = phone || 'N/A';
-            document.getElementById('patientEmail').textContent = email || 'N/A';
-            document.getElementById('patientDob').textContent = dob || 'N/A';
-            document.getElementById('patientGender').textContent = gender || 'N/A';
-            document.getElementById('patientBloodGroup').textContent = bloodGroup || 'N/A';
-            document.getElementById('patientRecordsCount').textContent = recordsCount;
-            document.getElementById('viewPatientLink').href = '/patients/' + id;
-
-            patientSearch.value = name;
-            patientResults.classList.add('hidden');
-            selectedPatientDetails.classList.remove('hidden');
-        }
-
-        function createMedicalRecord() {
-            const patientId = document.getElementById('selectedPatientId').value;
-            if (patientId) {
-                document.getElementById('modalSelectedPatientId').value = patientId;
-                openModal('newRecordModal');
-            }
-        }
-
-        // Modal patient search
-        const modalPatientSearch = document.getElementById('modalPatientSearch');
-        const modalPatientResults = document.getElementById('modalPatientResults');
-
-        modalPatientSearch.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value;
-
-            if (query.length < 2) {
-                modalPatientResults.classList.add('hidden');
-                return;
-            }
-
-            searchTimeout = setTimeout(() => {
-                fetch('/patients/search?q=' + encodeURIComponent(query))
-                    .then(response => response.json())
-                    .then(patients => {
-                        if (patients.length > 0) {
-                            modalPatientResults.innerHTML = patients.map(p => `
-                                <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
-                                    onclick="selectModalPatient(${p.id}, '${p.first_name} ${p.last_name}')">
-                                    <div class="font-medium text-gray-800">${p.first_name} ${p.last_name}</div>
-                                    <div class="text-sm text-gray-500">${p.patient_number || p.patient_id}</div>
-                                </div>
-                            `).join('');
-                            modalPatientResults.classList.remove('hidden');
-                        } else {
-                            modalPatientResults.innerHTML = '<div class="p-3 text-gray-500 text-center">No patients found</div>';
-                            modalPatientResults.classList.remove('hidden');
-                        }
-                    });
-            }, 300);
-        });
-
-        function selectModalPatient(id, name) {
-            document.getElementById('modalSelectedPatientId').value = id;
-            document.getElementById('modalSelectedPatientName').textContent = 'Selected: ' + name;
-            modalPatientSearch.value = name;
-            modalPatientResults.classList.add('hidden');
-        }
-
-        // Close search results when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!patientSearch.contains(e.target) && !patientResults.contains(e.target)) {
-                patientResults.classList.add('hidden');
-            }
-            if (!modalPatientSearch.contains(e.target) && !modalPatientResults.contains(e.target)) {
-                modalPatientResults.classList.add('hidden');
-            }
-        });
-document.getElementById('searchInput').addEventListener('input', function() {
-    const query = this.value.toLowerCase();
-    const results = document.getElementById('searchResults');
-    if (query.length === 0) {
-        results.classList.add('hidden');
-        return;
-    }
-    fetch(`/patients/search?query=${query}`, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (!results) return;
-        results.classList.remove('hidden');
-        if (!data.length) {
-            results.innerHTML = '<div class="p-3 text-gray-500 text-sm">No patients found</div>';
-            return;
-        }
-        results.innerHTML = data.map(p => `
-            <div class="p-3 border-b hover:bg-gray-50 cursor-pointer flex justify-between items-center">
-                <div>
-                    <div class="font-medium text-sm">${p.first_name} ${p.last_name}</div>
-                    <div class="text-xs text-gray-500">${p.patient_id ?? 'No ID'}</div>
-                </div>
-                <a href="/patients/${p.id}" class="text-teal-600 text-xs font-medium">View →</a>
-            </div>
-        `).join('');
-    });
-});
-
-function doSearch() {
-    var input = document.getElementById('searchInput');
-    var results = document.getElementById('searchResults');
-    if (!input || !results) {
-        alert('Search elements not found');
-        return;
-    }
-    var query = input.value.trim();
-    if (!query) {
-        results.style.display = 'none';
-        return;
-    }
-    results.style.display = 'block';
-    results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;font-size:13px;">Searching...</div>';
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/patients/search?query=' + encodeURIComponent(query), true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    xhr.setRequestHeader('Accept', 'application/json');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            var data = JSON.parse(xhr.responseText);
-            if (!data || data.length === 0) {
-                results.innerHTML = '<div style="padding:12px;text-align:center;color:#888;font-size:13px;">No patients found</div>';
-                return;
-            }
-            var html = '';
-            for (var i = 0; i < data.length; i++) {
-                var p = data[i];
-                html += '<div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">';
-                html += '<div>';
-                html += '<div style="font-weight:600;font-size:14px;color:#0f172a;">' + p.first_name + ' ' + p.last_name + '</div>';
 <script>
-window.doSearch = function() {
-    var input = document.getElementById('searchInput');
-    var results = document.getElementById('searchResults');
-    if (!input || !results) return;
-    var query = input.value.trim();
-    if (!query) {
-        results.style.display = 'none';
-        return;
+function doSearch() {
+  var query = document.getElementById('searchInput').value;
+  if(!query) return;
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/patients/search?q=' + encodeURIComponent(query));
+  xhr.onload = function() {
+    if(xhr.status === 200) {
+      document.getElementById('searchResults').innerHTML = xhr.responseText;
     }
-    results.style.display = 'block';
-    results.innerHTML = '<div style="padding:12px;text-align:center;color:#6b7280;font-size:14px;">Searching...</div>';
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/patients/search?query=' + encodeURIComponent(query), true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    xhr.setRequestHeader('Accept', 'application/json');
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            try {
-                var data = JSON.parse(xhr.responseText);
-                if (!data || data.length === 0) {
-                    results.innerHTML = '<div style="padding:12px;text-align:center;color:#6b7280;font-size:14px;">No patients found</div>';
-                    return;
-                }
-                var html = '';
-                for (var i = 0; i < data.length; i++) {
-                    var p = data[i];
-                    html += '<div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">';
-                    html += '<div>';
-                    html += '<div style="font-weight:600;font-size:14px;color:#0f172a;">' + p.first_name + ' ' + p.last_name + '</div>';
-                    html += '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">' + (p.patient_id || 'No ID') + ' &middot; ' + p.email + '</div>';
-                    html += '</div>';
-                    html += '<a href="/patients/' + p.id + '" style="background:#0d9488;color:white;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">View</a>';
-                    html += '</div>';
-                }
-                results.innerHTML = html;
-            } catch(e) {
-                results.innerHTML = '<div style="padding:12px;text-align:center;color:#e53e3e;font-size:14px;">Error: ' + e.message + '</div>';
-            }
-        } else {
-            results.innerHTML = '<div style="padding:12px;text-align:center;color:#e53e3e;font-size:14px;">Error ' + xhr.status + ' - please try again</div>';
-        }
-    };
-    xhr.onerror = function() {
-        results.innerHTML = '<div style="padding:12px;text-align:center;color:#e53e3e;font-size:14px;">Network error - please try again</div>';
-    };
-    xhr.send();
-};
+  };
+  xhr.send();
+}
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+  if(e.key === 'Enter') doSearch();
+});
 </script>
 </body>
 </html>
