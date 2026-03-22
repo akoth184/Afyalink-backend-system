@@ -78,42 +78,42 @@
         @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}.main{margin-left:0}.mobile-toggle{display:flex}.content{padding:20px 16px}.topbar{padding:0 16px 0 56px}}
     </style>
 </head>
-<body>
-<button class="mobile-toggle" id="sidebarToggle">
-    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-</button>
-<aside class="sidebar" id="sidebar">
-    <a href="{{ route('dashboard') }}" class="sidebar-logo">
-        <div class="sidebar-logo-mark"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
-        <span class="sidebar-logo-text">AfyaLink</span>
-    </a>
-    <nav class="sidebar-nav">
-        <div class="nav-section-label">Main</div>
-        <a href="{{ route('dashboard') }}" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-        <div class="nav-section-label">Clinical</div>
-        <a href="{{ route('patients.index') }}" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</a>
-        <a href="{{ route('referrals.index') }}" class="nav-item"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Referrals</a>
-        <a href="{{ route('records.index') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>Medical Records</a>
-        <div class="nav-section-label">Admin</div>
-        <a href="{{ route('facilities.index') }}" class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Facilities</a>
-    </nav>
-    <div class="sidebar-user">
-        <div class="sidebar-avatar">{{ strtoupper(substr(Auth::user()->first_name ?? Auth::user()->name ?? '', 0, 1)) }}{{ strtoupper(substr(Auth::user()->last_name ?? '', 0, 1)) }}</div>
-        <div class="sidebar-user-info">
-            <div class="sidebar-user-name">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name ?? '' }}</div>
-            <div class="sidebar-user-role">{{ ucfirst(str_replace('_', ' ', Auth::user()->role ?? 'user')) }}</div>
-        </div>
-        <form method="POST" action="{{ route('logout') }}">@csrf
-            <button type="submit" class="sidebar-logout" title="Sign out"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
-        </form>
+<body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<div style="display:flex;min-height:100vh;">
+<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;">
+  <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
+    <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Doctor Portal</div>
+  </div>
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(Auth::user()->first_name ?? 'D', 0, 1)) }}</div>
+    <div>
+      <div style="font-size:13px;color:white;font-weight:600;">Dr. {{ Auth::user()->first_name ?? '' }} {{ Auth::user()->last_name ?? '' }}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">{{ Auth::user()->specialization ?? 'General Practice' }}</div>
     </div>
+  </div>
+  <nav style="flex:1;padding:8px 0;">
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Main</div>
+    <a href="{{ route('doctor.dashboard') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Dashboard</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Patients</div>
+    <a href="{{ route('patients.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:white;text-decoration:none;background:rgba(59,130,246,.2);border-left:3px solid #3b82f6;">My Patients</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Clinical</div>
+    <a href="{{ route('referrals.create') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Create Referral</a>
+    <a href="{{ route('referrals.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">My Referrals</a>
+    <a href="{{ route('records.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Medical Records</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Tools</div>
+    <a href="{{ route('patient.nearby-hospitals') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Nearby Hospitals</a>
+    <a href="{{ route('facilities.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Facilities</a>
+  </nav>
+  <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);">
+    <form method="POST" action="{{ route('logout') }}">@csrf
+      <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;font-family:inherit;">Sign Out</button>
+    </form>
+  </div>
 </aside>
-<div class="sidebar-overlay" id="sidebarOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:199"></div>
-
-<div class="main">
-    <header class="topbar">
-        <div class="topbar-title">Patients</div>
-
+<div style="margin-left:220px;flex:1;background:#f0f6ff;">
+    <header class="topbar" style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+        <div><div style="font-size:20px;font-weight:700;color:#0f172a;">My Patients</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">Search and manage your patients</div></div>
     </header>
     <main class="content">
         @if(session('success'))
@@ -167,11 +167,6 @@
             @endif
         </div>
     </main>
-</div>
-<script>
-    const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebarOverlay'),toggle=document.getElementById('sidebarToggle');
-    toggle.addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.style.display=sidebar.classList.contains('open')?'block':'none'});
-    overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.style.display='none'});
-</script>
+</div></div>
 </body>
 </html>

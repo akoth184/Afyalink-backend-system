@@ -7,20 +7,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Healthcare Facilities</h1>
-                <p class="text-gray-500 text-sm mt-1">All registered facilities on AfyaLink</p>
-            </div>
-            <a href="{{ route('doctor.dashboard') }}" class="text-teal-600 hover:text-teal-700 text-sm font-medium">← Back to Dashboard</a>
-        </div>
+<div style="display:flex;min-height:100vh;">
+<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;">
+  <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
+    <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Doctor Portal</div>
+  </div>
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(Auth::user()->first_name ?? 'D', 0, 1)) }}</div>
+    <div>
+      <div style="font-size:13px;color:white;font-weight:600;">Dr. {{ Auth::user()->first_name ?? '' }} {{ Auth::user()->last_name ?? '' }}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">{{ Auth::user()->specialization ?? 'General Practice' }}</div>
+    </div>
+  </div>
+  <nav style="flex:1;padding:8px 0;">
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Main</div>
+    <a href="{{ route('doctor.dashboard') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Dashboard</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Patients</div>
+    <a href="{{ route('patients.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">My Patients</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Clinical</div>
+    <a href="{{ route('referrals.create') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Create Referral</a>
+    <a href="{{ route('referrals.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">My Referrals</a>
+    <a href="{{ route('records.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Medical Records</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Tools</div>
+    <a href="{{ route('patient.nearby-hospitals') }}" style="display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;">Nearby Hospitals</a>
+    <a href="{{ route('facilities.index') }}" style="display:block;padding:10px 20px;font-size:13px;color:white;text-decoration:none;background:rgba(59,130,246,.2);border-left:3px solid #3b82f6;">Facilities</a>
+  </nav>
+  <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);">
+    <form method="POST" action="{{ route('logout') }}">@csrf
+      <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;font-family:inherit;">Sign Out</button>
+    </form>
+  </div>
+</aside>
+<div style="margin-left:220px;flex:1;background:#f0f6ff;">
+<div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
+  <div style="font-size:20px;font-weight:700;color:#0f172a;">Facilities</div>
+  <div style="font-size:12px;color:#94a3b8;margin-top:3px;">All active health facilities</div>
+</div>
+<div style="padding:24px 28px;">
+        <div style="max-width:1200px;">
         <div class="grid gap-4">
             @forelse($facilities as $facility)
             <div class="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:#dbeafe;">
+                        <svg class="w-6 h-6" fill="none" stroke="#2563eb" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                     </div>
@@ -37,12 +68,12 @@
                         $hours = is_string($facility->working_hours) ? json_decode($facility->working_hours, true) : $facility->working_hours;
                     @endphp
                     @if($hours)
-                        <span class="inline-block bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full">
+                        <span class="inline-block text-xs font-medium px-3 py-1 rounded-full" style="background:#dbeafe;color:#2563eb;">
                             Mon: {{ $hours['Monday'] ?? 'N/A' }}
                         </span>
                     @endif
                     <div class="mt-2">
-                        <span class="inline-block bg-green-50 text-green-700 text-xs font-medium px-3 py-1 rounded-full">Active</span>
+                        <span class="inline-block text-xs font-medium px-3 py-1 rounded-full" style="background:#e8f8ef;color:#276749;">Active</span>
                     </div>
                 </div>
             </div>
@@ -53,6 +84,8 @@
             @endforelse
         </div>
         <div class="mt-6">{{ $facilities->links() }}</div>
-    </div>
+        </div>
+</div>
+</div></div>
 </body>
 </html>

@@ -209,10 +209,7 @@
         </a>
         <div class="topbar-spacer"></div>
         <div class="topbar-right">
-            <div class="topbar-pill">
-                <span class="status-dot"></span>
-                Patient Portal
-            </div>
+            <span style="background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">• Doctor Portal</span>
             <div class="topbar-sep"></div>
             <div class="topbar-user">
                 <div class="avatar">
