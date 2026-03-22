@@ -130,7 +130,44 @@ body{font-family:'Inter',sans-serif;}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Referral Reports</span>
       </div>
-      <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">Referral analytics and reports will appear here</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+        <div style="background:#f0f6ff;border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#2563eb;">{{ $referrals->count() }}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.05em;">Total Referrals</div>
+        </div>
+        <div style="background:#f0fdf4;border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#16a34a;">{{ $referrals->where('status','accepted')->count() }}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.05em;">Accepted</div>
+        </div>
+        <div style="background:#fef3c7;border-radius:8px;padding:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#d97706;">{{ $referrals->where('status','pending')->count() }}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.05em;">Pending</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:2px solid #f1f5f9;">
+            <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Ref #</th>
+            <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Patient</th>
+            <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">From</th>
+            <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Reason</th>
+            <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Status</th>
+            <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($referrals as $referral)
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:11px 0;font-weight:600;">REF-{{ str_pad($referral->id,5,'0',STR_PAD_LEFT) }}</td>
+            <td style="padding:11px 0;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
+            <td style="padding:11px 0;color:#64748b;">{{ optional($referral->referringFacility)->name ?? 'N/A' }}</td>
+            <td style="padding:11px 0;color:#64748b;">{{ $referral->reason ?? 'N/A' }}</td>
+            <td style="padding:11px 0;"><span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span></td>
+            <td style="padding:11px 0;color:#94a3b8;">{{ $referral->created_at->format('d M Y') }}</td>
+          </tr>
+          @endforeach
+        </tbody>
+      </table>
     </div>
 
     <!-- Medical Records Section -->
@@ -140,10 +177,10 @@ body{font-family:'Inter',sans-serif;}
         <span style="font-size:12px;color:#94a3b8;">Records of referred patients</span>
       </div>
       @php
-        $patientIds = $referrals->pluck('patient_id')->filter()->unique()->values();
-        $medicalRecords = \App\Models\MedicalRecord::whereIn('patient_id', $patientIds)->latest()->get();
+        $acceptedPatientIds = $referrals->where('status','accepted')->pluck('patient_id')->filter()->unique()->values();
+        $patientRecords = \App\Models\MedicalRecord::whereIn('patient_id', $acceptedPatientIds)->with('patient')->latest()->get();
       @endphp
-      @forelse($medicalRecords as $record)
+      @forelse($patientRecords as $record)
       <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;">
         <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($record->patient)->first_name ?? 'P',0,1)) }}</div>
         <div style="flex:1;">
@@ -155,7 +192,7 @@ body{font-family:'Inter',sans-serif;}
       @empty
       <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">
         <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:6px;">No medical records yet</div>
-        <div>Medical records for referred patients will appear here</div>
+        <div>Medical records will appear here once doctors create them for referred patients</div>
       </div>
       @endforelse
     </div>
