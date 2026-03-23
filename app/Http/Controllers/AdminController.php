@@ -239,4 +239,23 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Facility rejected.');
     }
+
+    /**
+     * Export report view
+     */
+    public function exportReport()
+    {
+        $data = [
+            'total_patients' => \App\Models\User::where('role','patient')->count(),
+            'total_doctors' => \App\Models\User::where('role','doctor')->count(),
+            'total_facilities' => \App\Models\Facility::where('is_active',true)->count(),
+            'total_referrals' => \App\Models\Referral::count(),
+            'accepted_referrals' => \App\Models\Referral::where('status','accepted')->count(),
+            'pending_referrals' => \App\Models\Referral::where('status','pending')->count(),
+            'rejected_referrals' => \App\Models\Referral::where('status','rejected')->count(),
+            'referrals' => \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])->latest()->get(),
+            'generated_at' => now()->format('d M Y, H:i A'),
+        ];
+        return view('admin.report-pdf', $data);
+    }
 }

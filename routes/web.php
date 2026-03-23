@@ -83,6 +83,9 @@ Route::prefix('admin')->group(function () {
     Route::post('/facilities/{id}/approve', [AdminController::class, 'approveFacility'])->name('admin.facility.approve')->middleware('auth');
     Route::post('/facilities/{id}/reject', [AdminController::class, 'rejectFacility'])->name('admin.facility.reject')->middleware('auth');
     Route::get('/facilities/pending', [AdminController::class, 'pendingFacilities'])->name('admin.facilities.pending')->middleware('auth');
+
+    // Reports
+    Route::get('/reports/export', [AdminController::class, 'exportReport'])->name('admin.reports.export')->middleware('auth');
 });
 
 // Guest-only routes (redirect to dashboard if already logged in)

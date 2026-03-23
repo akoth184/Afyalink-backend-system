@@ -209,7 +209,11 @@
         </a>
         <div class="topbar-spacer"></div>
         <div class="topbar-right">
-            <span style="background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">• Doctor Portal</span>
+            @if(Auth::user()->role === 'doctor')
+  <span style="background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">• Doctor Portal</span>
+@else
+  <span style="background:#dbeafe;color:#1d4ed8;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">• Patient Portal</span>
+@endif
             <div class="topbar-sep"></div>
             <div class="topbar-user">
                 <div class="avatar">
@@ -233,13 +237,14 @@
                 <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
                 Use My Current Location
             </button>
-            <p id="locationStatus" class="location-status"></p>
+            <div id="location-status" style="margin-top:8px;min-height:20px;"></div>
         </div>
 
         <!-- Map Section -->
         <div class="map-container">
-            <div id="map" style="width:100%;height:400px;border-radius:12px;"></div>
+            <div id="map" style="width:100%;height:450px;border-radius:10px;border:1px solid #e2e8f0;"></div>
         </div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:8px;text-align:center;">Click any hospital marker to open in Google Maps</div>
 
         <div class="card">
             <div class="card-header">
@@ -313,223 +318,115 @@
     </main>
 
     <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('google-maps.api_key') }}&libraries=places" async defer></script>
+<script>
+var map;
+var userMarker;
 
-    <script>
-        // Hospital data from server
-        const hospitals = @json($facilitiesWithDistance);
-        let userMarker = null;
-        let map = null;
-        let markers = [];
+function initMap() {
+  var nairobi = {lat: -1.2921, lng: 36.8219};
+  map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 12,
+    center: nairobi,
+    mapTypeControl: true,
+    streetViewControl: false,
+    fullscreenControl: true
+  });
+  map.addListener('click', function(event) {
+    var lat = event.latLng.lat();
+    var lng = event.latLng.lng();
+    window.open('https://www.google.com/maps?q=' + lat + ',' + lng, '_blank');
+  });
+  var facilities = [
+    @foreach(\App\Models\Facility::where('is_active',true)->get() as $f)
+    @if($f->latitude && $f->longitude)
+    {name: "{{ addslashes($f->name) }}", lat: {{ $f->latitude }}, lng: {{ $f->longitude }}},
+    @endif
+    @endforeach
+  ];
+  facilities.forEach(function(f) {
+    var marker = new google.maps.Marker({
+      position: {lat: parseFloat(f.lat), lng: parseFloat(f.lng)},
+      map: map,
+      title: f.name
+    });
+    var info = new google.maps.InfoWindow({
+      content: '<div style="padding:8px;font-family:Inter,sans-serif;"><strong style="font-size:13px;">' + f.name + '</strong></div>'
+    });
+    marker.addListener('click', function() {
+      info.open(map, marker);
+      window.open('https://www.google.com/maps/search/' + encodeURIComponent(f.name) + '/@' + f.lat + ',' + f.lng + ',15z', '_blank');
+    });
+  });
+}
 
-        // Initialize map
-        function initMap() {
-            const defaultCenter = { lat: {{ $userLat }}, lng: {{ $userLng }} };
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 12,
-                center: defaultCenter
-            });
-
-            // Add markers for all hospitals
-            hospitals.forEach(hospital => {
-                if (hospital.latitude && hospital.longitude) {
-                    const marker = new google.maps.Marker({
-                        position: { lat: parseFloat(hospital.latitude), lng: parseFloat(hospital.longitude) },
-                        map: map,
-                        title: hospital.name
-                    });
-
-                    // Build working hours HTML
-                    let workingHoursHtml = '';
-                    if (hospital.working_hours) {
-                        try {
-                            const hours = typeof hospital.working_hours === 'string' ? JSON.parse(hospital.working_hours) : hospital.working_hours;
-                            if (hours && typeof hours === 'object') {
-                                workingHoursHtml = '<br><strong>Hours:</strong> ';
-                                Object.entries(hours).forEach(([day, time]) => {
-                                    workingHoursHtml += `<span style="display:inline-block;margin-right:4px;background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:4px;font-size:10px;">${day}: ${time}</span>`;
-                                });
-                            }
-                        } catch(e) {}
-                    }
-
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `
-                            <div style="padding:8px;max-width:200px">
-                                <strong>${hospital.name}</strong><br>
-                                <span style="color:#666">${hospital.type}</span><br>
-                                <span style="color:#2563eb;font-weight:600">${hospital.distance} km away</span><br>
-                                ${hospital.phone ? `<span>${hospital.phone}</span><br>` : ''}
-                                ${workingHoursHtml}
-                            </div>
-                        `
-                    });
-
-                    marker.addListener('click', () => {
-                        infoWindow.open(map, marker);
-                    });
-
-                    markers.push(marker);
-                }
-            });
+function getLocation() {
+  var status = document.getElementById('location-status');
+  status.innerHTML = '<span style="color:#2563eb;font-size:13px;">Getting your location... please wait.</span>';
+  if (!navigator.geolocation) {
+    status.innerHTML = '<span style="color:#dc2626;font-size:13px;">Geolocation not supported.</span>';
+    return;
+  }
+  var bestPosition = null;
+  var attempts = 0;
+  var maxAttempts = 3;
+  var watchId = navigator.geolocation.watchPosition(
+    function(position) {
+      attempts++;
+      if (!bestPosition || position.coords.accuracy < bestPosition.coords.accuracy) {
+        bestPosition = position;
+      }
+      status.innerHTML = '<span style="color:#2563eb;font-size:13px;">Improving accuracy... (' + Math.round(bestPosition.coords.accuracy) + 'm)</span>';
+      var pos = {lat: bestPosition.coords.latitude, lng: bestPosition.coords.longitude};
+      map.setCenter(pos);
+      map.setZoom(15);
+      if (userMarker) userMarker.setMap(null);
+      if (window.accuracyCircle) window.accuracyCircle.setMap(null);
+      userMarker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        title: 'Your Location',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#2563eb',
+          fillOpacity: 1,
+          strokeColor: 'white',
+          strokeWeight: 3
         }
-
-        // Get user location
-        function getLocation() {
-            const statusEl = document.getElementById('locationStatus');
-            const btn = document.getElementById('getLocationBtn');
-
-            if (!navigator.geolocation) {
-                statusEl.innerHTML = '<span style="color:#f43f5e">Geolocation is not supported by your browser</span>';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = 'Getting location...';
-            statusEl.innerHTML = '<span style="color:#2563eb">Requesting location access...</span>';
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-
-                    statusEl.innerHTML = `<span style="color:#10b981">Location found! Searching nearby...</span>`;
-
-                    // Update map center
-                    if (map) {
-                        map.setCenter({ lat, lng });
-                        map.setZoom(14);
-                    }
-
-                    // Add user marker
-                    if (userMarker) {
-                        userMarker.setMap(null);
-                    }
-
-                    userMarker = new google.maps.Marker({
-                        position: { lat, lng },
-                        map: map,
-                        icon: {
-                            path: google.maps.SymbolPath.CIRCLE,
-                            scale: 10,
-                            fillColor: '#2563eb',
-                            fillOpacity: 1,
-                            strokeColor: '#fff',
-                            strokeWeight: 2
-                        },
-                        title: 'Your Location'
-                    });
-
-                    // Fetch nearby hospitals with actual location
-                    fetchNearbyHospitals(lat, lng);
-
-                    btn.disabled = false;
-                    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg> Use My Current Location';
-                },
-                (error) => {
-                    let msg = 'Unable to get location';
-                    if (error.code === 1) msg = 'Location access denied';
-                    else if (error.code === 2) msg = 'Position unavailable';
-                    else if (error.code === 3) msg = 'Location request timed out';
-
-                    statusEl.innerHTML = `<span style="color:#f43f5e">${msg}. Please enable location services.</span>`;
-                    btn.disabled = false;
-                    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg> Use My Current Location';
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        }
-
-        // Fetch nearby hospitals via AJAX
-        function fetchNearbyHospitals(lat, lng) {
-            const url = `/patient/nearby-hospitals?latitude=${lat}&longitude=${lng}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.data) {
-                        // Update hospital markers
-                        markers.forEach(m => m.setMap(null));
-                        markers = [];
-
-                        data.data.forEach(hospital => {
-                            if (hospital.latitude && hospital.longitude) {
-                                const marker = new google.maps.Marker({
-                                    position: { lat: parseFloat(hospital.latitude), lng: parseFloat(hospital.longitude) },
-                                    map: map,
-                                    title: hospital.name
-                                });
-
-                                // Build working hours HTML
-                                let workingHoursHtml = '';
-                                if (hospital.working_hours) {
-                                    try {
-                                        const hours = typeof hospital.working_hours === 'string' ? JSON.parse(hospital.working_hours) : hospital.working_hours;
-                                        if (hours && typeof hours === 'object') {
-                                            workingHoursHtml = '<br><strong>Hours:</strong> ';
-                                            Object.entries(hours).forEach(([day, time]) => {
-                                                workingHoursHtml += `<span style="display:inline-block;margin-right:4px;background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:4px;font-size:10px;">${day}: ${time}</span>`;
-                                            });
-                                        }
-                                    } catch(e) {}
-                                }
-
-                                const infoWindow = new google.maps.InfoWindow({
-                                    content: `
-                                        <div style="padding:8px;max-width:200px">
-                                            <strong>${hospital.name}</strong><br>
-                                            <span style="color:#666">${hospital.type}</span><br>
-                                            <span style="color:#2563eb;font-weight:600">${hospital.distance} km away</span><br>
-                                            ${hospital.phone ? `<span>${hospital.phone}</span><br>` : ''}
-                                            ${workingHoursHtml}
-                                        </div>
-                                    `
-                                });
-
-                                marker.addListener('click', () => {
-                                    infoWindow.open(map, marker);
-                                });
-
-                                markers.push(marker);
-                            }
-                        });
-
-                        // Update list display
-                        location.reload();
-                    }
-                })
-                .catch(err => console.error('Error fetching hospitals:', err));
-        }
-
-        // Focus on a hospital (center map and show info)
-        function focusHospital(index) {
-            const hospital = hospitals[index];
-            if (!hospital || !hospital.latitude || !hospital.longitude) {
-                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-            if (map) {
-                map.setCenter({
-                    lat: parseFloat(hospital.latitude),
-                    lng: parseFloat(hospital.longitude)
-                });
-                map.setZoom(15);
-                document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
-                if (markers[index]) {
-                    google.maps.event.trigger(markers[index], 'click');
-                }
-            }
-        }
-
-        // Initialize on load
-        window.addEventListener('load', function() {
-            if (typeof google !== 'undefined' && google.maps) {
-                initMap();
-            } else {
-                // If Google Maps fails to load, add callback
-                window.initMap = initMap;
-            }
-        });
-    </script>
+      });
+      window.accuracyCircle = new google.maps.Circle({
+        strokeColor: '#2563eb',
+        strokeOpacity: 0.3,
+        strokeWeight: 1,
+        fillColor: '#2563eb',
+        fillOpacity: 0.08,
+        map: map,
+        center: pos,
+        radius: bestPosition.coords.accuracy
+      });
+      if (attempts >= maxAttempts || bestPosition.coords.accuracy < 50) {
+        navigator.geolocation.clearWatch(watchId);
+        var accuracyText = bestPosition.coords.accuracy < 50
+          ? 'GPS accurate to ' + Math.round(bestPosition.coords.accuracy) + 'm'
+          : 'Best available location (±' + Math.round(bestPosition.coords.accuracy) + 'm — laptop GPS is limited)';
+        status.innerHTML = '<span style="color:#16a34a;font-size:13px;">✓ Location found! ' + accuracyText + '</span>';
+      }
+    },
+    function(error) {
+      var status = document.getElementById('location-status');
+      if(error.code === 1) {
+        status.innerHTML = '<span style="color:#d97706;font-size:13px;">Location access denied. Use the search box below to find hospitals near you.</span>';
+      } else {
+        status.innerHTML = '<span style="color:#d97706;font-size:13px;">Auto-location unavailable on this device. Use the search box to find hospitals near you.</span>';
+      }
+    },
+    {timeout: 20000, enableHighAccuracy: true, maximumAge: 0}
+  );
+  setTimeout(function() {
+    navigator.geolocation.clearWatch(watchId);
+  }, 20000);
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap" async defer></script>
 </body>
 </html>

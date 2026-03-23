@@ -1,318 +1,355 @@
+<?php
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard — AfyaLink</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --teal: #2563eb; --teal-mid: #2563eb; --teal-lt: #e6f4f4;
-            --green: #22a85a; --amber: #e07b1a; --red: #e53e3e;
-            --ink: #1a1f2e; --muted: #5a6275; --border: #dde4e4;
-            --cream: #f0f6ff;
-        }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--ink); }
-
-        /* Header */
-        header { background: white;padding: 16px 28px;border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .logo { display: flex; align-items: center; gap: 10px; }
-        .logo-mark { width: 36px; height: 36px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .logo-mark svg { width: 18px; height: 18px; fill: white; }
-        .logo-text { font-weight: 700; font-size: 1.2rem; }
-        .logo-text span { color: var(--teal); }
-        .user-info { display: flex; align-items: center; gap: 16px; }
-        .user-name { font-weight: 600; font-size: 0.9rem; }
-        .logout-btn { padding: 8px 16px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.85rem; cursor: pointer; transition: all .2s; }
-        .logout-btn:hover { border-color: var(--teal); color: var(--teal); }
-
-        /* Main */
-        .main { padding: 32px; max-width: 1200px; margin: 0 auto; }
-        .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
-        .page-subtitle { color: var(--muted); margin-bottom: 32px; }
-
-        /* Stats */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
-        .stat-card { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
-        .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-        .stat-icon.teal { background: var(--teal-lt); }
-        .stat-icon.green { background: #e6f8ee; }
-        .stat-icon.amber { background: #fef3e4; }
-        .stat-icon.red { background: #fff5f5; }
-        .stat-icon svg { width: 20px; height: 20px; }
-        .stat-value { font-size: 1.8rem; font-weight: 700; }
-        .stat-label { font-size: 0.85rem; color: var(--muted); }
-
-        /* Section */
-        .section { background: white; border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 24px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .section-title { font-size: 1.1rem; font-weight: 600; }
-        .btn { padding: 10px 20px; background: var(--teal); color: white; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn:hover { background: var(--teal-mid); }
-
-        /* Table */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px 16px; font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        td { padding: 14px 16px; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
-        tr:last-child td { border-bottom: none; }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-        .status-pending { background: #fef3e4; color: #e07b1a; }
-        .status-accepted { background: #e6f8ee; color: #22a85a; }
-        .status-completed { background: var(--teal-lt); color: var(--teal); }
-        .status-inactive { background: #fff5f5; color: #e53e3e; }
-
-        /* Action buttons */
-        .action-btns { display: flex; gap: 8px; }
-        .btn-approve { padding: 6px 12px; background: #22a85a; color: white; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-        .btn-approve:hover { background: #1e9650; }
-        .btn-reject { padding: 6px 12px; background: #e53e3e; color: white; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
-        .btn-reject:hover { background: #c53030; }
-
-        @media (max-width: 960px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } .main { padding: 20px; } }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Dashboard — AfyaLink</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{font-family:'Inter',sans-serif;}
+.slink{display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);text-decoration:none;border-left:3px solid transparent;cursor:pointer;transition:all .15s;}
+.slink:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05);}
+.slink.on{color:white;background:rgba(59,130,246,.2);border-left-color:#3b82f6;}
+.section{display:none;}
+.section.active{display:block;}
+.badge-accepted,.badge-active{background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-pending{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-rejected{background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.card{background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;}
+.stat-card{background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;}
+.tl{padding-left:16px;border-left:2px solid #e2e8f0;}
+.tli{padding-bottom:14px;position:relative;}
+.tldot{width:10px;height:10px;border-radius:50%;position:absolute;left:-21px;top:2px;}
+</style>
 </head>
-<body>
-    <header>
-        <div class="logo">
-            <div class="logo-mark">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-            </div>
-            <span class="logo-text">Afya<span>Link</span> <small style="font-weight: 400; font-size: 0.85rem; color: var(--muted);">Admin</small></span>
-        </div>
-        <div class="user-info">
-            <span class="user-name">{{ $user->first_name }} {{ $user->last_name }}</span>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn">Logout</button>
-            </form>
-        </div>
-    </header>
+<body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<div style="display:flex;min-height:100vh;">
 
-    <main class="main">
-        <h1 class="page-title">Admin Dashboard</h1>
-        <p class="page-subtitle">System overview and management</p>
+<!-- SIDEBAR -->
+<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;">
+  <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
+    <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Admin Portal</div>
+  </div>
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;border-radius:50%;background:#fce7f3;color:#be185d;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">SA</div>
+    <div>
+      <div style="font-size:13px;color:white;font-weight:600;">System Admin</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.4);">Super Administrator</div>
+    </div>
+  </div>
+  <nav style="flex:1;padding:8px 0;">
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Main</div>
+    <div class="slink on" onclick="showSection('dashboard',this)">Dashboard</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Verification</div>
+    <div class="slink" onclick="showSection('doctors',this)">Doctor Applications</div>
+    <div class="slink" onclick="showSection('hospitals',this)">Hospital Applications</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Management</div>
+    <div class="slink" onclick="showSection('users',this)">Manage Users</div>
+    <div class="slink" onclick="showSection('referrals',this)">All Referrals</div>
+    <div class="slink" onclick="showSection('facilities',this)">Facilities</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">System</div>
+    <div class="slink" onclick="showSection('reports',this)">System Reports</div>
+    <div class="slink" onclick="showSection('logs',this)">Audit Logs</div>
+  </nav>
+  <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);">
+    <form method="POST" action="{{ route('logout') }}">@csrf
+      <button type="submit" style="background:none;border:none;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;font-family:inherit;">Sign Out</button>
+    </form>
+  </div>
+</aside>
 
-        <div class="metrics-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 28px 0;">
-            <div class="stat-card">
-                <div class="stat-icon teal">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_patients'] }}</div>
-                <div class="stat-label">Total Patients</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#22a85a" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r=\"4\"/><path d=\"M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75\"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_doctors'] }}</div>
-                <div class="stat-label">Total Doctors</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon amber">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#e07b1a" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_hospitals'] }}</div>
-                <div class="stat-label">Total Facilities</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon teal">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_referrals'] }}</div>
-                <div class="stat-label">Total Referrals</div>
-            </div>
-        </div>
+<!-- MAIN -->
+<div style="margin-left:220px;flex:1;">
 
-        <div class="metrics-row">
-            <div class="stat-card">
-                <div class="stat-icon amber">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#e07b1a" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['pending_referrals'] }}</div>
-                <div class="stat-label">Pending Referrals</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#22a85a" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14\"/><path d="M22 4L12 14.01l-3-3"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['completed_referrals'] }}</div>
-                <div class="stat-label">Completed Referrals</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon teal">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6e6e" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2\"/><circle cx="9" cy="7" r=\"4\"/><path d=\"M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75\"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['total_staff'] }}</div>
-                <div class="stat-label">Total Staff</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#22a85a" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2\"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <div class="stat-value">{{ $stats['active_users'] }}</div>
-                <div class="stat-label">Active Users</div>
-            </div>
-        </div>
+<!-- SUCCESS/ERROR MESSAGES -->
+@if(session('success'))
+<div style="background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;padding:12px 28px;font-size:13px;font-weight:500;">✓ {{ session('success') }}</div>
+@endif
+@if(session('error'))
+<div style="background:#fee2e2;border:1px solid #fecaca;color:#dc2626;padding:12px 28px;font-size:13px;">{{ session('error') }}</div>
+@endif
 
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">Quick Actions</h2>
-            </div>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <a href="{{ route('patients.index') }}" class="btn">View Patients</a>
-                <a href="{{ route('facilities.index') }}" class="btn">Manage Facilities</a>
-                <a href="{{ route('referrals.index') }}" class="btn">View Referrals</a>
-                <a href="{{ route('records.index') }}" class="btn">Medical Records</a>
-            </div>
+<!-- DASHBOARD SECTION -->
+<div id="sec-dashboard" class="section active">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
+    <div style="font-size:20px;font-weight:700;color:#0f172a;">Admin Dashboard</div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:3px;">System overview and management</div>
+  </div>
+  <div style="padding:24px 28px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_patients'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">Registered</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Doctors</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_doctors'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Verified</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Facilities</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_facilities'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Active</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Referrals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_referrals'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">All time</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Pending Approvals</span></div>
+        @php $pendingDoctors = \App\Models\User::where('role','doctor')->where('is_active',false)->get(); $pendingFacilities = \App\Models\Facility::where('is_active',false)->get(); @endphp
+        @forelse($pendingDoctors as $doctor)
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+          <div style="width:30px;height:30px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($doctor->first_name ?? 'D', 0, 1)) }}</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:11px;color:#94a3b8;">Doctor Application · {{ $doctor->specialization ?? 'General' }}</div></div>
+          <div style="display:flex;gap:6px;">
+            <form method="POST" action="{{ route('admin.approve.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Approve</button></form>
+            <form method="POST" action="{{ route('admin.reject.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Reject</button></form>
+          </div>
         </div>
+        @empty
+        @endforelse
+        @forelse($pendingFacilities as $facility)
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+          <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($facility->name ?? 'H', 0, 1)) }}</div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $facility->name }}</div><div style="font-size:11px;color:#94a3b8;">Hospital Application · {{ $facility->county }}</div></div>
+          <div style="display:flex;gap:6px;">
+            <form method="POST" action="{{ route('admin.facility.approve', $facility->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Approve</button></form>
+            <form method="POST" action="{{ route('admin.facility.reject', $facility->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Reject</button></form>
+          </div>
+        </div>
+        @empty
+        @endforelse
+        @if($pendingDoctors->isEmpty() && $pendingFacilities->isEmpty())
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No pending approvals</div>
+        @endif
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent Activity</div>
+        <div class="tl">
+          @foreach(\App\Models\Referral::latest()->take(4)->get() as $r)
+          <div class="tli">
+            <div class="tldot" style="background:{{ $r->status === 'accepted' ? '#16a34a' : ($r->status === 'rejected' ? '#dc2626' : '#d97706') }};"></div>
+            <div style="font-size:13px;font-weight:600;color:#0f172a;">Referral {{ $r->status }}</div>
+            <div style="font-size:11px;color:#94a3b8;">{{ $r->created_at->diffForHumans() }}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">{{ optional($r->patient)->first_name ?? 'N/A' }} · {{ $r->reason ?? '' }}</div>
+          </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent Referrals</span><span style="font-size:12px;color:#2563eb;cursor:pointer;" onclick="showSection('referrals',document.querySelectorAll('.slink')[4])">View all →</span></div>
+      @foreach(\App\Models\Referral::with(['patient','referringFacility','receivingFacility'])->latest()->take(4)->get() as $referral)
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($referral->patient)->first_name ?? 'P',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</div><div style="font-size:11px;color:#94a3b8;">{{ optional($referral->referringFacility)->name ?? 'N/A' }} → {{ optional($referral->receivingFacility)->name ?? 'N/A' }} · {{ $referral->reason ?? '' }}</div></div>
+        <span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</div>
 
-        <!-- Pending Doctor Applications Section -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">Pending Doctor Applications</h2>
-                <span style="background: #fef3e4; color: #e07b1a; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
-                    {{ $pendingDoctorApplications->count() }} Pending
-                </span>
-            </div>
-            @if($pendingDoctorApplications->isEmpty())
-                <div style="text-align: center; padding: 40px; color: var(--muted);">
-                    <p>No pending doctor applications</p>
-                </div>
-            @else
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Doctor Name</th>
-                            <th>License Number</th>
-                            <th>Specialization</th>
-                            <th>Application Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pendingDoctorApplications as $doctor)
-                        <tr>
-                            <td>Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</td>
-                            <td>{{ $doctor->license_number ?? 'N/A' }}</td>
-                            <td>{{ $doctor->specialization ?? 'N/A' }}</td>
-                            <td>{{ $doctor->created_at->format('M d, Y') }}</td>
-                            <td>
-                                <div class="action-btns">
-                                    <form method="POST" action="{{ route('admin.doctor.approve', $doctor->id) }}" style="display: inline;">
-                                        @csrf
-                                        <button type="submit" class="btn-approve">Approve</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.doctor.reject', $doctor->id) }}" style="display: inline;">
-                                        @csrf
-                                        <button type="submit" class="btn-reject" onclick="return confirm('Are you sure you want to reject this doctor?')">Reject</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
+<!-- DOCTOR APPLICATIONS SECTION -->
+<div id="sec-doctors" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Doctor Applications</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">Review and approve doctor registrations</div></div>
+  <div style="padding:24px 28px;">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Pending Applications</span><span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ \App\Models\User::where('role','doctor')->where('is_active',false)->count() }} Pending</span></div>
+      @forelse(\App\Models\User::where('role','doctor')->where('is_active',false)->get() as $doctor)
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;margin-bottom:10px;border:1px solid #e2e8f0;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($doctor->first_name ?? 'D',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:12px;color:#64748b;">{{ $doctor->email }} · {{ $doctor->specialization ?? 'General Practice' }} · {{ $doctor->license_number ?? 'N/A' }}</div></div>
+        <div style="display:flex;gap:8px;">
+          <form method="POST" action="{{ route('admin.approve.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button></form>
+          <form method="POST" action="{{ route('admin.reject.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button></form>
         </div>
+      </div>
+      @empty
+      <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No pending doctor applications</div>
+      @endforelse
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Approved Doctors ({{ \App\Models\User::where('role','doctor')->where('is_active',true)->count() }})</div>
+      @foreach(\App\Models\User::where('role','doctor')->where('is_active',true)->get() as $doctor)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($doctor->first_name ?? 'D',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $doctor->doctor_id ?? $doctor->license_number ?? 'N/A' }} · {{ $doctor->email }}</div></div>
+        <span class="badge-active">Active</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</div>
 
-        <div class="card" style="margin-top:20px">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e7eb">
-                <h3 style="font-size:15px;font-weight:600">Pending Hospital Applications</h3>
-                <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">{{ $pendingFacilities->count() }} Pending</span>
-            </div>
-            @forelse($pendingFacilities as $facility)
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #f3f4f6">
-                <div>
-                    <div style="font-weight:600;font-size:14px">{{ $facility->name }}</div>
-                    <div style="font-size:12px;color:#6b7280">{{ $facility->county }} · {{ ucfirst($facility->type) }} · {{ $facility->email }}</div>
-                </div>
-                <div style="display:flex;gap:8px">
-                    <form method="POST" action="{{ route('admin.facility.approve', $facility->id) }}" style="display:inline">
-                        @csrf
-                        <button type="submit" style="background:#0d9488;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Approve</button>
-                    </form>
-                    <form method="POST" action="{{ route('admin.facility.reject', $facility->id) }}" style="display:inline">
-                        @csrf
-                        <button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Reject</button>
-                    </form>
-                </div>
-            </div>
-            @empty
-            <div style="padding:20px;text-align:center;color:#9ca3af;font-size:14px">No pending hospital applications</div>
-            @endforelse
+<!-- HOSPITAL APPLICATIONS SECTION -->
+<div id="sec-hospitals" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Hospital Applications</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">Review and approve hospital registrations</div></div>
+  <div style="padding:24px 28px;">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Pending Applications</span><span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ \App\Models\Facility::where('is_active',false)->count() }} Pending</span></div>
+      @forelse(\App\Models\Facility::where('is_active',false)->get() as $facility)
+      <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;margin-bottom:10px;border:1px solid #e2e8f0;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($facility->name ?? 'H',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#0f172a;">{{ $facility->name }}</div><div style="font-size:12px;color:#64748b;">{{ $facility->county }} · {{ ucfirst($facility->type) }} · {{ $facility->email ?? 'No email' }}</div></div>
+        <div style="display:flex;gap:8px;">
+          <form method="POST" action="{{ route('admin.facility.approve', $facility->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button></form>
+          <form method="POST" action="{{ route('admin.facility.reject', $facility->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button></form>
         </div>
+      </div>
+      @empty
+      <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No pending hospital applications</div>
+      @endforelse
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Approved Hospitals ({{ \App\Models\Facility::where('is_active',true)->count() }})</div>
+      @foreach(\App\Models\Facility::where('is_active',true)->get() as $facility)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($facility->name ?? 'H',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $facility->name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $facility->county }} · {{ ucfirst($facility->type) }}</div></div>
+        <span class="badge-active">Active</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</div>
 
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">Recent Patients</h2>
-                <a href="{{ route('patients.index') }}" class="btn" style="padding: 6px 14px; font-size: 0.8rem;">View All</a>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Patient ID</th>
-                        <th>Patient #</th>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Facility</th>
-                        <th>Registered</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($recent_patients as $patient)
-                    <tr>
-                        <td>{{ $patient->patient_id ?? 'N/A' }}</td>
-                        <td>{{ $patient->patient_number }}</td>
-                        <td>{{ $patient->first_name }} {{ $patient->last_name }}</td>
-                        <td>{{ $patient->phone }}</td>
-                        <td>{{ $patient->facility->name ?? 'N/A' }}</td>
-                        <td>{{ $patient->created_at->format('M d, Y') }}</td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="6" style="text-align: center; color: var(--muted);">No patients yet</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+<!-- MANAGE USERS SECTION -->
+<div id="sec-users" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Manage Users</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">View all system users</div></div>
+  <div style="padding:24px 28px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','patient')->count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Registered</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Doctors</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','doctor')->count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Verified</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Hospitals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','hospital')->count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Active</div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Patients</div>
+      @foreach(\App\Models\User::where('role','patient')->latest()->get() as $user)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($user->first_name ?? 'P',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->patient_id ?? 'N/A' }} · {{ $user->email }} · {{ $user->created_at->format('d M Y') }}</div></div>
+        <span class="badge-active">Active</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</div>
 
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">Recent Referrals</h2>
-                <a href="{{ route('referrals.index') }}" class="btn" style="padding: 6px 14px; font-size: 0.8rem;">View All</a>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Referral #</th>
-                        <th>Patient</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($recent_referrals as $referral)
-                    <tr>
-                        <td>REF-{{ str_pad($referral->id, 5, '0', STR_PAD_LEFT) }}</td>
-                        <td>{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
-                        <td>{{ $referral->fromFacility->name ?? 'N/A' }}</td>
-                        <td>{{ $referral->toFacility->name ?? 'N/A' }}</td>
-                        <td>
-                            <span class="status-badge status-{{ $referral->status }}">
-                                {{ ucfirst($referral->status) }}
-                            </span>
-                        </td>
-                        <td>{{ $referral->created_at->format('M d, Y') }}</td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="6" style="text-align: center; color: var(--muted);">No referrals yet</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+<!-- ALL REFERRALS SECTION -->
+<div id="sec-referrals" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">All Referrals</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">System-wide referral management</div></div>
+  <div style="padding:24px 28px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">All time</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Accepted</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::where('status','accepted')->count() }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">This week</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Pending</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::where('status','pending')->count() }}</div><div style="font-size:11px;color:#d97706;margin-top:5px;">Awaiting</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Rejected</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::where('status','rejected')->count() }}</div><div style="font-size:11px;color:#dc2626;margin-top:5px;">This month</div></div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Referrals ({{ \App\Models\Referral::count() }})</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="border-bottom:2px solid #f1f5f9;">
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Ref #</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Patient</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">From</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">To</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Reason</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Status</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Date</th>
+        </tr></thead>
+        <tbody>
+        @foreach(\App\Models\Referral::with(['patient','referringFacility','receivingFacility'])->latest()->get() as $referral)
+        <tr style="border-bottom:1px solid #f1f5f9;">
+          <td style="padding:11px 0;font-weight:600;">REF-{{ str_pad($referral->id,5,'0',STR_PAD_LEFT) }}</td>
+          <td style="padding:11px 0;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
+          <td style="padding:11px 0;color:#64748b;">{{ optional($referral->referringFacility)->name ?? 'N/A' }}</td>
+          <td style="padding:11px 0;color:#64748b;">{{ optional($referral->receivingFacility)->name ?? 'N/A' }}</td>
+          <td style="padding:11px 0;color:#64748b;">{{ $referral->reason ?? 'N/A' }}</td>
+          <td style="padding:11px 0;"><span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span></td>
+          <td style="padding:11px 0;color:#94a3b8;">{{ $referral->created_at->format('d M Y') }}</td>
+        </tr>
+        @endforeach
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FACILITIES SECTION -->
+<div id="sec-facilities" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Facilities</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">All registered health facilities</div></div>
+  <div style="padding:24px 28px;">
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Facilities ({{ \App\Models\Facility::count() }})</div>
+      @foreach(\App\Models\Facility::latest()->get() as $facility)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($facility->name ?? 'F',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $facility->name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $facility->county }} · {{ ucfirst($facility->type) }} · {{ $facility->phone ?? 'No phone' }}</div></div>
+        <span class="{{ $facility->is_active ? 'badge-active' : 'badge-pending' }}">{{ $facility->is_active ? 'Active' : 'Inactive' }}</span>
+      </div>
+      @endforeach
+    </div>
+  </div>
+</div>
+
+<!-- SYSTEM REPORTS SECTION -->
+<div id="sec-reports" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:20px;font-weight:700;color:#0f172a;">System Reports</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">Generate and export system-wide reports</div></div>
+    <a href="{{ route('admin.reports.export') }}" target="_blank" style="background:#2563eb;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:inline-block;">Export PDF</a>
+  </div>
+  <div style="padding:24px 28px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','patient')->count() }}</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Referrals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::count() }}</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Acceptance Rate</div><div style="font-size:26px;font-weight:700;color:#0f172a;">@php $total = \App\Models\Referral::count(); $accepted = \App\Models\Referral::where('status','accepted')->count(); echo $total > 0 ? round(($accepted/$total)*100) : 0; @endphp%</div></div>
+      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Active Facilities</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Facility::where('is_active',true)->count() }}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Referrals by Status</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:#f0fdf4;border-radius:8px;"><span style="font-size:13px;font-weight:500;color:#0f172a;">Accepted</span><span style="font-size:16px;font-weight:700;color:#16a34a;">{{ \App\Models\Referral::where('status','accepted')->count() }}</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:#fef3c7;border-radius:8px;"><span style="font-size:13px;font-weight:500;color:#0f172a;">Pending</span><span style="font-size:16px;font-weight:700;color:#d97706;">{{ \App\Models\Referral::where('status','pending')->count() }}</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;background:#fee2e2;border-radius:8px;"><span style="font-size:13px;font-weight:500;color:#0f172a;">Rejected</span><span style="font-size:16px;font-weight:700;color:#dc2626;">{{ \App\Models\Referral::where('status','rejected')->count() }}</span></div>
         </div>
-    </main>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Top Referring Facilities</div>
+        @foreach(\App\Models\Facility::withCount('referralsFrom')->orderByDesc('referrals_from_count')->take(5)->get() as $f)
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13px;">
+          <span style="color:#0f172a;">{{ $f->name }}</span>
+          <span style="background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $f->referrals_from_count }} referrals</span>
+        </div>
+        @endforeach
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AUDIT LOGS SECTION -->
+<div id="sec-logs" class="section">
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Audit Logs</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">System activity and change history</div></div>
+  <div style="padding:24px 28px;">
+    <div class="card">
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent System Activity</div>
+      <div class="tl">
+        @foreach(\App\Models\Referral::with(['patient','referringFacility'])->latest()->take(8)->get() as $r)
+        <div class="tli">
+          <div class="tldot" style="background:{{ $r->status === 'accepted' ? '#16a34a' : ($r->status === 'rejected' ? '#dc2626' : '#d97706') }};"></div>
+          <div style="font-size:13px;font-weight:600;color:#0f172a;">Referral {{ ucfirst($r->status ?? 'created') }}</div>
+          <div style="font-size:11px;color:#94a3b8;">{{ $r->created_at->format('d M Y, h:i A') }}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:3px;">{{ optional($r->patient)->first_name ?? 'N/A' }} · {{ optional($r->referringFacility)->name ?? 'N/A' }} · {{ $r->reason ?? '' }}</div>
+        </div>
+        @endforeach
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
+  document.getElementById('sec-' + name).classList.add('active');
+  if(el) el.classList.add('on');
+}
+</script>
 </body>
 </html>

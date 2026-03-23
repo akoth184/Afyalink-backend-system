@@ -1,343 +1,302 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AfyaLink – Digital Patient Referral & Health Record System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AfyaLink — Digital Patient Referral & Health Record Platform</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:white;color:#0f172a}
+.accent{background:linear-gradient(135deg,#2563eb,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:#2563eb;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.feat-card{transition:all .2s}
+.feat-card:hover{border-color:#bfdbfe !important;box-shadow:0 12px 40px rgba(37,99,235,.08);transform:translateY(-3px)}
+.step-card::before{content:attr(data-num);position:absolute;top:-10px;right:16px;font-size:80px;font-weight:900;color:#f0f6ff;line-height:1;pointer-events:none;z-index:0}
+.modal-bg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.tab{flex:1;padding:9px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;color:#64748b;transition:all .15s}
+.tab.on{background:white;color:#2563eb;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.mform{display:none}.mform.on{display:block}
+.fi{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:9px;padding:11px 14px;font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-bottom:14px;transition:border-color .15s}
+.fi:focus{border-color:#2563eb;background:white}
+.flink{font-size:13px;color:rgba(255,255,255,.3);margin-bottom:10px;cursor:pointer;display:block;transition:color .15s;text-decoration:none}
+.flink:hover{color:rgba(255,255,255,.7)}
+.pro-btn{display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;width:100%;border:1.5px solid;margin-bottom:10px;text-align:left;text-decoration:none}
+.pro-btn:last-child{margin-bottom:0}
+</style>
 </head>
-<body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ url('/') }}" class="flex items-center gap-2">
-                        <div class="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold text-gray-900">AfyaLink</span>
-                    </a>
-                </div>
+<body>
 
-                <!-- Nav Links -->
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="#" class="text-gray-600 hover:text-teal-600 font-medium transition">Home</a>
-                    <a href="#about" class="text-gray-600 hover:text-teal-600 font-medium transition">About</a>
-                    <a href="#users" class="text-gray-600 hover:text-teal-600 font-medium transition">Users</a>
-                    <a href="#features" class="text-gray-600 hover:text-teal-600 font-medium transition">Features</a>
-                </div>
+<!-- NAV -->
+<nav style="background:rgba(255,255,255,.92);backdrop-filter:blur(12px);padding:0 56px;display:flex;align-items:center;justify-content:space-between;height:64px;border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0;z-index:100;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:34px;height:34px;background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+      <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <span style="font-size:19px;font-weight:800;color:#0f172a;letter-spacing:-.5px;">Afya<span style="color:#2563eb;">Link</span></span>
+  </div>
+  <div style="display:flex;gap:32px;align-items:center;">
+    <a href="#how" style="font-size:13px;color:#64748b;font-weight:500;text-decoration:none;">How It Works</a>
+    <a href="#features" style="font-size:13px;color:#64748b;font-weight:500;text-decoration:none;">Features</a>
+    <a href="#about" style="font-size:13px;color:#64748b;font-weight:500;text-decoration:none;">About</a>
+    <button onclick="openModal()" style="background:#2563eb;color:white;border:none;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Get Started</button>
+  </div>
+</nav>
 
-                <!-- Auth Buttons -->
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('login') }}" class="text-gray-600 hover:text-teal-600 font-medium px-4 py-2 transition">
-                        Patient Login
-                    </a>
-                    <a href="{{ route('professional.portal') }}" class="bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-lg transition">
-                        Professional Portal
-                    </a>
-                </div>
-            </div>
+<!-- HERO -->
+<div style="background:white;padding:100px 56px 80px;display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.05) 0%,transparent 65%);pointer-events:none;"></div>
+  <div>
+    <div style="display:inline-flex;align-items:center;background:#f0f6ff;border:1px solid #bfdbfe;color:#1d4ed8;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:28px;"><span class="badge-dot"></span>Kenya's Digital Health Platform</div>
+    <h1 style="font-size:54px;font-weight:900;line-height:1.08;letter-spacing:-1.5px;margin-bottom:22px;color:#0f172a;">Better Healthcare<br>Starts With<br><span class="accent">Better Access</span></h1>
+    <p style="font-size:16px;color:#64748b;line-height:1.75;margin-bottom:36px;max-width:480px;">AfyaLink connects you with doctors, hospitals, and your complete medical history — anywhere in Kenya, anytime.</p>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:48px;">
+      <button onclick="openModal()" style="background:#2563eb;color:white;border:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 24px rgba(37,99,235,.28);display:flex;align-items:center;gap:8px;">Get Started — Free <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+      <button onclick="openModal()" style="background:none;border:none;color:#64748b;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;">Already have an account? <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+    </div>
+    <div style="display:flex;align-items:center;gap:24px;padding-top:20px;border-top:1px solid #f1f5f9;">
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b;font-weight:500;"><div style="width:20px;height:20px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb;font-weight:700;">✓</div>Free to register</div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b;font-weight:500;"><div style="width:20px;height:20px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb;font-weight:700;">✓</div>Secure and private</div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;color:#64748b;font-weight:500;"><div style="width:20px;height:20px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:9px;color:#2563eb;font-weight:700;">✓</div>Works across Kenya</div>
+    </div>
+  </div>
+</div>
+
+<!-- TRUST BAR -->
+<div style="padding:24px 56px;background:#f8fafc;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:32px;">
+  <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;">Integrated with</div>
+  <div style="display:flex;gap:40px;align-items:center;">
+    <div style="font-size:12px;font-weight:700;color:#94a3b8;">Safaricom M-PESA</div>
+    <div style="font-size:12px;font-weight:700;color:#94a3b8;">Google Maps API</div>
+    <div style="font-size:12px;font-weight:700;color:#94a3b8;">Kenya MFL</div>
+    <div style="font-size:12px;font-weight:700;color:#94a3b8;">256-bit Encryption</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="how" style="padding:80px 56px;background:#f8fafc;">
+  <div style="display:inline-block;background:#f0f6ff;color:#2563eb;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">Simple Process</div>
+  <h2 style="font-size:34px;font-weight:800;color:#0f172a;letter-spacing:-.5px;margin-bottom:10px;">How AfyaLink Works</h2>
+  <p style="font-size:15px;color:#64748b;line-height:1.7;max-width:480px;margin-bottom:48px;">From registration to referral acceptance in 4 simple steps</p>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+    <div class="step-card" data-num="1" style="background:white;border-radius:14px;padding:24px;border:1px solid #e2e8f0;position:relative;overflow:hidden;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#2563eb;color:white;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;z-index:1;">1</div>
+      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;position:relative;z-index:1;">Register Once</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6;position:relative;z-index:1;">Create your free account and receive a unique Patient ID automatically</div>
+    </div>
+    <div class="step-card" data-num="2" style="background:white;border-radius:14px;padding:24px;border:1px solid #e2e8f0;position:relative;overflow:hidden;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#2563eb;color:white;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;z-index:1;">2</div>
+      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;position:relative;z-index:1;">Visit a Doctor</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6;position:relative;z-index:1;">Doctor creates your digital medical record and referral if specialist care is needed</div>
+    </div>
+    <div class="step-card" data-num="3" style="background:white;border-radius:14px;padding:24px;border:1px solid #e2e8f0;position:relative;overflow:hidden;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#2563eb;color:white;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;z-index:1;">3</div>
+      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;position:relative;z-index:1;">Track Your Care</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6;position:relative;z-index:1;">Monitor referral status, view records and find nearby hospitals in real time</div>
+    </div>
+    <div class="step-card" data-num="4" style="background:white;border-radius:14px;padding:24px;border:1px solid #e2e8f0;position:relative;overflow:hidden;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#2563eb;color:white;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;z-index:1;">4</div>
+      <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px;position:relative;z-index:1;">Pay via M-PESA</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.6;position:relative;z-index:1;">Settle consultation, lab and pharmacy bills from your phone instantly</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div id="features" style="padding:80px 56px;background:white;">
+  <div style="display:inline-block;background:#f0f6ff;color:#2563eb;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;">Platform Features</div>
+  <h2 style="font-size:34px;font-weight:800;color:#0f172a;letter-spacing:-.5px;margin-bottom:10px;">Everything You Need,<br>Nothing You Don't</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;">
+    <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
+      <div style="width:50px;height:50px;border-radius:14px;background:#dbeafe;margin-bottom:18px;"></div>
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Digital Referrals</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.65;">Instant referrals from doctor to hospital. Real-time accept or reject. Status visible to patient immediately.</p>
+    </div>
+    <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
+      <div style="width:50px;height:50px;border-radius:14px;background:#dcfce7;margin-bottom:18px;"></div>
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Medical Records</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.65;">Your complete health history — diagnoses, prescriptions, lab results. Download as PDF anytime.</p>
+    </div>
+    <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
+      <div style="width:50px;height:50px;border-radius:14px;background:#fef3c7;margin-bottom:18px;"></div>
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">GPS Hospital Finder</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.65;">Find verified hospitals near you using GPS. See working hours, contact details and specialties.</p>
+    </div>
+    <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
+      <div style="width:50px;height:50px;border-radius:14px;background:#f0fdf4;margin-bottom:18px;"></div>
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">M-PESA Payments</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.65;">Pay consultation, pharmacy, lab tests and inpatient bills directly from your phone via M-PESA.</p>
+    </div>
+    <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
+      <div style="width:50px;height:50px;border-radius:14px;background:#fce7f3;margin-bottom:18px;"></div>
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Hospital Network</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.65;">Verified hospital network across Kenya. Seamless hospital-to-hospital transfers when required.</p>
+    </div>
+    <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
+      <div style="width:50px;height:50px;border-radius:14px;background:#f5f3ff;margin-bottom:18px;"></div>
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Private and Secure</h3>
+      <p style="font-size:13px;color:#64748b;line-height:1.65;">Role-based access means only you and your authorized care team can view your health data.</p>
+    </div>
+  </div>
+</div>
+<!-- CTA -->
+<div id="about" style="background:linear-gradient(135deg,#0f1f3d 0%,#1e3a5f 40%,#2563eb 100%);padding:80px 56px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+  <div>
+    <h2 style="font-size:38px;font-weight:800;color:white;line-height:1.2;letter-spacing:-.5px;margin-bottom:14px;">Ready to Take Control of Your Health?</h2>
+    <p style="font-size:15px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:32px;">Join AfyaLink today and experience a smarter way to access healthcare across Kenya.</p>
+    <button onclick="openModal()" style="background:white;color:#2563eb;border:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:8px;">
+      Create Free Account
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:center;gap:12px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;">✓</div><div style="font-size:14px;color:rgba(255,255,255,.85);">Free to register — no credit card needed</div></div>
+    <div style="display:flex;align-items:center;gap:12px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;">✓</div><div style="font-size:14px;color:rgba(255,255,255,.85);">Unique Patient ID generated instantly</div></div>
+    <div style="display:flex;align-items:center;gap:12px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;">✓</div><div style="font-size:14px;color:rgba(255,255,255,.85);">Access your records from any device</div></div>
+    <div style="display:flex;align-items:center;gap:12px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;">✓</div><div style="font-size:14px;color:rgba(255,255,255,.85);">Pay bills securely via M-PESA</div></div>
+    <div style="display:flex;align-items:center;gap:12px;"><div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:white;flex-shrink:0;">✓</div><div style="font-size:14px;color:rgba(255,255,255,.85);">Works across all 47 counties in Kenya</div></div>
+  </div>
+</div>
+<!-- FOOTER -->
+<div style="background:#0a0f1e;padding:56px 56px 28px;">
+  <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:40px;margin-bottom:48px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:34px;height:34px;background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:9px;display:flex;align-items:center;justify-content:center;">
+          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
-    </nav>
+        <span style="font-size:20px;font-weight:800;letter-spacing:-.5px;color:white;">Afya<span style="color:#3b82f6;">Link</span></span>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px;">Digital Patient Referral and Health Record Platform built for Kenya's healthcare system.</div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;">Platform</div>
+      <a href="#" class="flink">About AfyaLink</a>
+      <a href="#how" class="flink">How It Works</a>
+      <a href="#features" class="flink">Features</a>
+      <a href="#" class="flink">Privacy Policy</a>
+      <a href="#" class="flink">Terms of Service</a>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;">Support</div>
+      <a href="#" class="flink">Help Center</a>
+      <a href="#" class="flink">Contact Us</a>
+      <a href="#" class="flink">System Status</a>
+      <a href="#" class="flink">Report an Issue</a>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;">Healthcare Professionals</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.35);line-height:1.7;margin-bottom:14px;">Are you a doctor, hospital administrator or system admin?</div>
+      <button onclick="document.getElementById('pro-modal').classList.add('show')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:8px;transition:all .15s;">
+        Professional Portal
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
 
-    <!-- Hero Section -->
-    <section class="pt-32 pb-20 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
-                <!-- Left Column - Text -->
-                <div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-                        AfyaLink<br>
-                        <span class="text-teal-600">Digital Patient Referral & Health Record Platform</span>
-                    </h1>
-                    <p class="text-lg text-gray-600 mb-8 max-w-xl">
-                        Connect patients, doctors, and healthcare facilities across Kenya with secure digital medical records and seamless referrals. Streamline healthcare delivery with our integrated platform.
-                    </p>
-
-                    <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <a href="{{ route('login') }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-lg text-teal-600 bg-teal-50 hover:bg-teal-100 transition">
-                            Patient Login
-                        </a>
-                        <a href="{{ route('register', ['role' => 'patient']) }}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-teal-600 hover:bg-teal-700 transition">
-                            Patient Registration
-                        </a>
-                        <a href="{{ route('professional.portal') }}" class="inline-flex items-center justify-center px-5 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
-                            Professional Portal
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Right Column - Dashboard Illustration -->
-                <div class="hidden lg:block">
-                    <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-                        <!-- Dashboard Header -->
-                        <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                    </svg>
-                                </div>
-                                <span class="font-semibold text-gray-900">AfyaLink Dashboard</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <span class="text-sm text-gray-500">Live</span>
-                            </div>
-                        </div>
-
-                        <!-- Dashboard Cards -->
-                        <div class="space-y-4">
-                            <!-- Card 1 -->
-                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900 text-sm">Patient Records</h4>
-                                        <p class="text-xs text-gray-500 mt-1">Secure digital medical history</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Card 2 -->
-                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900 text-sm">Hospital Referrals</h4>
-                                        <p class="text-xs text-gray-500 mt-1">Track referrals between facilities</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Card 3 -->
-                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900 text-sm">Connected Hospitals</h4>
-                                        <p class="text-xs text-gray-500 mt-1">Network of healthcare facilities</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- PROFESSIONAL MODAL -->
+    <div class="modal-bg" id="pro-modal">
+      <div style="background:white;border-radius:20px;padding:36px;width:380px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.2);">
+        <button onclick="document.getElementById('pro-modal').classList.remove('show')" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#64748b;border:none;font-family:'Inter',sans-serif;">✕</button>
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+            <div style="width:40px;height:40px;background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:11px;display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
             </div>
+            <div style="font-size:20px;font-weight:800;color:#0f172a;">Professional Access</div>
+          </div>
+          <div style="font-size:13px;color:#64748b;">Select your portal to continue</div>
         </div>
-    </section>
-
-    <!-- About AfyaLink Section -->
-    <section id="about" class="py-20 px-4 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">About AfyaLink</h2>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    AfyaLink is Kenya's connected healthcare platform, enabling seamless coordination between patients, doctors, and healthcare facilities.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="text-center p-6">
-                    <div class="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Secure Digital Medical Records</h3>
-                    <p class="text-gray-600">Access patient health records securely from any connected facility. Complete medical history available at your fingertips.</p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="text-center p-6">
-                    <div class="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Faster Hospital Referrals</h3>
-                    <p class="text-gray-600">Streamlined digital referral system connecting healthcare facilities across Kenya. Reduce paperwork and wait times.</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="text-center p-6">
-                    <div class="w-14 h-14 bg-teal-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Connected Healthcare Facilities</h3>
-                    <p class="text-gray-600">Network of healthcare facilities across Kenya. Coordinated care regardless of location or facility.</p>
-                </div>
-            </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="{{ route('doctor.login') }}" style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;">
+            <div style="width:36px;height:36px;background:#dcfce7;border-radius:8px;flex-shrink:0;"></div>
+            <div><div>Doctor Portal</div><div style="font-size:11px;font-weight:400;color:#16a34a;margin-top:2px;">Sign in or register as a doctor</div></div>
+          </a>
+          <a href="{{ route('hospital.login') }}" style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">
+            <div style="width:36px;height:36px;background:#dbeafe;border-radius:8px;flex-shrink:0;"></div>
+            <div><div>Hospital Portal</div><div style="font-size:11px;font-weight:400;color:#2563eb;margin-top:2px;">Register your facility or sign in</div></div>
+          </a>
+          <a href="{{ route('admin.login') }}" style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#fdf2f8;color:#9d174d;border:1.5px solid #fbcfe8;">
+            <div style="width:36px;height:36px;background:#fce7f3;border-radius:8px;flex-shrink:0;"></div>
+            <div><div>Admin Portal</div><div style="font-size:11px;font-weight:400;color:#be185d;margin-top:2px;">System administration access</div></div>
+          </a>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:12px;color:rgba(255,255,255,.2);">© 2026 AfyaLink · Digital Health Platform · Kenya</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.2);">Built for Kenya's Healthcare</div>
+  </div>
+</div>
 
-    <!-- System Users Section -->
-    <section id="users" class="py-20 px-4 bg-gray-50">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Who Uses AfyaLink?</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Our platform serves three main user groups across Kenya's healthcare ecosystem.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Patient Card -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Patients</h3>
-                    <p class="text-gray-600 mb-6">
-                        Access your medical records, manage appointments, and track referrals. Your health information, securely in your hands.
-                    </p>
-                    <a href="{{ route('login') }}" class="inline-flex items-center text-teal-600 font-medium hover:text-teal-700 transition">
-                        Patient Login
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Doctor Card -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Doctors</h3>
-                    <p class="text-gray-600 mb-6">
-                        Access patient records, create referrals, and manage patient care. Connected to hospitals and patients nationwide.
-                    </p>
-                    <a href="{{ route('doctor.login') }}" class="inline-flex items-center text-teal-600 font-medium hover:text-teal-700 transition">
-                        Doctor Portal
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Hospital Card -->
-                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Hospitals</h3>
-                    <p class="text-gray-600 mb-6">
-                        Manage facility operations, coordinate referrals, and connect with doctors and patients. Streamlined hospital management.
-                    </p>
-                    <a href="{{ route('hospital.login') }}" class="inline-flex items-center text-teal-600 font-medium hover:text-teal-700 transition">
-                        Hospital Portal
-                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-
-            <div class="text-center mt-12">
-                <a href="{{ route('admin.login') }}" class="inline-flex items-center text-gray-500 hover:text-teal-600 font-medium transition">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                    Admin Login
-                </a>
-            </div>
+<!-- PATIENT MODAL -->
+<div class="modal-bg" id="modal">
+  <div style="background:white;border-radius:20px;padding:36px;width:400px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.2);">
+    <button onclick="closeModal()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#64748b;border:none;font-family:'Inter',sans-serif;">✕</button>
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:10px;"></div>
+        <div style="font-size:20px;font-weight:800;color:#0f172a;">AfyaLink</div>
+      </div>
+      <div style="font-size:13px;color:#64748b;">Your health journey starts here</div>
+    </div>
+    <div style="display:flex;background:#f8fafc;border-radius:10px;padding:4px;margin-bottom:24px;">
+      <div class="tab on" onclick="st('login',this)">Sign In</div>
+      <div class="tab" onclick="st('register',this)">Create Account</div>
+    </div>
+    <div id="f-login" class="mform on">
+      <form method="POST" action="{{ route('login') }}">
+        @csrf
+        <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Email Address</label>
+        <input class="fi" type="email" name="email" placeholder="your@email.com" required>
+        <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Password</label>
+        <input class="fi" type="password" name="password" placeholder="••••••••" required>
+        <button type="submit" style="width:100%;background:#2563eb;color:white;border:none;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Sign In to AfyaLink</button>
+      </form>
+      <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:12px;">Forgot password? <a href="#" style="color:#2563eb;">Reset here</a></p>
+    </div>
+    <div id="f-register" class="mform">
+      <form method="POST" action="{{ route('register') }}">
+        @csrf
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">First Name</label><input class="fi" type="text" name="first_name" placeholder="John" required></div>
+          <div><label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Last Name</label><input class="fi" type="text" name="last_name" placeholder="Doe" required></div>
         </div>
-    </section>
+        <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Email Address</label>
+        <input class="fi" type="email" name="email" placeholder="your@email.com" required>
+        <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Password</label>
+        <input class="fi" type="password" name="password" placeholder="Create a strong password" required>
+        <input type="hidden" name="password_confirmation" id="pwd-confirm">
+        <button type="submit" style="width:100%;background:#2563eb;color:white;border:none;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Create My Account</button>
+      </form>
+      <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:12px;">By creating an account you agree to our <a href="#" style="color:#2563eb;">Terms</a></p>
+    </div>
+  </div>
+</div>
 
-    <!-- Key Features Section -->
-    <section id="features" class="py-20 px-4 bg-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Key Features</h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Essential tools for modern healthcare delivery in Kenya.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-                    <div class="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Digital Medical Records</h3>
-                    <p class="text-gray-600">
-                        Secure, comprehensive electronic health records accessible across all connected healthcare facilities in Kenya.
-                    </p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-                    <div class="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Secure Referral System</h3>
-                    <p class="text-gray-600">
-                        Digital referrals with real-time tracking. From submission to acceptance, manage patient transfers seamlessly.
-                    </p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-                    <div class="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Hospital Network</h3>
-                    <p class="text-gray-600">
-                        Connected network of healthcare facilities across Kenya. Coordinate care between hospitals, clinics, and health centers.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 py-12 px-4">
-        <div class="max-w-7xl mx-auto text-center">
-            <h3 class="text-2xl font-bold text-white mb-2">AfyaLink</h3>
-            <p class="text-gray-400 mb-4">Digital Patient Referral System</p>
-            <p class="text-gray-500 text-sm">
-                © 2026 AfyaLink. All rights reserved.
-            </p>
-        </div>
-    </footer>
+<!-- SCRIPTS -->
+<script>
+function openModal(){document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function st(n,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.mform').forEach(f=>f.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('f-'+n).classList.add('on');
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var form = document.querySelector('#f-register form');
+  if(form) form.addEventListener('submit',function(){
+    var pwd = this.querySelector('[name=password]').value;
+    var conf = document.getElementById('pwd-confirm');
+    if(conf) conf.value = pwd;
+  });
+  var modal = document.getElementById('modal');
+  if(modal) modal.addEventListener('click',function(e){if(e.target===this)closeModal();});
+});
+</script>
 </body>
 </html>

@@ -39,6 +39,16 @@ class Facility extends Model
         return $this->hasMany(Referral::class, 'receiving_facility_id');
     }
 
+    public function referralsFrom()
+    {
+        return $this->hasMany(Referral::class, 'referring_facility_id');
+    }
+
+    public function referralsTo()
+    {
+        return $this->hasMany(Referral::class, 'receiving_facility_id');
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Boot Method
