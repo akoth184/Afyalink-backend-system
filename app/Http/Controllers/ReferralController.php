@@ -35,16 +35,12 @@ class ReferralController extends Controller
             return view('referrals.index', compact('referrals'));
         }
 
-        // Doctors see referrals from their facility
-        if ($user->role === 'doctor' && $user->facility_id) {
-            $referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
-                ->where(function($query) use ($user) {
-                    $query->where('referring_facility_id', $user->facility_id)
-                        ->orWhere('receiving_facility_id', $user->facility_id);
-                })
+        // Doctors see referrals they created
+        if ($user->role === 'doctor') {
+            $referrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
+                ->where('referred_by', $user->id)
                 ->latest()
                 ->paginate(10);
-
             return view('referrals.index', compact('referrals'));
         }
 

@@ -250,23 +250,60 @@ body{font-family:'Inter',sans-serif;}
         </div>
         @endforeach
         <div id="edit-hours" style="display:none;margin-top:16px;border-top:1px solid #f1f5f9;padding-top:16px;">
-          <form method="POST" action="{{ route('hospital.dashboard') }}">
-            @csrf
-            <div style="margin-bottom:10px;">
-              <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:5px;">Day</label>
-              <select id="edit-day" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;">
-                @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','All Days'] as $d)
-                <option>{{ $d }}</option>
-                @endforeach
-              </select>
-            </div>
-            <div style="margin-bottom:10px;">
-              <label style="font-size:11px;color:#64748b;font-weight:600;display:block;margin-bottom:5px;">Hours</label>
-              <input type="text" id="edit-time" placeholder="e.g. 8:00 AM – 6:00 PM or 24 Hours" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;">
-            </div>
-            <button type="button" onclick="saveHour()" style="width:100%;background:#2563eb;color:white;border:none;padding:9px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Save Changes</button>
-          </form>
+  <form method="POST" action="{{ route('hospital.hours.update') }}">
+    @csrf
+    @php
+      $days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+      $wh = is_string(optional($facility)->working_hours) ? json_decode($facility->working_hours, true) : (optional($facility)->working_hours ?? []);
+    @endphp
+    @foreach($days as $day)
+    @php
+      $current = $wh[$day] ?? 'Not set';
+      $isClosed = $current === 'Closed';
+      $is24 = $current === 'Open 24 Hours';
+      $parts = (!$isClosed && !$is24 && str_contains($current, ' - ')) ? explode(' - ', $current) : ['8:00 AM', '6:00 PM'];
+    @endphp
+    <div style="margin-bottom:12px;padding:10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:13px;font-weight:600;color:#0f172a;">{{ $day }}</span>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#64748b;cursor:pointer;">
+            <input type="checkbox" name="allday_{{ $day }}" value="1" {{ $is24 ? 'checked' : '' }} onchange="toggleDay('{{ $day }}', this, 'allday')"> 24hrs
+          </label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#64748b;cursor:pointer;">
+            <input type="checkbox" name="closed_{{ $day }}" value="1" {{ $isClosed ? 'checked' : '' }} onchange="toggleDay('{{ $day }}', this, 'closed')"> Closed
+          </label>
         </div>
+      </div>
+      <div id="times-{{ $day }}" style="display:{{ ($isClosed || $is24) ? 'none' : 'flex' }};gap:8px;align-items:center;">
+        <select name="open_{{ $day }}" style="flex:1;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:6px 8px;font-size:12px;font-family:inherit;">
+          @foreach(['12:00 AM','1:00 AM','2:00 AM','3:00 AM','4:00 AM','5:00 AM','6:00 AM','7:00 AM','8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM','8:00 PM','9:00 PM','10:00 PM','11:00 PM'] as $t)
+          <option value="{{ $t }}" {{ $parts[0] === $t ? 'selected' : '' }}>{{ $t }}</option>
+          @endforeach
+        </select>
+        <span style="font-size:11px;color:#94a3b8;">to</span>
+        <select name="close_{{ $day }}" style="flex:1;background:white;border:1px solid #e2e8f0;border-radius:6px;padding:6px 8px;font-size:12px;font-family:inherit;">
+          @foreach(['12:00 AM','1:00 AM','2:00 AM','3:00 AM','4:00 AM','5:00 AM','6:00 AM','7:00 AM','8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM','7:00 PM','8:00 PM','9:00 PM','10:00 PM','11:00 PM'] as $t)
+          <option value="{{ $t }}" {{ isset($parts[1]) && $parts[1] === $t ? 'selected' : '' }}>{{ $t }}</option>
+          @endforeach
+        </select>
+      </div>
+    </div>
+    @endforeach
+    <button type="submit" style="width:100%;background:#2563eb;color:white;border:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save Working Hours</button>
+  </form>
+  <script>
+  function toggleDay(day, cb, type) {
+    var times = document.getElementById('times-' + day);
+    var allday = document.querySelector('[name=allday_' + day + ']');
+    var closed = document.querySelector('[name=closed_' + day + ']');
+    if(type === 'allday' && cb.checked && closed) closed.checked = false;
+    if(type === 'closed' && cb.checked && allday) allday.checked = false;
+    var hide = (allday && allday.checked) || (closed && closed.checked);
+    times.style.display = hide ? 'none' : 'flex';
+  }
+  </script>
+</div>
       </div>
     </div>
   </div>

@@ -47,6 +47,7 @@ Route::prefix('hospital')->group(function () {
     Route::get('/register', [\App\Http\Controllers\HospitalAuthController::class, 'showRegister'])->name('hospital.register');
     Route::post('/register', [\App\Http\Controllers\HospitalAuthController::class, 'register'])->name('hospital.register.submit');
     Route::get('/dashboard', [\App\Http\Controllers\HospitalAuthController::class, 'dashboard'])->name('hospital.dashboard')->middleware('auth');
+    Route::post('/hours', [\App\Http\Controllers\HospitalAuthController::class, 'updateHours'])->name('hospital.hours.update');
 });
 
 // Legacy routes (redirect to new portals)

@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Doctor Application — AfyaLink</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --teal: #0d6e6e; --teal-mid: #0f8080; --teal-lt: #e6f4f4;
+            --blue: #2563eb; --blue-dark: #1e3a5f; --blue-lt: #eff6ff;
             --ink: #1a1f2e; --muted: #5a6275; --border: #dde4e4;
             --red: #e53e3e;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'DM Sans', sans-serif;
-            background: linear-gradient(135deg, #0a5555 0%, #0d6e6e 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f1f3d 0%, #1e3a5f 100%);
             min-height: 100vh;
             padding: 24px;
         }
@@ -25,10 +25,10 @@
             box-shadow: 0 24px 64px rgba(0,0,0,.2);
         }
         .logo { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 32px; }
-        .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, var(--teal), var(--teal-mid)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, var(--blue-dark), var(--blue)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
         .logo-mark svg { width: 22px; height: 22px; fill: white; }
-        .logo-text { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--ink); }
-        h1 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--ink); margin-bottom: 6px; text-align: center; }
+        .logo-text { font-family: 'Inter', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+        h1 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--ink); margin-bottom: 6px; text-align: center; }
         .subtitle { font-size: .875rem; color: var(--muted); text-align: center; margin-bottom: 32px; }
         .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .field { margin-bottom: 16px; }
@@ -39,11 +39,11 @@
             font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--ink);
             transition: border-color .2s; outline: none; background: white;
         }
-        input:focus, select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,110,110,.1); }
-        .btn { width: 100%; padding: 13px; background: var(--teal); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600; cursor: pointer; transition: all .2s; margin-top: 8px; }
-        .btn:hover { background: var(--teal-mid); transform: translateY(-1px); }
+        input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .btn { width: 100%; padding: 13px; background: var(--blue); color: white; border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600; cursor: pointer; transition: all .2s; margin-top: 8px; }
+        .btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
         .footer-link { text-align: center; font-size: .82rem; color: var(--muted); margin-top: 24px; }
-        .footer-link a { color: var(--teal); font-weight: 600; text-decoration: none; }
+        .footer-link a { color: var(--blue); font-weight: 600; text-decoration: none; }
         .field-error { font-size: .75rem; color: var(--red); margin-top: 4px; }
         .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: .875rem; }
         .alert-success { background: #e6f8ee; color: #22a85a; border: 1px solid #c5e8d3; }

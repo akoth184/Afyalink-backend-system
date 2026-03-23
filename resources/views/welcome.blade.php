@@ -210,22 +210,68 @@ body{font-family:'Inter',sans-serif;background:white;color:#0f172a}
           <div style="font-size:13px;color:#64748b;">Select your portal to continue</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <a href="{{ route('doctor.login') }}" style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;">
-            <div style="width:36px;height:36px;background:#dcfce7;border-radius:8px;flex-shrink:0;"></div>
-            <div><div>Doctor Portal</div><div style="font-size:11px;font-weight:400;color:#16a34a;margin-top:2px;">Sign in or register as a doctor</div></div>
-          </a>
-          <a href="{{ route('hospital.login') }}" style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">
-            <div style="width:36px;height:36px;background:#dbeafe;border-radius:8px;flex-shrink:0;"></div>
+          <button onclick="document.getElementById('pro-modal').classList.remove('show');document.getElementById('doctor-modal').classList.add('show');" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;width:100%;cursor:pointer;font-family:'Inter',sans-serif;text-align:left;">
+            <div style="width:36px;height:36px;background:#dcfce7;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <div>
+              <div>Doctor Portal</div>
+              <div style="font-size:11px;font-weight:400;color:#16a34a;margin-top:2px;">Sign in or apply to register</div>
+            </div>
+          </button>
+          <a href="{{ route('hospital.login') }}" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">
+            <div style="width:36px;height:36px;background:#dbeafe;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
             <div><div>Hospital Portal</div><div style="font-size:11px;font-weight:400;color:#2563eb;margin-top:2px;">Register your facility or sign in</div></div>
           </a>
-          <a href="{{ route('admin.login') }}" style="display:flex;align-items:center;gap:10px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#fdf2f8;color:#9d174d;border:1.5px solid #fbcfe8;">
-            <div style="width:36px;height:36px;background:#fce7f3;border-radius:8px;flex-shrink:0;"></div>
+          <a href="{{ route('admin.login') }}" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#fdf2f8;color:#9d174d;border:1.5px solid #fbcfe8;">
+            <div style="width:36px;height:36px;background:#fce7f3;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" fill="none" stroke="#be185d" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
             <div><div>Admin Portal</div><div style="font-size:11px;font-weight:400;color:#be185d;margin-top:2px;">System administration access</div></div>
           </a>
         </div>
       </div>
     </div>
   </div>
+
+<div class="modal-bg" id="doctor-modal">
+  <div style="background:white;border-radius:20px;padding:36px;width:380px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.2);">
+    <button onclick="document.getElementById('doctor-modal').classList.remove('show');document.getElementById('pro-modal').classList.add('show');" style="position:absolute;top:16px;left:16px;width:30px;height:30px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#64748b;border:none;font-family:'Inter',sans-serif;">←</button>
+    <button onclick="document.getElementById('doctor-modal').classList.remove('show')" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#64748b;border:none;font-family:'Inter',sans-serif;">✕</button>
+    <div style="text-align:center;margin-bottom:28px;margin-top:8px;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px;">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#1e3a5f,#2563eb);border-radius:11px;display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <div style="font-size:20px;font-weight:800;color:#0f172a;">Doctor Portal</div>
+      </div>
+      <div style="font-size:13px;color:#64748b;">Sign in or apply to join AfyaLink</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a href="{{ route('doctor.login') }}" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdf4;color:#15803d;border:1.5px solid #bbf7d0;">
+        <div style="width:36px;height:36px;background:#dcfce7;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+          <svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+        </div>
+        <div>
+          <div>Sign In</div>
+          <div style="font-size:11px;font-weight:400;color:#16a34a;margin-top:2px;">Already have an approved account</div>
+        </div>
+      </a>
+      <a href="{{ route('doctor.apply') }}" style="display:flex;align-items:center;gap:12px;padding:16px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">
+        <div style="width:36px;height:36px;background:#dbeafe;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+          <svg width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        </div>
+        <div>
+          <div>Apply to Register</div>
+          <div style="font-size:11px;font-weight:400;color:#2563eb;margin-top:2px;">New doctor — submit your application</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
   <div style="border-top:1px solid rgba(255,255,255,.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;">
     <div style="font-size:12px;color:rgba(255,255,255,.2);">© 2026 AfyaLink · Digital Health Platform · Kenya</div>
     <div style="font-size:12px;color:rgba(255,255,255,.2);">Built for Kenya's Healthcare</div>

@@ -112,6 +112,37 @@ class HospitalAuthController extends Controller
         return view('hospital.dashboard', compact('stats', 'user', 'facility', 'referrals'));
     }
 
+    public function updateHours(Request $request)
+    {
+        $user = Auth::user();
+        $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)
+            ->orWhere('id', $user->facility_id)
+            ->first();
+        if (!$facility) {
+            return back()->with('error', 'Facility not found.');
+        }
+        $days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        $hours = [];
+        foreach ($days as $day) {
+            $open = $request->input('open_' . $day);
+            $close = $request->input('close_' . $day);
+            $closed = $request->input('closed_' . $day);
+            $allday = $request->input('allday_' . $day);
+            if ($closed) {
+                $hours[$day] = 'Closed';
+            } elseif ($allday) {
+                $hours[$day] = 'Open 24 Hours';
+            } elseif ($open && $close) {
+                $hours[$day] = $open . ' - ' . $close;
+            } else {
+                $hours[$day] = 'Not set';
+            }
+        }
+        $facility->working_hours = json_encode($hours);
+        $facility->save();
+        return back()->with('success', 'Working hours updated successfully!');
+    }
+
     /**
      * Handle hospital logout
      */
