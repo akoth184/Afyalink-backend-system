@@ -16,13 +16,24 @@ body{font-family:'Inter',sans-serif;}
 .stat-card{background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;transition:all .15s;cursor:pointer;}
 .stat-card:hover{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
 .card{background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-220px);transition:transform .3s;}
+  #sidebar.open{transform:translateX(0);}
+  #main-content{margin-left:0 !important;}
+  #hamburger{display:flex !important;}
+}
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<button id="hamburger" onclick="toggleSidebar()" style="position:fixed;top:14px;left:14px;z-index:300;background:#1e3a5f;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+</button>
 <div style="display:flex;min-height:100vh;">
 
 <!-- SIDEBAR -->
-<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;">
+<aside id="sidebar" style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;">
   <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
     <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
     <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Patient Portal</div>
@@ -40,6 +51,8 @@ body{font-family:'Inter',sans-serif;}
     <a href="{{ route('patient.records') }}" class="slink">Medical Records</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Referrals</div>
     <a href="{{ route('patient.referrals') }}" class="slink">My Referrals</a>
+    <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Payments</div>
+    <a href="{{ route('patient.payments') }}" class="slink">M-PESA Payments</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Explore</div>
     <a href="{{ route('patient.nearby-hospitals') }}" class="slink">Nearby Hospitals</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Account</div>
@@ -54,7 +67,7 @@ body{font-family:'Inter',sans-serif;}
 </aside>
 
 <!-- MAIN -->
-<div style="margin-left:220px;flex:1;">
+<div id="main-content" style="margin-left:220px;flex:1;">
   <!-- BANNER -->
   <div style="background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;">
     <div>
@@ -167,5 +180,10 @@ body{font-family:'Inter',sans-serif;}
   </div>
 </div>
 </div>
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
 </body>
 </html>

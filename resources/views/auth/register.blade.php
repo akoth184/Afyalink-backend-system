@@ -87,6 +87,11 @@
             @error('email') <div class="field-error">{{ $message }}</div> @enderror
         </div>
 
+        <div style="margin-bottom:14px;">
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Phone Number</label>
+            <input type="text" name="phone" value="{{ old('phone') }}" placeholder="e.g. 0712345678" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+
         {{-- Role field hidden for patient registration (auto-assigned) - shown only for admin-managed registrations --}}
         @if(request('role') !== 'patient')
         <div class="field">
@@ -109,9 +114,9 @@
             @error('password') <div class="field-error">{{ $message }}</div> @enderror
         </div>
 
-        <div class="field">
-            <label for="password_confirmation">Confirm password</label>
-            <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Repeat password">
+        <div style="margin-bottom:14px;">
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Confirm Password</label>
+            <input type="password" name="password_confirmation" placeholder="Re-enter your password" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Inter',sans-serif;outline:none;">
         </div>
 
         <button type="submit" class="btn">Create Account</button>

@@ -46,7 +46,8 @@ class DashboardController extends Controller
         $stats = [
             'my_records'      => \App\Models\MedicalRecord::where('patient_id', $user->id)->count(),
             'my_referrals'    => \App\Models\Referral::where('patient_id', $user->id)->count(),
-            'total_hospitals' => \App\Models\Facility::count(),
+            'total_records'   => \App\Models\MedicalRecord::where('patient_id', $user->id)->count(),
+            'total_facilities' => \App\Models\Facility::where('is_active', true)->count(),
             'total_doctors'   => \App\Models\User::where('role', 'doctor')->count(),
         ];
 

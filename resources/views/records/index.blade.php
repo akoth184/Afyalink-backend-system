@@ -53,7 +53,7 @@
                         @foreach($records as $record)
                         <tr>
                             <td style="padding:13px 22px;font-size:.85rem;border-bottom:1px solid #f0f4f4;"><div style="font-weight:600;color:#1a1f2e;">{{ $record->title ?? 'Record #'.$record->id }}</div></td>
-                            <td style="padding:13px 22px;font-size:.82rem;border-bottom:1px solid #f0f4f4;">{{ optional($record->patient)->first_name }} {{ optional($record->patient)->last_name }}</td>
+                            <td style="padding:13px 22px;font-size:.82rem;border-bottom:1px solid #f0f4f4;">{{ optional($record->patient)->first_name ?? 'N/A' }} {{ optional($record->patient)->last_name ?? '' }}</td>
                             <td style="padding:13px 22px;font-size:.82rem;color:#5a6275;border-bottom:1px solid #f0f4f4;">{{ optional($record->facility)->name ?? '—' }}</td>
                             <td style="padding:13px 22px;border-bottom:1px solid #f0f4f4;"><span style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:700;background:#ebf8ff;color:#1a5276;">{{ ucfirst($record->record_type ?? 'general') }}</span></td>
                             <td style="padding:13px 22px;font-size:.78rem;color:#5a6275;border-bottom:1px solid #f0f4f4;">{{ $record->visit_date ? \Carbon\Carbon::parse($record->visit_date)->format('d M Y') : '—' }}</td>

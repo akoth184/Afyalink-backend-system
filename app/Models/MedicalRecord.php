@@ -41,7 +41,7 @@ class MedicalRecord extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(\App\Models\User::class, 'patient_id');
     }
 
     public function facility()
@@ -51,6 +51,6 @@ class MedicalRecord extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(\App\Models\User::class, 'doctor_id');
     }
 }

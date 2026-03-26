@@ -2,120 +2,150 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\MpesaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use App\Models\Payment;
+use Carbon\Carbon;
 
 class MpesaController extends Controller
 {
-    protected $mpesaService;
+    private $consumerKey;
+    private $consumerSecret;
+    private $shortcode;
+    private $passkey;
+    private $callbackUrl;
+    private $baseUrl;
 
-    public function __construct(MpesaService $mpesaService)
+    public function __construct()
     {
-        $this->mpesaService = $mpesaService;
+        $this->consumerKey = env('MPESA_CONSUMER_KEY');
+        $this->consumerSecret = env('MPESA_CONSUMER_SECRET');
+        $this->shortcode = env('MPESA_SHORTCODE', '174379');
+        $this->passkey = env('MPESA_PASSKEY');
+        $this->callbackUrl = env('MPESA_CALLBACK_URL', 'https://afyalink.ke/mpesa/callback');
+        $this->baseUrl = env('MPESA_ENV', 'sandbox') === 'production'
+            ? 'https://api.safaricom.co.ke'
+            : 'https://sandbox.safaricom.co.ke';
     }
 
-    /**
-     * Initiate M-Pesa STK Push payment
-     */
+    private function getAccessToken()
+    {
+        $credentials = base64_encode($this->consumerKey . ':' . $this->consumerSecret);
+        $response = Http::withHeaders([
+            'Authorization' => 'Basic ' . $credentials
+        ])->get($this->baseUrl . '/oauth/v1/generate?grant_type=client_credentials');
+        return $response->json()['access_token'] ?? null;
+    }
+
+    public function showPaymentPage()
+    {
+        $user = Auth::user();
+        $payments = Payment::where('patient_id', $user->id)->latest()->get();
+        return view('patient.payments', compact('payments'));
+    }
+
     public function initiatePayment(Request $request)
     {
         $request->validate([
             'phone' => 'required|string',
             'amount' => 'required|numeric|min:1',
-            'service_type' => 'required|string',
+            'payment_type' => 'required|string|in:consultation,pharmacy,lab,inpatient',
         ]);
 
         $user = Auth::user();
+        $phone = $this->formatPhone($request->phone);
+        $amount = (int) $request->amount;
+        $timestamp = Carbon::now()->format('YmdHis');
+        $password = base64_encode($this->shortcode . $this->passkey . $timestamp);
 
-        // Generate unique account reference
-        $accountReference = 'AFYA' . $user->id . time();
+        $payment = Payment::create([
+            'patient_id' => $user->id,
+            'payment_type' => $request->payment_type,
+            'amount' => $amount,
+            'phone_number' => $phone,
+            'status' => 'pending',
+            'description' => ucfirst($request->payment_type) . ' payment - AfyaLink',
+        ]);
 
-        // Initiate STK Push
-        $result = $this->mpesaService->stkPush(
-            $request->input('phone'),
-            $request->input('amount'),
-            $accountReference,
-            $request->input('service_type')
-        );
-
-        if ($result['success']) {
-            // Log the transaction attempt
-            Log::info('M-Pesa Payment Initiated', [
-                'user_id' => $user->id,
-                'phone' => $request->input('phone'),
-                'amount' => $request->input('amount'),
-                'checkout_request_id' => $result['checkout_request_id'],
-                'account_reference' => $accountReference,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment request sent to your phone',
-                'checkout_request_id' => $result['checkout_request_id'],
-            ]);
+        $token = $this->getAccessToken();
+        if (!$token) {
+            return back()->with('error', 'Could not connect to M-PESA. Please try again.');
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => $result['message'] ?? 'Failed to initiate payment',
-        ], 400);
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/mpesa/stkpush/v1/processrequest', [
+            'BusinessShortCode' => $this->shortcode,
+            'Password' => $password,
+            'Timestamp' => $timestamp,
+            'TransactionType' => 'CustomerPayBillOnline',
+            'Amount' => $amount,
+            'PartyA' => $phone,
+            'PartyB' => $this->shortcode,
+            'PhoneNumber' => $phone,
+            'CallBackURL' => $this->callbackUrl,
+            'AccountReference' => 'AfyaLink-' . $user->patient_id,
+            'TransactionDesc' => ucfirst($request->payment_type) . ' Fee - AfyaLink',
+        ]);
+
+        $data = $response->json();
+
+        if (isset($data['CheckoutRequestID'])) {
+            $payment->update([
+                'checkout_request_id' => $data['CheckoutRequestID'],
+                'merchant_request_id' => $data['MerchantRequestID'],
+            ]);
+            return back()->with('success', 'STK Push sent to ' . $request->phone . '! Check your phone and enter your M-PESA PIN to complete payment.');
+        }
+
+        $payment->update(['status' => 'failed']);
+        return back()->with('error', 'Payment initiation failed. ' . ($data['errorMessage'] ?? 'Please try again.'));
     }
 
-    /**
-     * Handle M-Pesa callback
-     */
-    public function handleCallback(Request $request)
+    public function callback(Request $request)
     {
         $data = $request->all();
+        $body = $data['Body']['stkCallback'] ?? null;
+        if (!$body) return response()->json(['status' => 'ok']);
 
-        Log::info('M-Pesa Callback Received', $data);
+        $checkoutRequestId = $body['CheckoutRequestID'];
+        $resultCode = $body['ResultCode'];
 
-        $callbackData = $this->mpesaService->handleCallback($data);
+        $payment = Payment::where('checkout_request_id', $checkoutRequestId)->first();
+        if (!$payment) return response()->json(['status' => 'ok']);
 
-        // Check if payment was successful
-        if ($callbackData['result_code'] === 0) {
-            // Payment successful - log it
-            Log::info('M-Pesa Payment Successful', [
-                'checkout_request_id' => $callbackData['checkout_request_id'],
-                'amount' => $callbackData['amount'],
-                'mpesa_receipt_number' => $callbackData['mpesa_receipt_number'],
-                'phone_number' => $callbackData['phone_number'],
+        if ($resultCode == 0) {
+            $items = collect($body['CallbackMetadata']['Item'] ?? []);
+            $receipt = $items->firstWhere('Name', 'MpesaReceiptNumber')['Value'] ?? null;
+            $payment->update([
+                'status' => 'completed',
+                'mpesa_receipt' => $receipt,
+                'paid_at' => now(),
             ]);
-
-            // TODO: Update payment status in database if you have a payments table
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Payment processed successfully',
-            ]);
+        } else {
+            $payment->update(['status' => 'failed']);
         }
 
-        // Payment failed
-        Log::warning('M-Pesa Payment Failed', [
-            'checkout_request_id' => $callbackData['checkout_request_id'],
-            'result_code' => $callbackData['result_code'],
-            'result_desc' => $callbackData['result_desc'],
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'message' => $callbackData['result_desc'] ?? 'Payment failed',
-        ]);
+        return response()->json(['status' => 'ok']);
     }
 
-    /**
-     * Query payment status
-     */
-    public function queryStatus(Request $request)
+    public function checkStatus(Request $request)
     {
-        $request->validate([
-            'checkout_request_id' => 'required|string',
-        ]);
+        $payment = Payment::where('checkout_request_id', $request->checkout_id)
+            ->where('patient_id', Auth::id())
+            ->first();
+        if (!$payment) return response()->json(['status' => 'not_found']);
+        return response()->json(['status' => $payment->status, 'receipt' => $payment->mpesa_receipt]);
+    }
 
-        $result = $this->mpesaService->queryStatus($request->input('checkout_request_id'));
-
-        return response()->json($result);
+    private function formatPhone($phone)
+    {
+        $phone = preg_replace('/\D/', '', $phone);
+        if (substr($phone, 0, 1) === '0') $phone = '254' . substr($phone, 1);
+        if (substr($phone, 0, 2) === '07') $phone = '254' . substr($phone, 1);
+        if (substr($phone, 0, 1) !== '2') $phone = '254' . $phone;
+        return $phone;
     }
 }

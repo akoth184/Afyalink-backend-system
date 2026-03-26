@@ -43,16 +43,9 @@ class PatientController extends Controller
             abort(403, 'This page is only for patients.');
         }
 
-        // Find patient record associated with this user
-        $patient = Patient::where('email', $user->email)->first();
-
-        if (!$patient) {
-            return view('patient.records', ['records' => collect()]);
-        }
-
-        // Get medical records for this patient
-        $records = MedicalRecord::with(['patient', 'facility', 'doctor'])
-            ->where('patient_id', $patient->id)
+        // Get medical records for this patient (now stored in users table)
+        $records = \App\Models\MedicalRecord::where('patient_id', $user->id)
+            ->with('doctor')
             ->latest()
             ->get();
 

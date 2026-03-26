@@ -59,9 +59,7 @@ class MedicalRecordController extends Controller
 
         // Patients can only view their own records
         if ($user->role === 'patient') {
-            $patient = Patient::where('email', $user->email)->first();
-
-            if (!$patient || $record->patient_id !== $patient->id) {
+            if ($record->patient_id !== $user->id) {
                 abort(403, 'You are not authorized to view this medical record.');
             }
         }
@@ -102,7 +100,7 @@ class MedicalRecordController extends Controller
             abort(403, 'Only doctors can create medical records.');
         }
 
-        $patients = Patient::orderBy('first_name')->get();
+        $patients = \App\Models\User::where('role', 'patient')->orderBy('first_name')->get();
         $facilities = \App\Models\Facility::orderBy('name')->get();
         return view('records.create', compact('patients', 'facilities'));
     }
@@ -112,60 +110,46 @@ class MedicalRecordController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if user can create medical records
-        if (!Gate::allows('create-medical-records')) {
-            abort(403, 'Only doctors can create medical records.');
-        }
+        $user = Auth::user();
 
-        $validator = Validator::make($request->all(), [
-            'patient_id'                  => 'required|exists:patients,id',
-            'facility_id'                 => 'required|exists:facilities,id',
-            'doctor_id'                   => 'required|exists:users,id',
-            'visit_date'                  => 'required|date',
-            'chief_complaint'             => 'required|string',
-            'history_of_present_illness'  => 'nullable|string',
-            'vital_signs'                 => 'nullable|array',
-            'examination_findings'        => 'nullable|string',
-            'diagnosis'                   => 'nullable|string',
-            'treatment_plan'              => 'nullable|string',
-            'medications'                 => 'nullable|string',
-            'lab_results'                 => 'nullable|array',
-            'notes'                      => 'nullable|string',
-            'status'                     => 'nullable|string',
-            'file'                       => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+        $request->validate([
+            'patient_id'    => 'required|exists:users,id',
+            'visit_date'    => 'required|date',
+            'chief_complaint' => 'nullable|string',
+            'diagnosis'     => 'nullable|string',
+            'treatment_plan' => 'nullable|string',
+            'medications'   => 'nullable|string',
+            'notes'         => 'nullable|string',
+            'file'          => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
         ]);
 
-        if ($validator->fails()) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'errors'  => $validator->errors(),
-                ], 422);
-            }
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        $data = [
+            'patient_id'    => $request->patient_id,
+            'doctor_id'     => $user->id,
+            'facility_id'   => $request->facility_id ?? $user->facility_id ?? 1,
+            'visit_date'    => $request->visit_date,
+            'chief_complaint' => $request->chief_complaint ?? $request->diagnosis ?? 'General Visit',
+            'diagnosis'     => $request->diagnosis,
+            'treatment_plan' => $request->treatment_plan ?? '',
+        'medications' => $request->medications ?? '',
+        'notes' => $request->notes ?? '',
+        'history_of_present_illness' => $request->history_of_present_illness ?? '',
+        'examination_findings' => $request->examination_findings ?? '',
+            'medications'   => $request->medications,
+            'notes'         => $request->notes ?? '',
+            'status'        => 'draft',
+        ];
 
-        $recordData = $request->all();
-
-        // Handle file upload
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('public/medical_records', $filename);
-            $recordData['file_path'] = 'medical_records/' . $filename;
+            $data['file_path'] = 'medical_records/' . $filename;
         }
 
-        $record = MedicalRecord::create($recordData);
+        $record = \App\Models\MedicalRecord::create($data);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Medical record created successfully.',
-                'data'    => $record->load(['patient', 'facility', 'doctor']),
-            ], 201);
-        }
-
-        return redirect()->route('records.show', $record)
+        return redirect()->route('records.index')
             ->with('success', 'Medical record created successfully.');
     }
 
@@ -186,7 +170,7 @@ class MedicalRecordController extends Controller
             abort(403, 'You can only edit medical records you created.');
         }
 
-        $patients = Patient::orderBy('first_name')->get();
+        $patients = \App\Models\User::where('role', 'patient')->orderBy('first_name')->get();
 
         return view('records.edit', compact('record', 'patients'));
     }
@@ -219,7 +203,7 @@ class MedicalRecordController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'patient_id'                  => 'sometimes|exists:patients,id',
+            'patient_id'                  => 'sometimes|exists:users',
             'facility_id'                 => 'sometimes|exists:facilities,id',
             'doctor_id'                   => 'sometimes|exists:users,id',
             'visit_date'                  => 'sometimes|date',
@@ -358,9 +342,7 @@ class MedicalRecordController extends Controller
 
         // Patients can only download their own records
         if ($user->role === 'patient') {
-            $patient = Patient::where('email', $user->email)->first();
-
-            if (!$patient || $record->patient_id !== $patient->id) {
+            if ($record->patient_id !== $user->id) {
                 abort(403, 'You are not authorized to download this record.');
             }
         }
@@ -396,99 +378,105 @@ class MedicalRecordController extends Controller
         // Get facility name
         $facilityName = $record->facility ? $record->facility->name : 'N/A';
 
-        // Generate HTML for PDF
-        $html = <<<HTML
+        $generatedAt = now()->format('d M Y, h:i A');
+        $recordNumber = 'MR-' . str_pad($record->id, 5, '0', STR_PAD_LEFT);
+        $statusColor = $record->status === 'finalized' ? '#16a34a' : '#d97706';
+        $html = '
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Medical Record - {$record->id}</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #0d6e6e; padding-bottom: 20px; }
-        .logo { font-size: 24px; font-weight: bold; color: #0d6e6e; }
-        .title { font-size: 18px; margin-top: 10px; }
-        .record-info { margin: 20px 0; }
-        .info-row { display: flex; margin-bottom: 10px; }
-        .label { font-weight: bold; width: 180px; color: #666; }
-        .value { flex: 1; }
-        .section { margin-top: 25px; }
-        .section-title { font-size: 14px; font-weight: bold; color: #0d6e6e; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; }
-        .content { line-height: 1.6; }
-        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #999; }
-    </style>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; color: #0f172a; }
+.header { background: linear-gradient(135deg, #1e3a5f, #2563eb); padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; }
+.logo-text { font-size: 24px; font-weight: 900; color: white; }
+.logo-sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+.doc-title { font-size: 16px; font-weight: 700; color: white; text-align: right; }
+.doc-meta { font-size: 11px; color: rgba(255,255,255,0.6); text-align: right; margin-top: 4px; }
+.status-bar { background: #f0f6ff; padding: 10px 40px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; }
+.sb-item { text-align: center; }
+.sb-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
+.sb-value { font-size: 12px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+.body { padding: 28px 40px; }
+.section { margin-bottom: 20px; }
+.section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid #e2e8f0; }
+.section-dot { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; }
+.section-title { font-size: 11px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.06em; }
+.info-grid { width: 100%; border-collapse: collapse; }
+.info-grid td { padding: 6px 0; width: 50%; vertical-align: top; }
+.info-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
+.info-value { font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 2px; }
+.clinical-item { background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; padding: 12px; margin-bottom: 10px; }
+.clinical-label { font-size: 9px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 5px; }
+.clinical-value { font-size: 12px; color: #0f172a; line-height: 1.6; }
+.disclaimer { background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 14px; margin-top: 16px; }
+.disclaimer-title { font-size: 10px; font-weight: 700; color: #d97706; margin-bottom: 4px; }
+.disclaimer-text { font-size: 10px; color: #92400e; line-height: 1.5; }
+.footer { background: #0f172a; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+.footer-logo { font-size: 16px; font-weight: 900; color: white; }
+.footer-text { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+.footer-right { text-align: right; }
+</style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">AfyaLink</div>
-        <div class="title">Medical Record</div>
-    </div>
-
-    <div class="record-info">
-        <div class="info-row">
-            <span class="label">Patient Name:</span>
-            <span class="value">{$patientName}</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Patient ID:</span>
-            <span class="value">{$patientId}</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Facility:</span>
-            <span class="value">{$facilityName}</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Doctor:</span>
-            <span class="value">{$doctorName}</span>
-        </div>
-        <div class="info-row">
-            <span class="label">Date:</span>
-            <span class="value">{$record->visit_date}</span>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Chief Complaint</div>
-        <div class="content">{$record->chief_complaint}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">History of Present Illness</div>
-        <div class="content">{$record->history_of_present_illness}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Examination Findings</div>
-        <div class="content">{$record->examination_findings}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Diagnosis</div>
-        <div class="content">{$record->diagnosis}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Treatment Plan</div>
-        <div class="content">{$record->treatment_plan}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Medications</div>
-        <div class="content">{$record->medications}</div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Notes</div>
-        <div class="content">{$record->notes}</div>
-    </div>
-
-    <div class="footer">
-        <p>This is an official medical record from AfyaLink Healthcare System.</p>
-        <p>Generated on: {$record->updated_at}</p>
-    </div>
+<div class="header">
+  <div>
+    <div class="logo-text">AfyaLink</div>
+    <div class="logo-sub">Digital Health Record Platform · Kenya</div>
+  </div>
+  <div>
+    <div class="doc-title">Medical Record</div>
+    <div class="doc-meta">Record #' . $recordNumber . '</div>
+    <div class="doc-meta">Generated: ' . $generatedAt . '</div>
+  </div>
+</div>
+<div class="status-bar">
+  <div class="sb-item"><div class="sb-label">Status</div><div class="sb-value" style="color:' . $statusColor . ';">' . ucfirst($record->status ?? "draft") . '</div></div>
+  <div class="sb-item"><div class="sb-label">Visit Date</div><div class="sb-value">' . ($record->visit_date ? date("d M Y", strtotime($record->visit_date)) : "N/A") . '</div></div>
+  <div class="sb-item"><div class="sb-label">Facility</div><div class="sb-value">' . ($facilityName ?? "N/A") . '</div></div>
+  <div class="sb-item"><div class="sb-label">Doctor</div><div class="sb-value">' . ($doctorName ?? "N/A") . '</div></div>
+</div>
+<div class="body">
+  <div class="section">
+    <div class="section-header"><div class="section-dot"></div><div class="section-title">Patient Information</div></div>
+    <table class="info-grid">
+      <tr>
+        <td><div class="info-label">Full Name</div><div class="info-value">' . $patientName . '</div></td>
+        <td><div class="info-label">Patient ID</div><div class="info-value">' . $patientId . '</div></td>
+      </tr>
+      <tr>
+        <td><div class="info-label">Attending Doctor</div><div class="info-value">' . $doctorName . '</div></td>
+        <td><div class="info-label">Facility</div><div class="info-value">' . $facilityName . '</div></td>
+      </tr>
+    </table>
+  </div>
+  <div class="section">
+    <div class="section-header"><div class="section-dot"></div><div class="section-title">Clinical Details</div></div>
+    ' . ($record->chief_complaint ? '<div class="clinical-item"><div class="clinical-label">Chief Complaint</div><div class="clinical-value">' . htmlspecialchars($record->chief_complaint) . '</div></div>' : '') . '
+    ' . ($record->diagnosis ? '<div class="clinical-item"><div class="clinical-label">Diagnosis</div><div class="clinical-value">' . htmlspecialchars($record->diagnosis) . '</div></div>' : '') . '
+    ' . ($record->treatment_plan ? '<div class="clinical-item"><div class="clinical-label">Treatment Plan</div><div class="clinical-value">' . htmlspecialchars($record->treatment_plan) . '</div></div>' : '') . '
+    ' . ($record->medications ? '<div class="clinical-item"><div class="clinical-label">Medications</div><div class="clinical-value">' . htmlspecialchars($record->medications) . '</div></div>' : '') . '
+    ' . ($record->notes ? '<div class="clinical-item"><div class="clinical-label">Notes</div><div class="clinical-value">' . htmlspecialchars($record->notes) . '</div></div>' : '') . '
+  </div>
+  <div class="disclaimer">
+    <div class="disclaimer-title">CONFIDENTIAL MEDICAL DOCUMENT</div>
+    <div class="disclaimer-text">This document contains confidential medical information protected under the Kenya Health Act. It is intended solely for the patient named above and authorized healthcare providers. Unauthorized disclosure is prohibited.</div>
+  </div>
+</div>
+<div class="footer">
+  <div>
+    <div class="footer-logo">AfyaLink</div>
+    <div class="footer-text">Digital Patient Referral & Health Record Platform</div>
+    <div class="footer-text">support@afyalink.ke · www.afyalink.ke · Kenya</div>
+  </div>
+  <div class="footer-right">
+    <div class="footer-text">This is a computer-generated document</div>
+    <div class="footer-text">© 2026 AfyaLink. All rights reserved.</div>
+  </div>
+</div>
 </body>
-</html>
-HTML;
+</html>';
 
         // Generate PDF
         $options = new Options();

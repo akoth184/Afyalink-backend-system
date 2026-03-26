@@ -125,6 +125,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/callback', [MpesaController::class, 'handleCallback'])->name('payment.callback');
     Route::get('/payment/status', [MpesaController::class, 'queryStatus'])->name('payment.status');
 
+    // Patient Payments
+    Route::get('/patient/payments', [MpesaController::class, 'showPaymentPage'])->name('patient.payments');
+    Route::post('/patient/payments/initiate', [MpesaController::class, 'initiatePayment'])->name('patient.payments.initiate');
+    Route::get('/patient/payments/status', [MpesaController::class, 'checkStatus'])->name('patient.payments.status');
+
     // Main Dashboard (default)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -197,7 +202,10 @@ Route::middleware('auth')->group(function () {
 
 
 
-    // Facilities
-    Route::resource('facilities', FacilityController::class);
-
 });
+
+// M-Pesa Callback (outside auth middleware - called by Safaricom)
+Route::post('/mpesa/callback', [MpesaController::class, 'callback'])->name('mpesa.callback');
+
+// Facilities
+Route::resource('facilities', FacilityController::class);

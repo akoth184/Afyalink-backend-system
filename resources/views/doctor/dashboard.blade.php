@@ -15,13 +15,24 @@ body{font-family:'Inter',sans-serif;}
 .badge-rejected{background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
 .card{background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;}
 .stat-card{background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-220px);transition:transform .3s;}
+  #sidebar.open{transform:translateX(0);}
+  #main-content{margin-left:0 !important;}
+  #hamburger{display:flex !important;}
+}
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<button id="hamburger" onclick="toggleSidebar()" style="position:fixed;top:14px;left:14px;z-index:300;background:#1e3a5f;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+</button>
 <div style="display:flex;min-height:100vh;">
 
 <!-- SIDEBAR -->
-<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;">
+<aside id="sidebar" style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;">
   <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
     <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
     <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Doctor Portal</div>
@@ -54,7 +65,7 @@ body{font-family:'Inter',sans-serif;}
 </aside>
 
 <!-- MAIN CONTENT -->
-<div style="margin-left:220px;flex:1;">
+<div id="main-content" style="margin-left:220px;flex:1;">
 
   <!-- TOPBAR -->
   <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
@@ -149,11 +160,11 @@ body{font-family:'Inter',sans-serif;}
     <!-- QUICK SEARCH -->
     <div class="card">
       <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Quick Patient Search</div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <input type="text" id="searchInput" placeholder="Search by name or Patient ID..." style="flex:1;padding:9px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;background:#f8fafc;outline:none;">
-        <button onclick="doSearch()" style="background:#2563eb;color:white;border:none;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Search</button>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <input type="text" id="patient-search-input" placeholder="Search by name or Patient ID..." style="flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
+        <button onclick="searchPatients()" style="background:#2563eb;color:white;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Search</button>
       </div>
-      <div id="searchResults"></div>
+      <div id="search-results"></div>
     </div>
 
   </div>
@@ -161,20 +172,38 @@ body{font-family:'Inter',sans-serif;}
 </div>
 
 <script>
-function doSearch() {
-  var query = document.getElementById('searchInput').value;
+function searchPatients() {
+  var query = document.getElementById('patient-search-input').value.trim();
   if(!query) return;
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/patients/search?q=' + encodeURIComponent(query));
-  xhr.onload = function() {
-    if(xhr.status === 200) {
-      document.getElementById('searchResults').innerHTML = xhr.responseText;
+  var results = document.getElementById('search-results');
+  results.innerHTML = '<div style="padding:16px;text-align:center;color:#64748b;font-size:13px;">Searching...</div>';
+  fetch('/patient/search?query=' + encodeURIComponent(query), {
+    headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if(!data.length) {
+      results.innerHTML = '<div style="padding:16px;text-align:center;color:#94a3b8;font-size:13px;">No patients found.</div>';
+      return;
     }
-  };
-  xhr.send();
+    var html = data.map(p => `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:white;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:8px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">${p.first_name.charAt(0)}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:#0f172a;">${p.first_name} ${p.last_name}</div>
+          <div style="font-size:11px;color:#94a3b8;">${p.patient_id ?? 'N/A'} · ${p.email}</div>
+        </div>
+        <a href="/patients/${p.id}" style="background:#2563eb;color:white;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">View</a>
+      </div>
+    `).join('');
+    results.innerHTML = html;
+  })
+  .catch(() => {
+    results.innerHTML = '<div style="padding:16px;text-align:center;color:#dc2626;font-size:13px;">Search failed. Try again.</div>';
+  });
 }
-document.getElementById('searchInput').addEventListener('keypress', function(e) {
-  if(e.key === 'Enter') doSearch();
+document.getElementById('patient-search-input').addEventListener('keypress', function(e) {
+  if(e.key === 'Enter') searchPatients();
 });
 </script>
 </body>

@@ -22,13 +22,24 @@ body{font-family:'Inter',sans-serif;}
 .tl{padding-left:16px;border-left:2px solid #e2e8f0;}
 .tli{padding-bottom:14px;position:relative;}
 .tldot{width:10px;height:10px;border-radius:50%;position:absolute;left:-21px;top:2px;}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-220px);transition:transform .3s;}
+  #sidebar.open{transform:translateX(0);}
+  #main-content{margin-left:0 !important;}
+  #hamburger{display:flex !important;}
+}
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<button id="hamburger" onclick="toggleSidebar()" style="position:fixed;top:14px;left:14px;z-index:300;background:#1e3a5f;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+</button>
 <div style="display:flex;min-height:100vh;">
 
 <!-- SIDEBAR -->
-<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;">
+<aside id="sidebar" style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;overflow-y:auto;">
   <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
     <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
     <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Admin Portal</div>
@@ -62,7 +73,7 @@ body{font-family:'Inter',sans-serif;}
 </aside>
 
 <!-- MAIN -->
-<div style="margin-left:220px;flex:1;">
+<div id="main-content" style="margin-left:220px;flex:1;">
 
 <!-- SUCCESS/ERROR MESSAGES -->
 @if(session('success'))

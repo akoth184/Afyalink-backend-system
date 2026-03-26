@@ -77,6 +77,7 @@ class AuthController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'last_name'  => ['required', 'string', 'max:255'],
             'email'      => ['required', 'email', 'unique:users'],
+            'phone'      => ['required', 'string', 'max:20'],
             'password'   => ['required', 'min:8', 'confirmed'],
             'role'       => $roleRules,
         ]);
@@ -96,6 +97,7 @@ class AuthController extends Controller
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
             'email'      => $data['email'],
+            'phone'      => $data['phone'],
             'password'   => Hash::make($data['password']),
             'role'       => $role,
             'patient_id' => $patientId,
@@ -103,7 +105,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->to($this->redirectBasedOnRole($user->role));
+        return redirect()->route('patient.dashboard');
     }
 
     /**

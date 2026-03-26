@@ -13,13 +13,24 @@ body{font-family:'Inter',sans-serif;}
 .badge-accepted{background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
 .badge-pending{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
 .badge-rejected{background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-220px);transition:transform .3s;}
+  #sidebar.open{transform:translateX(0);}
+  #main-content{margin-left:0 !important;}
+  #hamburger{display:flex !important;}
+}
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
+<button id="hamburger" onclick="toggleSidebar()" style="position:fixed;top:14px;left:14px;z-index:300;background:#1e3a5f;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
+</button>
 <div style="display:flex;min-height:100vh;">
 
 <!-- SIDEBAR -->
-<aside style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;">
+<aside id="sidebar" style="width:220px;background:#1e3a5f;flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;">
   <div style="padding:20px;border-bottom:1px solid rgba(255,255,255,.1);">
     <div style="font-size:16px;font-weight:700;color:white;">AfyaLink</div>
     <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;">Hospital Portal</div>
@@ -33,15 +44,15 @@ body{font-family:'Inter',sans-serif;}
   </div>
   <nav style="flex:1;padding:8px 0;overflow-y:auto;">
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Main</div>
-    <div class="slink on">Dashboard</div>
+    <div class="slink on" onclick="showSection('dashboard', this)">Dashboard</div>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Referrals</div>
-    <a href="#incoming-referrals" class="slink" onclick="document.getElementById('incoming-referrals').scrollIntoView({behavior:'smooth'})">Incoming Referrals</a>
-    <a href="#transfer-form" class="slink" onclick="document.getElementById('transfer-form').scrollIntoView({behavior:'smooth'})">Transfer Patient</a>
-    <a href="#incoming-referrals" onclick="document.getElementById('incoming-referrals').scrollIntoView({behavior:'smooth'})" class="slink">Referral Reports</a>
+    <a href="#incoming-referrals" class="slink" onclick="showSection('incoming-referrals', this)">Incoming Referrals</a>
+    <a href="#transfer-form" class="slink" onclick="showSection('transfer-form', this)">Transfer Patient</a>
+    <a href="#referral-referrals" onclick="showSection('referral-reports', this)" class="slink">Referral Reports</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Management</div>
-    <div class="slink" onclick="document.getElementById('medical-records-section').scrollIntoView({behavior:'smooth'})">Medical Records</div>
-    <div class="slink" onclick="document.getElementById('working-hours-section').scrollIntoView({behavior:'smooth'})">Working Hours</div>
-    <div class="slink">Settings</div>
+    <div class="slink" onclick="showSection('medical-records', this)">Medical Records</div>
+    <div class="slink" onclick="showSection('working-hours', this)">Working Hours</div>
+    <div class="slink" onclick="showSection('settings', this)">Settings</div>
   </nav>
   <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);">
     <form method="POST" action="{{ route('logout') }}">@csrf
@@ -51,7 +62,7 @@ body{font-family:'Inter',sans-serif;}
 </aside>
 
 <!-- MAIN CONTENT -->
-<div style="margin-left:220px;flex:1;">
+<div id="main-content" style="margin-left:220px;flex:1;">
 
   <!-- TOPBAR -->
   <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
@@ -310,10 +321,55 @@ body{font-family:'Inter',sans-serif;}
 </div>
 </div>
 <script>
-function saveHour() {
-  alert('Working hours updated! (Connect to backend to persist)');
-  document.getElementById('edit-hours').style.display = 'none';
+function showSection(name, el) {
+  // Hide all main content sections
+  document.getElementById('incoming-referrals').style.display = 'none';
+  document.getElementById('referral-reports').style.display = 'none';
+  document.getElementById('medical-records-section').style.display = 'none';
+  document.getElementById('transfer-form').closest('div').style.display = 'none';
+  document.getElementById('working-hours-section').closest('div').style.display = 'none';
+
+  // Show the selected section
+  var sectionMap = {
+    'dashboard': null, // Dashboard is always visible
+    'incoming-referrals': 'incoming-referrals',
+    'referral-reports': 'referral-reports',
+    'transfer-form': 'transfer-form',
+    'medical-records': 'medical-records-section',
+    'working-hours': 'working-hours-section',
+    'settings': null
+  };
+  var targetId = sectionMap[name];
+  if(targetId) {
+    var target = document.getElementById(targetId);
+    if(target) target.style.display = 'block';
+  } else if(name === 'dashboard') {
+    document.getElementById('incoming-referrals').style.display = 'block';
+    document.getElementById('referral-reports').style.display = 'block';
+    document.querySelector('#transfer-form').closest('div').style.display = 'grid';
+  }
+
+  // Update sidebar active state
+  document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
+  if(el) el.classList.add('on');
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+
+  // Update URL hash
+  window.location.hash = name;
+
+  // Update page title
+  document.title = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g,' ') + ' — Hospital Portal';
 }
+
+window.addEventListener('DOMContentLoaded', function() {
+  var hash = window.location.hash.replace('#','');
+  if(hash) {
+    var el = document.querySelector('[onclick*="' + hash + '"]');
+    showSection(hash, el);
+  }
+});
 </script>
 </body>
 </html>
