@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hospital Dashboard — AfyaLink</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body{font-family:'Inter',sans-serif;}
@@ -13,20 +14,37 @@ body{font-family:'Inter',sans-serif;}
 .badge-accepted{background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
 .badge-pending{background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
 .badge-rejected{background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
-@media(max-width:768px){
-  #sidebar{transform:translateX(-220px);transition:transform .3s;}
-  #sidebar.open{transform:translateX(0);}
+#sidebar{
+  width:220px;
+  background:#1e3a5f;
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:0;
+  z-index:400;
+  transition:transform .3s ease;
+  display:flex;
+  flex-direction:column;
+}
+@media(max-width:900px){
+  #sidebar{transform:translateX(-220px);}
+  #sidebar.open{transform:translateX(0) !important;background:#1e3a5f !important;}
   #main-content{margin-left:0 !important;}
   #hamburger{display:flex !important;}
+  .overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:399;}
+  .overlay.show{display:block;}
 }
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
-<button id="hamburger" onclick="toggleSidebar()" style="position:fixed;top:14px;left:14px;z-index:300;background:#1e3a5f;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
-  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
-  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
-  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
-</button>
+<div class="overlay" id="overlay"></div>
+<div id="hamburger">
+    <svg width="28" height="28" fill="white">
+        <rect y="4" width="28" height="4"></rect>
+        <rect y="12" width="28" height="4"></rect>
+        <rect y="20" width="28" height="4"></rect>
+    </svg>
+</div>
 <div style="display:flex;min-height:100vh;">
 
 <!-- SIDEBAR -->
@@ -70,7 +88,44 @@ body{font-family:'Inter',sans-serif;}
       <div style="font-size:20px;font-weight:700;color:#0f172a;">Hospital Dashboard</div>
       <div style="font-size:12px;color:#94a3b8;margin-top:3px;">{{ optional($facility)->name ?? 'Hospital' }}</div>
     </div>
-    <a href="#transfer-form" onclick="document.getElementById('transfer-form').scrollIntoView({behavior:'smooth'})" style="background:#2563eb;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">+ Transfer Patient</a>
+    <div style="display:flex;align-items:center;gap:12px;">
+      @php
+        $unreadCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+      @endphp
+      <div style="position:relative;cursor:pointer;" onclick="toggleNotifications()">
+        <div style="width:38px;height:38px;border-radius:50%;background:#f0f6ff;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:center;">
+          <svg width="18" height="18" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </div>
+        @if($unreadCount > 0)
+        <div style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#dc2626;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;border:2px solid white;">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</div>
+        @endif
+      </div>
+      <!-- NOTIFICATIONS DROPDOWN -->
+      <div id="notifications-dropdown" style="display:none;position:absolute;top:60px;right:16px;width:340px;background:white;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 8px 30px rgba(0,0,0,.12);z-index:200;">
+        <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:14px;font-weight:700;color:#0f172a;">Notifications</div>
+          <form method="POST" action="{{ route('notifications.read') }}" style="margin:0;">@csrf<button type="submit" style="background:none;border:none;font-size:12px;color:#2563eb;cursor:pointer;font-family:inherit;font-weight:600;">Mark all read</button></form>
+        </div>
+        <div style="max-height:300px;overflow-y:auto;">
+          @php $notifications = \App\Models\Notification::where('user_id', Auth::id())->latest()->take(10)->get(); @endphp
+          @forelse($notifications as $notif)
+          <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;background:{{ $notif->is_read ? 'white' : '#f0f6ff' }};">
+            <div style="display:flex;align-items:flex-start;gap:10px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:{{ $notif->type === 'referral_rejected' ? '#dc2626' : ($notif->type === 'referral_accepted' ? '#16a34a' : '#2563eb') }};flex-shrink:0;margin-top:4px;"></div>
+              <div style="flex:1;">
+                <div style="font-size:13px;font-weight:{{ $notif->is_read ? '500' : '700' }};color:#0f172a;">{{ $notif->title }}</div>
+                <div style="font-size:12px;color:#64748b;margin-top:2px;line-height:1.5;">{{ $notif->message }}</div>
+                <div style="font-size:10px;color:#94a3b8;margin-top:4px;">{{ $notif->created_at->diffForHumans() }}</div>
+              </div>
+            </div>
+          </div>
+          @empty
+          <div style="padding:24px;text-align:center;color:#94a3b8;font-size:13px;">No notifications yet</div>
+          @endforelse
+        </div>
+      </div>
+      <a href="#transfer-form" onclick="document.getElementById('transfer-form').scrollIntoView({behavior:'smooth'})" style="background:#2563eb;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">+ Transfer Patient</a>
+    </div>
   </div>
 
   <!-- CONTENT -->
@@ -121,11 +176,7 @@ body{font-family:'Inter',sans-serif;}
             <input type="hidden" name="status" value="accepted">
             <button type="submit" style="background:#2563eb;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Accept</button>
           </form>
-          <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
-            @csrf @method('PATCH')
-            <input type="hidden" name="status" value="rejected">
-            <button type="submit" style="background:white;color:#dc2626;border:1.5px solid #fca5a5;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button>
-          </form>
+          <button type="button" onclick="openRejectModal({{ $referral->id }}, '{{ optional($referral->patient)->first_name }} {{ optional($referral->patient)->last_name }}')" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Reject</button>
         </div>
         @else
         <span style="font-size:12px;color:#94a3b8;">No action needed</span>
@@ -320,54 +371,103 @@ body{font-family:'Inter',sans-serif;}
   </div>
 </div>
 </div>
+
+<!-- REJECT MODAL -->
+<div id="reject-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:16px;padding:28px;width:440px;box-shadow:0 24px 60px rgba(0,0,0,.25);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;color:#0f172a;">Reject Referral</div>
+      <button onclick="closeRejectModal()" style="background:#f1f5f9;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:13px;color:#64748b;font-family:inherit;">✕</button>
+    </div>
+    <div id="reject-patient-info" style="background:#fee2e2;border:1px solid #fecaca;border-radius:8px;padding:12px;margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:600;color:#dc2626;margin-bottom:2px;">Rejecting referral for <span id="reject-patient-name"></span></div>
+      <div style="font-size:11px;color:#b91c1c;">The referring doctor and patient will be notified with your reason.</div>
+    </div>
+    <form id="reject-form" method="POST">
+      @csrf
+      <input type="hidden" name="status" value="rejected">
+      <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">Reason for Rejection <span style="color:#dc2626;">*</span></div>
+      <textarea name="rejection_reason" required placeholder="e.g. No available beds. Please refer to Nairobi Hospital instead..." style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Inter',sans-serif;outline:none;resize:vertical;min-height:90px;margin-bottom:6px;"></textarea>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:16px;">This reason will be visible to the referring doctor and patient.</div>
+      <div style="display:flex;gap:10px;">
+        <button type="button" onclick="closeRejectModal()" style="flex:1;background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button type="submit" style="flex:1;background:#dc2626;color:white;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Confirm Rejection</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
-function showSection(name, el) {
-  // Hide all main content sections
-  document.getElementById('incoming-referrals').style.display = 'none';
-  document.getElementById('referral-reports').style.display = 'none';
-  document.getElementById('medical-records-section').style.display = 'none';
-  document.getElementById('transfer-form').closest('div').style.display = 'none';
-  document.getElementById('working-hours-section').closest('div').style.display = 'none';
-
-  // Show the selected section
-  var sectionMap = {
-    'dashboard': null, // Dashboard is always visible
-    'incoming-referrals': 'incoming-referrals',
-    'referral-reports': 'referral-reports',
-    'transfer-form': 'transfer-form',
-    'medical-records': 'medical-records-section',
-    'working-hours': 'working-hours-section',
-    'settings': null
-  };
-  var targetId = sectionMap[name];
-  if(targetId) {
-    var target = document.getElementById(targetId);
-    if(target) target.style.display = 'block';
-  } else if(name === 'dashboard') {
-    document.getElementById('incoming-referrals').style.display = 'block';
-    document.getElementById('referral-reports').style.display = 'block';
-    document.querySelector('#transfer-form').closest('div').style.display = 'grid';
-  }
-
-  // Update sidebar active state
-  document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
-  if(el) el.classList.add('on');
-
-  // Scroll to top
-  window.scrollTo(0, 0);
-
-  // Update URL hash
-  window.location.hash = name;
-
-  // Update page title
-  document.title = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g,' ') + ' — Hospital Portal';
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
 }
-
-window.addEventListener('DOMContentLoaded', function() {
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+function showSection(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
+  var sec = document.getElementById('sec-' + name);
+  if(sec) sec.classList.add('active');
+  if(el) el.classList.add('on');
+  window.scrollTo({top:0, behavior:'smooth'});
+  window.location.hash = name;
+  var titles = {
+    'dashboard': 'Dashboard',
+    'referrals': 'Incoming Referrals',
+    'transfer': 'Hospital Transfer',
+    'reports': 'Referral Reports',
+    'records': 'Medical Records',
+    'hours': 'Working Hours',
+    'settings': 'Settings'
+  };
+  document.title = (titles[name] || name) + ' — Hospital Portal';
+}
+window.addEventListener('DOMContentLoaded', function(){
   var hash = window.location.hash.replace('#','');
-  if(hash) {
-    var el = document.querySelector('[onclick*="' + hash + '"]');
+  if(hash){
+    var el = document.querySelector('.slink[onclick*="' + hash + '"]');
     showSection(hash, el);
+  } else {
+    showSection('dashboard', document.querySelector('.slink'));
+  }
+});
+</script>
+<script>
+document.getElementById("hamburger").addEventListener("click", function () {
+    const sidebar = document.getElementById("sidebar");
+    const main = document.getElementById("main-content");
+
+    if (sidebar.style.transform === "translateX(0px)") {
+        sidebar.style.transform = "translateX(-260px)";
+        main.style.marginLeft = "0px";
+    } else {
+        sidebar.style.transform = "translateX(0px)";
+        main.style.marginLeft = "260px";
+    }
+});
+</script>
+<script>
+function openRejectModal(referralId, patientName) {
+  document.getElementById('reject-patient-name').textContent = patientName;
+  document.getElementById('reject-form').action = '/referrals/' + referralId + '/status';
+  document.getElementById('reject-modal').style.display = 'flex';
+}
+function closeRejectModal() {
+  document.getElementById('reject-modal').style.display = 'none';
+}
+</script>
+<script>
+function toggleNotifications(){
+  var d = document.getElementById('notifications-dropdown');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e){
+  var dropdown = document.getElementById('notifications-dropdown');
+  if(dropdown && !e.target.closest('[onclick="toggleNotifications()"]') && !e.target.closest('#notifications-dropdown')){
+    dropdown.style.display = 'none';
   }
 });
 </script>

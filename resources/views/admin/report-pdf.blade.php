@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>AfyaLink System Report</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
 body{font-family:'Arial',sans-serif;color:#0f172a;margin:0;padding:20px;background:white;}
 .header{background:#1e3a5f;color:white;padding:24px;border-radius:8px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;}

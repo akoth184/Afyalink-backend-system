@@ -142,6 +142,24 @@ class ReferralController extends Controller
 
         $referral = Referral::create($data);
 
+        // Notify receiving hospital
+        $receivingFacility = \App\Models\Facility::find($request->receiving_facility_id);
+        if ($receivingFacility) {
+            $hospitalUser = \App\Models\User::where('facility_id', $receivingFacility->id)
+                ->orWhere('hospital_id', $receivingFacility->hospital_id)
+                ->where('role', 'hospital')
+                ->first();
+            if ($hospitalUser) {
+                \App\Models\Notification::send(
+                    $hospitalUser->id,
+                    'new_referral',
+                    'New Referral Received',
+                    'A new referral has been sent to ' . $receivingFacility->name . ' for patient ' . Auth::user()->first_name . '.',
+                    $referral->id
+                );
+            }
+        }
+
         $user = Auth::user();
         if (in_array($user->role, ['hospital', 'facility'])) {
             return redirect()->route('hospital.dashboard')
@@ -202,16 +220,69 @@ class ReferralController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $referral = \App\Models\Referral::findOrFail($id);
-        $user = Auth::user();
+        $referral = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])->findOrFail($id);
+        $status = $request->input('status');
+        $rejectionReason = $request->input('rejection_reason');
 
-        $request->validate([
-            'status' => 'required|in:pending,accepted,rejected,completed'
-        ]);
+        $referral->status = $status;
+        $referral->status_updated_at = now();
+        $referral->status_updated_by = Auth::id();
 
-        $referral->status = $request->input('status');
+        if ($status === 'rejected' && $rejectionReason) {
+            $referral->rejection_reason = $rejectionReason;
+        }
         $referral->save();
 
-        return back()->with('success', 'Referral ' . $request->input('status') . ' successfully');
+        $patientName = optional($referral->patient)->first_name . ' ' . optional($referral->patient)->last_name;
+        $receivingHospital = optional($referral->receivingFacility)->name ?? 'Hospital';
+        $referringFacility = optional($referral->referringFacility)->name ?? 'Facility';
+
+        // Notify patient
+        if ($referral->patient_id) {
+            if ($status === 'accepted') {
+                \App\Models\Notification::send(
+                    $referral->patient_id,
+                    'referral_accepted',
+                    'Referral Accepted',
+                    'Your referral to ' . $receivingHospital . ' has been accepted.',
+                    $referral->id
+                );
+            } elseif ($status === 'rejected') {
+                \App\Models\Notification::send(
+                    $referral->patient_id,
+                    'referral_rejected',
+                    'Referral Rejected',
+                    'Your referral to ' . $receivingHospital . ' was rejected. Reason: ' . ($rejectionReason ?? 'No reason provided.'),
+                    $referral->id
+                );
+            }
+        }
+
+        // Notify referring doctor or hospital
+        if ($referral->referred_by) {
+            $referredByUser = \App\Models\User::find($referral->referred_by);
+            if ($referredByUser) {
+                if ($status === 'accepted') {
+                    \App\Models\Notification::send(
+                        $referredByUser->id,
+                        'referral_accepted',
+                        'Referral Accepted',
+                        'Your referral for ' . $patientName . ' to ' . $receivingHospital . ' has been accepted.',
+                        $referral->id
+                    );
+                } elseif ($status === 'rejected') {
+                    \App\Models\Notification::send(
+                        $referredByUser->id,
+                        'referral_rejected',
+                        'Referral Rejected',
+                        $receivingHospital . ' rejected the referral for ' . $patientName . '. Reason: ' . ($rejectionReason ?? 'No reason provided.'),
+                        $referral->id
+                    );
+                }
+            }
+        }
+
+        // Notify receiving hospital when new referral is created
+        return back()->with('success', 'Referral ' . $status . ' successfully.');
     }
 }

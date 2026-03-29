@@ -54,19 +54,39 @@ class PatientController extends Controller
 
     public function index(Request $request)
     {
+        $user = Auth::user();
         $query = $request->get('search');
-        $patients = \App\Models\User::where('role', 'patient')
-            ->when($query, function($q) use ($query) {
-                $q->where(function($q2) use ($query) {
-                    $q2->where('first_name', 'like', "%{$query}%")
-                       ->orWhere('last_name', 'like', "%{$query}%")
-                       ->orWhere('email', 'like', "%{$query}%")
-                       ->orWhere('patient_id', 'like', "%{$query}%");
-                });
-            })
-            ->orderBy('first_name')
-            ->paginate(10);
-        return view('patients.index', compact('patients', 'query'));
+
+        if ($user->role === 'doctor') {
+            $patientIds = \App\Models\MedicalRecord::where('doctor_id', $user->id)
+                ->pluck('patient_id')
+                ->unique();
+            $referralPatientIds = \App\Models\Referral::where('referred_by', $user->id)
+                ->pluck('patient_id')
+                ->unique();
+            $allPatientIds = $patientIds->merge($referralPatientIds)->unique();
+            $patients = \App\Models\User::where('role', 'patient')
+                ->whereIn('id', $allPatientIds)
+                ->when($query, function($q) use ($query){
+                    $q->where(function($q) use ($query){
+                        $q->where('first_name', 'like', '%'.$query.'%')
+                          ->orWhere('last_name', 'like', '%'.$query.'%')
+                          ->orWhere('patient_id', 'like', '%'.$query.'%');
+                    });
+                })
+                ->latest()->paginate(10);
+        } else {
+            $patients = \App\Models\User::where('role', 'patient')
+                ->when($query, function($q) use ($query){
+                    $q->where(function($q) use ($query){
+                        $q->where('first_name', 'like', '%'.$query.'%')
+                          ->orWhere('last_name', 'like', '%'.$query.'%')
+                          ->orWhere('patient_id', 'like', '%'.$query.'%');
+                    });
+                })
+                ->latest()->paginate(10);
+        }
+        return view('patients.index', compact('patients'));
     }
 
     public function create()

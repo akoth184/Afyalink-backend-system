@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AfyaLink — Digital Patient Referral & Health Record Platform</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -305,7 +306,7 @@ body{font-family:'Inter',sans-serif;background:white;color:#0f172a}
       <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:12px;">Forgot password? <a href="#" style="color:#2563eb;">Reset here</a></p>
     </div>
     <div id="f-register" class="mform">
-      <form method="POST" action="{{ route('register') }}">
+      <form method="POST" action="{{ route('register') }}?role=patient">
         @csrf
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div><label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">First Name</label><input class="fi" type="text" name="first_name" placeholder="John" required></div>
@@ -313,9 +314,12 @@ body{font-family:'Inter',sans-serif;background:white;color:#0f172a}
         </div>
         <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Email Address</label>
         <input class="fi" type="email" name="email" placeholder="your@email.com" required>
+        <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Phone Number</label>
+        <input class="fi" type="text" name="phone" placeholder="e.g. 0712345678" required>
         <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Password</label>
         <input class="fi" type="password" name="password" placeholder="Create a strong password" required>
-        <input type="hidden" name="password_confirmation" id="pwd-confirm">
+        <label style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:5px;display:block;">Confirm Password</label>
+        <input class="fi" type="password" name="password_confirmation" placeholder="Re-enter your password" required>
         <button type="submit" style="width:100%;background:#2563eb;color:white;border:none;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Create My Account</button>
       </form>
       <p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:12px;">By creating an account you agree to our <a href="#" style="color:#2563eb;">Terms</a></p>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Referrals — AfyaLink</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root{--blue:#2563eb;--blue-lt:#dbeafe;--green:#27ae60;--green-lt:#e8f8ef;--amber:#e67e22;--amber-lt:#fef3e7;--red:#e53e3e;--red-lt:#fff5f5;--blue2:#3182ce;--blue2-lt:#ebf8ff;--ink:#1a1f2e;--muted:#5a6275;--border:#e2e8f0;--shadow-sm:0 1px 4px rgba(0,0,0,.06)}
@@ -107,7 +108,14 @@
                             <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->fromFacility)->name ?? '&mdash;' }}</td>
                             <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->toFacility)->name ?? '&mdash;' }}</td>
                             <td style="font-size:.82rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ $ref->reason ?? '&mdash;' }}</td>
-                            <td><span class="badge {{ $bc }}">{{ ucfirst($s) }}</span></td>
+                            <td><span class="badge {{ $bc }}">{{ ucfirst($s) }}</span>
+                            @if($ref->status === 'rejected' && $ref->rejection_reason)
+                            <div style="margin-top:8px;background:#fee2e2;border-left:3px solid #dc2626;padding:8px 12px;border-radius:0 6px 6px 0;">
+                              <div style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Rejection Reason</div>
+                              <div style="font-size:12px;color:#991b1b;line-height:1.5;">{{ $ref->rejection_reason }}</div>
+                            </div>
+                            @endif
+                            </td>
                             <td style="font-size:.78rem;color:var(--muted)">{{ $ref->created_at->format('d M Y') }}</td>
                             <td><a href="{{ route('referrals.show', $ref) }}" class="btn btn-sm" style="background:var(--blue-lt);color:var(--blue)">View</a></td>
                         </tr>

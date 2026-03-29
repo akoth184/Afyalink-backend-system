@@ -160,6 +160,54 @@
                 </form>
             </div>
         </div>
+
+        <!-- THEME SETTINGS -->
+        <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:4px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Appearance</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:16px;">Customize how AfyaLink looks for you</div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">Theme</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div id="theme-light" onclick="setTheme('light')" style="border:2px solid #2563eb;border-radius:10px;padding:16px;cursor:pointer;background:#f0f6ff;">
+              <div style="width:100%;height:50px;background:white;border-radius:6px;border:1px solid #e2e8f0;margin-bottom:8px;display:flex;flex-direction:column;gap:4px;padding:8px;">
+                <div style="width:60%;height:6px;background:#e2e8f0;border-radius:3px;"></div>
+                <div style="width:40%;height:6px;background:#e2e8f0;border-radius:3px;"></div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#0f172a;">Light</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px;">Bright interface with dark text</div>
+            </div>
+            <div id="theme-dark" onclick="setTheme('dark')" style="border:2px solid #e2e8f0;border-radius:10px;padding:16px;cursor:pointer;background:white;">
+              <div style="width:100%;height:50px;background:#1e3a5f;border-radius:6px;margin-bottom:8px;display:flex;flex-direction:column;gap:4px;padding:8px;">
+                <div style="width:60%;height:6px;background:rgba(255,255,255,.2);border-radius:3px;"></div>
+                <div style="width:40%;height:6px;background:rgba(255,255,255,.2);border-radius:3px;"></div>
+              </div>
+              <div style="font-size:13px;font-weight:700;color:#0f172a;">Dark</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px;">Dark interface, easier on eyes</div>
+            </div>
+          </div>
+          <div id="theme-saved" style="display:none;margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">✓ Theme saved successfully</div>
+        </div>
+        <script>
+        function setTheme(theme) {
+          localStorage.setItem('afyalink-theme', theme);
+          document.getElementById('theme-light').style.borderColor = theme === 'light' ? '#2563eb' : '#e2e8f0';
+          document.getElementById('theme-light').style.background = theme === 'light' ? '#f0f6ff' : 'white';
+          document.getElementById('theme-dark').style.borderColor = theme === 'dark' ? '#2563eb' : '#e2e8f0';
+          document.getElementById('theme-dark').style.background = theme === 'dark' ? '#f0f6ff' : 'white';
+          if(theme === 'dark') {
+            document.body.style.background = '#0f172a';
+            document.body.style.color = 'white';
+          } else {
+            document.body.style.background = '#f0f6ff';
+            document.body.style.color = '#0f172a';
+          }
+          document.getElementById('theme-saved').style.display = 'block';
+          setTimeout(() => document.getElementById('theme-saved').style.display = 'none', 2000);
+        }
+        window.addEventListener('DOMContentLoaded', function() {
+          var saved = localStorage.getItem('afyalink-theme') || 'light';
+          setTheme(saved);
+        });
+        </script>
     </main>
 </body>
 </html>

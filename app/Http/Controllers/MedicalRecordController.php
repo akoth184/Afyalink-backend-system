@@ -388,59 +388,65 @@ class MedicalRecordController extends Controller
 <meta charset="UTF-8">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; color: #0f172a; }
-.header { background: linear-gradient(135deg, #1e3a5f, #2563eb); padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; }
-.logo-text { font-size: 24px; font-weight: 900; color: white; }
-.logo-sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; }
-.doc-title { font-size: 16px; font-weight: 700; color: white; text-align: right; }
-.doc-meta { font-size: 11px; color: rgba(255,255,255,0.6); text-align: right; margin-top: 4px; }
-.status-bar { background: #f0f6ff; padding: 10px 40px; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; }
-.sb-item { text-align: center; }
-.sb-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
-.sb-value { font-size: 12px; font-weight: 700; color: #0f172a; margin-top: 2px; }
-.body { padding: 28px 40px; }
-.section { margin-bottom: 20px; }
-.section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid #e2e8f0; }
-.section-dot { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; }
-.section-title { font-size: 11px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.06em; }
-.info-grid { width: 100%; border-collapse: collapse; }
-.info-grid td { padding: 6px 0; width: 50%; vertical-align: top; }
-.info-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
-.info-value { font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 2px; }
-.clinical-item { background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; padding: 12px; margin-bottom: 10px; }
-.clinical-label { font-size: 9px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 5px; }
-.clinical-value { font-size: 12px; color: #0f172a; line-height: 1.6; }
-.disclaimer { background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 14px; margin-top: 16px; }
-.disclaimer-title { font-size: 10px; font-weight: 700; color: #d97706; margin-bottom: 4px; }
-.disclaimer-text { font-size: 10px; color: #92400e; line-height: 1.5; }
-.footer { background: #0f172a; padding: 16px 40px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
-.footer-logo { font-size: 16px; font-weight: 900; color: white; }
-.footer-text { font-size: 9px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+body { font-family: DejaVu Sans, Arial, sans-serif; color: #0f172a; font-size: 12px; }
+.header { background: #1e3a5f; padding: 24px 36px; }
+.header-inner { display: flex; justify-content: space-between; align-items: flex-start; }
+.logo-text { font-size: 22px; font-weight: 900; color: white; }
+.logo-sub { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+.doc-title { font-size: 15px; font-weight: 700; color: white; text-align: right; }
+.doc-meta { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 3px; text-align: right; }
+.status-bar { background: #f0f6ff; padding: 10px 36px; border-bottom: 2px solid #dbeafe; }
+.status-inner { display: flex; justify-content: space-between; }
+.sb-label { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
+.sb-value { font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+.body { padding: 24px 36px; }
+.section { margin-bottom: 18px; }
+.section-header { display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1.5px solid #e2e8f0; }
+.section-dot { width: 8px; height: 8px; border-radius: 4px; background: #2563eb; margin-right: 8px; }
+.section-title { font-size: 10px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.08em; }
+.info-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+.info-table td { padding: 5px 0; width: 50%; vertical-align: top; }
+.info-label { font-size: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.info-value { font-size: 12px; font-weight: 600; color: #0f172a; }
+.clinical-item { background: #f8fafc; border-left: 3px solid #2563eb; padding: 10px 14px; margin-bottom: 8px; }
+.clinical-label { font-size: 8px; color: #2563eb; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 4px; }
+.clinical-value { font-size: 11px; color: #0f172a; line-height: 1.6; }
+.disclaimer { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 10px 14px; margin-top: 16px; }
+.disclaimer-title { font-size: 9px; font-weight: 700; color: #d97706; margin-bottom: 3px; text-transform: uppercase; }
+.disclaimer-text { font-size: 9px; color: #92400e; line-height: 1.5; }
+.footer { background: #0f172a; padding: 14px 36px; margin-top: 20px; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; }
+.footer-logo { font-size: 14px; font-weight: 900; color: white; }
+.footer-text { font-size: 8px; color: rgba(255,255,255,0.4); margin-top: 3px; }
 .footer-right { text-align: right; }
 </style>
 </head>
 <body>
 <div class="header">
-  <div>
-    <div class="logo-text">AfyaLink</div>
-    <div class="logo-sub">Digital Health Record Platform · Kenya</div>
-  </div>
-  <div>
-    <div class="doc-title">Medical Record</div>
-    <div class="doc-meta">Record #' . $recordNumber . '</div>
-    <div class="doc-meta">Generated: ' . $generatedAt . '</div>
+  <div class="header-inner">
+    <div>
+      <div class="logo-text">AfyaLink</div>
+      <div class="logo-sub">Digital Health Record Platform &middot; Kenya</div>
+    </div>
+    <div>
+      <div class="doc-title">Medical Record</div>
+      <div class="doc-meta">Record #' . $recordNumber . '</div>
+      <div class="doc-meta">Generated: ' . $generatedAt . '</div>
+    </div>
   </div>
 </div>
 <div class="status-bar">
-  <div class="sb-item"><div class="sb-label">Status</div><div class="sb-value" style="color:' . $statusColor . ';">' . ucfirst($record->status ?? "draft") . '</div></div>
-  <div class="sb-item"><div class="sb-label">Visit Date</div><div class="sb-value">' . ($record->visit_date ? date("d M Y", strtotime($record->visit_date)) : "N/A") . '</div></div>
-  <div class="sb-item"><div class="sb-label">Facility</div><div class="sb-value">' . ($facilityName ?? "N/A") . '</div></div>
-  <div class="sb-item"><div class="sb-label">Doctor</div><div class="sb-value">' . ($doctorName ?? "N/A") . '</div></div>
+  <div class="status-inner">
+    <div><div class="sb-label">Status</div><div class="sb-value" style="color:' . $statusColor . ';">' . ucfirst($record->status ?? "draft") . '</div></div>
+    <div><div class="sb-label">Visit Date</div><div class="sb-value">' . ($record->visit_date ? date("d M Y", strtotime($record->visit_date)) : "N/A") . '</div></div>
+    <div><div class="sb-label">Facility</div><div class="sb-value">' . ($facilityName) . '</div></div>
+    <div><div class="sb-label">Doctor</div><div class="sb-value">' . ($doctorName) . '</div></div>
+  </div>
 </div>
 <div class="body">
   <div class="section">
     <div class="section-header"><div class="section-dot"></div><div class="section-title">Patient Information</div></div>
-    <table class="info-grid">
+    <table class="info-table">
       <tr>
         <td><div class="info-label">Full Name</div><div class="info-value">' . $patientName . '</div></td>
         <td><div class="info-label">Patient ID</div><div class="info-value">' . $patientId . '</div></td>
@@ -460,19 +466,21 @@ body { font-family: Arial, sans-serif; color: #0f172a; }
     ' . ($record->notes ? '<div class="clinical-item"><div class="clinical-label">Notes</div><div class="clinical-value">' . htmlspecialchars($record->notes) . '</div></div>' : '') . '
   </div>
   <div class="disclaimer">
-    <div class="disclaimer-title">CONFIDENTIAL MEDICAL DOCUMENT</div>
+    <div class="disclaimer-title">Confidential Medical Document</div>
     <div class="disclaimer-text">This document contains confidential medical information protected under the Kenya Health Act. It is intended solely for the patient named above and authorized healthcare providers. Unauthorized disclosure is prohibited.</div>
   </div>
 </div>
 <div class="footer">
-  <div>
-    <div class="footer-logo">AfyaLink</div>
-    <div class="footer-text">Digital Patient Referral & Health Record Platform</div>
-    <div class="footer-text">support@afyalink.ke · www.afyalink.ke · Kenya</div>
-  </div>
-  <div class="footer-right">
-    <div class="footer-text">This is a computer-generated document</div>
-    <div class="footer-text">© 2026 AfyaLink. All rights reserved.</div>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">AfyaLink</div>
+      <div class="footer-text">Digital Patient Referral &amp; Health Record Platform</div>
+      <div class="footer-text">support@afyalink.ke &middot; www.afyalink.ke &middot; Kenya</div>
+    </div>
+    <div class="footer-right">
+      <div class="footer-text">Computer-generated document &middot; ' . $generatedAt . '</div>
+      <div class="footer-text">&copy; 2026 AfyaLink. All rights reserved.</div>
+    </div>
   </div>
 </div>
 </body>

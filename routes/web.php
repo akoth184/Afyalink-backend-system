@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PatientController;
@@ -124,6 +125,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/initiate', [MpesaController::class, 'initiatePayment'])->name('payment.initiate');
     Route::post('/payment/callback', [MpesaController::class, 'handleCallback'])->name('payment.callback');
     Route::get('/payment/status', [MpesaController::class, 'queryStatus'])->name('payment.status');
+
+    // Notifications
+    Route::post('/notifications/read', function() {
+        \App\Models\Notification::where('user_id', Auth::id())->update(['is_read' => true]);
+        return back()->with('success', 'All notifications marked as read.');
+    })->name('notifications.read')->middleware('auth');
+
+    // Get unread count for AJAX
+    Route::get('/notifications/count', function() {
+        $count = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+        return response()->json(['count' => $count]);
+    })->name('notifications.count')->middleware('auth');
 
     // Patient Payments
     Route::get('/patient/payments', [MpesaController::class, 'showPaymentPage'])->name('patient.payments');

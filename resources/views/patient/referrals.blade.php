@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Referrals — AfyaLink</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -265,7 +266,16 @@
                                     <td>
                                         <div class="info-label">Doctor</div>
                                         <div class="info-value">
-                                            {{ optional($referral->referredBy)->role === 'doctor' ? 'Dr. ' : '' }}{{ optional($referral->referredBy)->first_name ?? 'N/A' }} {{ optional($referral->referredBy)->last_name ?? '' }}
+                                            @php
+                                              $referredByUser = \App\Models\User::find($referral->referred_by);
+                                            @endphp
+                                            @if($referredByUser && $referredByUser->role === 'doctor')
+                                              Dr. {{ $referredByUser->first_name }} {{ $referredByUser->last_name }}
+                                            @elseif($referredByUser && in_array($referredByUser->role, ['hospital','facility']))
+                                              Hospital Transfer
+                                            @else
+                                              AfyaLink System
+                                            @endif
                                         </div>
                                     </td>
                                     <td>
@@ -301,6 +311,12 @@
                                             @default
                                                 <span class="badge badge-pending">{{ $referral->status }}</span>
                                         @endswitch
+                                        @if($referral->status === 'rejected' && $referral->rejection_reason)
+                                        <div style="margin-top:8px;background:#fee2e2;border-left:3px solid #dc2626;padding:8px 12px;border-radius:0 6px 6px 0;">
+                                          <div style="font-size:10px;font-weight:700;color:#dc2626;margin-bottom:3px;">Hospital Response</div>
+                                          <div style="font-size:12px;color:#991b1b;line-height:1.5;">{{ $referral->rejection_reason }}</div>
+                                        </div>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

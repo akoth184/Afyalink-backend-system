@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin Dashboard — AfyaLink</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body{font-family:'Inter',sans-serif;}
@@ -22,20 +23,37 @@ body{font-family:'Inter',sans-serif;}
 .tl{padding-left:16px;border-left:2px solid #e2e8f0;}
 .tli{padding-bottom:14px;position:relative;}
 .tldot{width:10px;height:10px;border-radius:50%;position:absolute;left:-21px;top:2px;}
-@media(max-width:768px){
-  #sidebar{transform:translateX(-220px);transition:transform .3s;}
-  #sidebar.open{transform:translateX(0);}
+#sidebar{
+  width:220px;
+  background:#1e3a5f;
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:0;
+  z-index:400;
+  transition:transform .3s ease;
+  display:flex;
+  flex-direction:column;
+}
+@media(max-width:900px){
+  #sidebar{transform:translateX(-220px);}
+  #sidebar.open{transform:translateX(0) !important;background:#1e3a5f !important;}
   #main-content{margin-left:0 !important;}
   #hamburger{display:flex !important;}
+  .overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:399;}
+  .overlay.show{display:block;}
 }
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
-<button id="hamburger" onclick="toggleSidebar()" style="position:fixed;top:14px;left:14px;z-index:300;background:#1e3a5f;border:none;width:38px;height:38px;border-radius:8px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:5px;">
-  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
-  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
-  <div style="width:18px;height:2px;background:white;border-radius:2px;"></div>
-</button>
+<div class="overlay" id="overlay"></div>
+<div id="hamburger">
+    <svg width="28" height="28" fill="white">
+        <rect y="4" width="28" height="4"></rect>
+        <rect y="12" width="28" height="4"></rect>
+        <rect y="20" width="28" height="4"></rect>
+    </svg>
+</div>
 <div style="display:flex;min-height:100vh;">
 
 <!-- SIDEBAR -->
@@ -259,6 +277,7 @@ body{font-family:'Inter',sans-serif;}
           <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">To</th>
           <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Reason</th>
           <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Status</th>
+          <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Rejection Reason</th>
           <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Date</th>
         </tr></thead>
         <tbody>
@@ -270,6 +289,13 @@ body{font-family:'Inter',sans-serif;}
           <td style="padding:11px 0;color:#64748b;">{{ optional($referral->receivingFacility)->name ?? 'N/A' }}</td>
           <td style="padding:11px 0;color:#64748b;">{{ $referral->reason ?? 'N/A' }}</td>
           <td style="padding:11px 0;"><span class="badge-{{ $referral->status ?? 'pending' }}">{{ ucfirst($referral->status ?? 'pending') }}</span></td>
+          <td style="padding:11px 0;color:#64748b;font-size:12px;max-width:150px;">
+            @if($referral->status === 'rejected' && $referral->rejection_reason)
+            <span style="color:#dc2626;">{{ Str::limit($referral->rejection_reason, 50) }}</span>
+            @else
+            —
+            @endif
+          </td>
           <td style="padding:11px 0;color:#94a3b8;">{{ $referral->created_at->format('d M Y') }}</td>
         </tr>
         @endforeach
@@ -284,8 +310,8 @@ body{font-family:'Inter',sans-serif;}
   <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Facilities</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">All registered health facilities</div></div>
   <div style="padding:24px 28px;">
     <div class="card">
-      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Facilities ({{ \App\Models\Facility::count() }})</div>
-      @foreach(\App\Models\Facility::latest()->get() as $facility)
+      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Facilities ({{ \App\Models\Facility::where('is_active', true)->count() }})</div>
+      @foreach(\App\Models\Facility::where('is_active', true)->latest()->get() as $facility)
       <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
         <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($facility->name ?? 'F',0,1)) }}</div>
         <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $facility->name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $facility->county }} · {{ ucfirst($facility->type) }} · {{ $facility->phone ?? 'No phone' }}</div></div>
@@ -355,12 +381,34 @@ body{font-family:'Inter',sans-serif;}
 </div>
 
 <script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
 function showSection(name, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
   document.getElementById('sec-' + name).classList.add('active');
   if(el) el.classList.add('on');
 }
+</script>
+<script>
+document.getElementById("hamburger").addEventListener("click", function () {
+    const sidebar = document.getElementById("sidebar");
+    const main = document.getElementById("main-content");
+
+    if (sidebar.style.transform === "translateX(0px)") {
+        sidebar.style.transform = "translateX(-260px)";
+        main.style.marginLeft = "0px";
+    } else {
+        sidebar.style.transform = "translateX(0px)";
+        main.style.marginLeft = "260px";
+    }
+});
 </script>
 </body>
 </html>
