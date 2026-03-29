@@ -146,7 +146,6 @@ class ReferralController extends Controller
         $receivingFacility = \App\Models\Facility::find($request->receiving_facility_id);
         if ($receivingFacility) {
             $hospitalUser = \App\Models\User::where('facility_id', $receivingFacility->id)
-                ->orWhere('hospital_id', $receivingFacility->hospital_id)
                 ->where('role', 'hospital')
                 ->first();
             if ($hospitalUser) {
@@ -221,6 +220,15 @@ class ReferralController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $referral = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])->findOrFail($id);
+        $user = Auth::user();
+        
+        // Only the receiving facility can accept/reject referrals
+        if (in_array($user->role, ['hospital', 'facility']) && $user->facility_id) {
+            if ($referral->receiving_facility_id !== $user->facility_id) {
+                abort(403, 'Only the receiving facility can accept or reject this referral.');
+            }
+        }
+        
         $status = $request->input('status');
         $rejectionReason = $request->input('rejection_reason');
 

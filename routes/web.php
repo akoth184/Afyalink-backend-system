@@ -49,6 +49,7 @@ Route::prefix('hospital')->group(function () {
     Route::post('/register', [\App\Http\Controllers\HospitalAuthController::class, 'register'])->name('hospital.register.submit');
     Route::get('/dashboard', [\App\Http\Controllers\HospitalAuthController::class, 'dashboard'])->name('hospital.dashboard')->middleware('auth');
     Route::post('/hours', [\App\Http\Controllers\HospitalAuthController::class, 'updateHours'])->name('hospital.hours.update');
+    Route::get('/reports/download', [\App\Http\Controllers\HospitalAuthController::class, 'downloadReport'])->name('hospital.reports.download');
 });
 
 // Legacy routes (redirect to new portals)
@@ -169,6 +170,7 @@ Route::middleware('auth')->group(function () {
     // ── FACILITY NEARBY FACILITIES ──
     // Route for hospitals to view nearby facilities
     Route::get('/facility/nearby', [FacilityController::class, 'nearbyHospitals'])->name('facility.nearby');
+Route::get('/api/facilities/nearby', [FacilityController::class, 'nearbyHospitals'])->name('api.facilities.nearby');
 
     // Patients - Only accessible by doctors, nurses, admins, and hospital staff
     Route::resource('patients', PatientController::class);
