@@ -167,7 +167,7 @@ body{font-family:'Inter',sans-serif;}
     <div class="section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;" id="sec-incoming-referrals">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Incoming Referrals</span>
-        <a href="{{ route('referrals.index') }}" style="font-size:12px;color:#2563eb;font-weight:500;text-decoration:none;">View All</a>
+        <button onclick="showSection('referrals', document.querySelector('[onclick*=\'referrals\']'))" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">View All →</button>
       </div>
       @forelse($referrals as $referral)
       <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
@@ -248,32 +248,20 @@ body{font-family:'Inter',sans-serif;}
         </table>
       </div>
       <div id="report-outgoing" style="display:none;">
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <thead>
-            <tr style="border-bottom:2px solid #f1f5f9;">
-              <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Ref #</th>
-              <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Patient</th>
-              <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">To</th>
-              <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Reason</th>
-              <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Status</th>
-              <th style="text-align:left;padding:8px 0;color:#94a3b8;font-size:10px;text-transform:uppercase;">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach($referrals as $referral)
-            @if($referral->referring_facility_id == optional($facility)->id)
-            <tr style="border-bottom:1px solid #f1f5f9;">
-              <td style="padding:11px 0;font-weight:600;">REF-{{ str_pad($referral->id,5,'0',STR_PAD_LEFT) }}</td>
-              <td style="padding:11px 0;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</td>
-              <td style="padding:11px 0;color:#64748b;">{{ optional($referral->receivingFacility)->name ?? 'N/A' }}</td>
-              <td style="padding:11px 0;color:#64748b;">{{ $referral->reason ?? 'N/A' }}</td>
-              <td style="padding:11px 0;"><span class="badge-{{ ($referral->receivingFacility && !$referral->receivingFacility->is_active) ? 'pending' : ($referral->status ?? 'pending') }}">{{ ucfirst(($referral->receivingFacility && !$referral->receivingFacility->is_active) ? 'pending' : ($referral->status ?? 'pending')) }}</span></td>
-              <td style="padding:11px 0;color:#94a3b8;">{{ $referral->created_at->format('d M Y') }}</td>
-            </tr>
-            @endif
-            @endforeach
-          </tbody>
-        </table>
+        @forelse($outgoingReferrals ?? [] as $referral)
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</div>
+            <div style="font-size:11px;color:#94a3b8;">To: {{ optional($referral->receivingFacility)->name ?? 'N/A' }} · {{ $referral->reason ?? '' }}</div>
+          </div>
+          <div style="text-align:right;">
+            <span style="background:{{ $referral->status === 'accepted' ? '#dcfce7' : ($referral->status === 'rejected' ? '#fee2e2' : '#fef3c7') }};color:{{ $referral->status === 'accepted' ? '#16a34a' : ($referral->status === 'rejected' ? '#dc2626' : '#d97706') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($referral->status ?? 'pending') }}</span>
+            <div style="font-size:10px;color:#94a3b8;margin-top:3px;">{{ $referral->created_at ? $referral->created_at->format('d M Y') : '' }}</div>
+          </div>
+        </div>
+        @empty
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No outgoing referrals yet</div>
+        @endforelse
       </div>
     </div>
 
@@ -352,7 +340,7 @@ body{font-family:'Inter',sans-serif;}
         <input type="hidden" name="receiving_facility_id" id="selected-hospital-id">
         <div id="hospital-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:50;margin-top:4px;max-height:200px;overflow-y:auto;">
           @foreach(\App\Models\Facility::where('is_active',true)->where('id','!=',optional($facility)->id)->get() as $f)
-          <div onclick="selectHospital({{ $f->id }}, '{{ addslashes($f->name) }}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='#f0f6ff'" onmouseout="this.style.background='white'">
+          <div onmousedown="selectHospital({{ $f->id }}, '{{ addslashes($f->name) }}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='#f0f6ff'" onmouseout="this.style.background='white'">
             <div><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $f->name }}</div><div style="font-size:11px;color:#64748b;">{{ $f->county }} · {{ ucfirst($f->type) }}</div></div>
             <span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;">Active</span>
           </div>
@@ -442,6 +430,7 @@ function selectHospital(id, name) {
   document.getElementById('selected-hospital-id').value = id;
   document.getElementById('hospital-search-input').value = name;
   document.getElementById('hospital-dropdown').style.display = 'none';
+  document.getElementById('hospital-search-input').style.borderColor = '#16a34a';
 }
 function setPriority(type) {
   ['routine','urgent','emergency'].forEach(function(t) {
@@ -667,7 +656,7 @@ function findNearbyHospitals() {
   document.getElementById('nearby-loading').style.display = 'block';
   document.getElementById('nearby-content').style.display = 'none';
   document.getElementById('nearby-error').style.display = 'none';
-  
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       function(position) {
@@ -696,7 +685,7 @@ function loadNearbyHospitals(lat, lng) {
     .then(data => {
       document.getElementById('nearby-loading').style.display = 'none';
       document.getElementById('nearby-content').style.display = 'block';
-      
+
       if (data.success && data.data.length > 0) {
         initMap(lat, lng, data.data);
         renderHospitalList(data.data);
@@ -712,18 +701,18 @@ function loadNearbyHospitals(lat, lng) {
 
 function initMap(userLat, userLng, hospitals) {
   var mapDiv = document.getElementById('nearby-map');
-  
+
   // Check if Google Maps is available
   if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
     mapDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f8fafc;border-radius:10px;"><div style="text-align:center;padding:20px;"><div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:8px;">Google Maps Not Available</div><div style="font-size:12px;color:#64748b;">Please configure GOOGLE_MAPS_API_KEY in your .env file</div></div></div>';
     return;
   }
-  
+
   var map = new google.maps.Map(mapDiv, {
     center: {lat: userLat, lng: userLng},
     zoom: 12
   });
-  
+
   // Add user marker
   new google.maps.Marker({
     position: {lat: userLat, lng: userLng},
@@ -731,7 +720,7 @@ function initMap(userLat, userLng, hospitals) {
     title: 'Your Location',
     icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
   });
-  
+
   // Add hospital markers
   hospitals.forEach(function(hospital) {
     var marker = new google.maps.Marker({
@@ -740,11 +729,11 @@ function initMap(userLat, userLng, hospitals) {
       title: hospital.name,
       icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
     });
-    
+
     var infoWindow = new google.maps.InfoWindow({
       content: '<div style="padding:8px;"><strong>' + hospital.name + '</strong><br>' + hospital.distance + ' km away</div>'
     });
-    
+
     marker.addListener('click', function() {
       infoWindow.open(map, marker);
     });
@@ -754,7 +743,7 @@ function initMap(userLat, userLng, hospitals) {
 function renderHospitalList(hospitals) {
   var listDiv = document.getElementById('nearby-list');
   var html = '<div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:12px;">Select a hospital:</div>';
-  
+
   hospitals.forEach(function(hospital) {
     html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;cursor:pointer;" onclick="selectHospital(' + hospital.id + ', \'' + hospital.name.replace(/'/g, "\\'") + '\')">'  ;
     html += '<div>';
@@ -764,7 +753,7 @@ function renderHospitalList(hospitals) {
     html += '<button type="button" style="background:#2563eb;color:white;border:none;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Select</button>';
     html += '</div>';
   });
-  
+
   listDiv.innerHTML = html;
 }
 
@@ -785,32 +774,32 @@ var selectedLng = null;
 function initLocationPicker() {
   var mapDiv = document.getElementById('location-picker-map');
   if (!mapDiv) return;
-  
+
   // Check if Google Maps is available
   if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
     mapDiv.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#f8fafc;border-radius:10px;"><div style="text-align:center;padding:20px;"><div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:8px;">Google Maps Not Available</div><div style="font-size:12px;color:#64748b;">Please configure GOOGLE_MAPS_API_KEY in your .env file</div></div></div>';
     return;
   }
-  
+
   // Default to Nairobi coordinates
   var defaultLat = -1.2921;
   var defaultLng = 36.8219;
-  
+
   locationPickerMap = new google.maps.Map(mapDiv, {
     center: {lat: defaultLat, lng: defaultLng},
     zoom: 12
   });
-  
+
   // Add click listener to set location
   locationPickerMap.addListener('click', function(event) {
     selectedLat = event.latLng.lat();
     selectedLng = event.latLng.lng();
-    
+
     // Remove existing marker
     if (locationMarker) {
       locationMarker.setMap(null);
     }
-    
+
     // Add new marker
     locationMarker = new google.maps.Marker({
       position: {lat: selectedLat, lng: selectedLng},
@@ -826,7 +815,7 @@ function searchFromMap() {
     alert('Please click on the map to select your location first');
     return;
   }
-  
+
   document.getElementById('nearby-loading').style.display = 'block';
   document.getElementById('nearby-error').style.display = 'none';
   loadNearbyHospitals(selectedLat, selectedLng);

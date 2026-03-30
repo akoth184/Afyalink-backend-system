@@ -164,9 +164,9 @@ body{font-family:'Inter',sans-serif;}
         <div class="stat-card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div style="width:36px;height:36px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;"></div>
-            <span style="font-size:11px;color:#d97706;">{{ $my_referrals ?? 0 }} total</span>
+            <span style="font-size:11px;color:#d97706;">{{ \App\Models\Referral::where('patient_id', Auth::id())->count() }} total</span>
           </div>
-          <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $my_referrals ?? 0 }}</div>
+          <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::where('patient_id', Auth::id())->count() }}</div>
           <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-top:4px;">My Referrals</div>
         </div>
       </a>

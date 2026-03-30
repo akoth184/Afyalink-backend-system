@@ -164,15 +164,20 @@ class HospitalAuthController extends Controller
         $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)
             ->orWhere('id', $user->facility_id)
             ->first();
+        $facilityId = optional($facility)->id;
         $referrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])
-            ->where('receiving_facility_id', optional($facility)->id)
-            ->orWhere('referring_facility_id', optional($facility)->id)
+            ->where(function($q) use ($facilityId) {
+                $q->where('receiving_facility_id', $facilityId)
+                  ->orWhere('referring_facility_id', $facilityId);
+            })
             ->latest()->get();
         $stats = [
             'total' => $referrals->count(),
             'accepted' => $referrals->where('status','accepted')->count(),
             'pending' => $referrals->where('status','pending')->count(),
             'rejected' => $referrals->where('status','rejected')->count(),
+            'incoming' => $referrals->where('receiving_facility_id', $facilityId)->count(),
+            'outgoing' => $referrals->where('referring_facility_id', $facilityId)->count(),
         ];
         $generatedAt = now()->format('d M Y, h:i A');
         $facilityName = optional($facility)->name ?? 'Hospital';
