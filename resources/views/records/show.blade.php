@@ -89,7 +89,7 @@ body{font-family:'Inter',sans-serif;}
     <a href="{{ route('patient.records') }}" style="background:white;color:#2563eb;border:1.5px solid #2563eb;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">← Back to Records</a>
     <a href="{{ route('patient.record.download', $record->id) }}" style="background:#2563eb;color:white;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Download PDF</a>
     @else
-    <a href="{{ route('records.index') }}" style="background:white;color:#2563eb;border:1.5px solid #2563eb;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">← Back to Records</a>
+    <a href="{{ route('hospital.dashboard') }}" style="background:white;color:#2563eb;border:1.5px solid #2563eb;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">← Back to Dashboard</a>
     <a href="{{ route('records.download', $record->id) }}" style="background:#2563eb;color:white;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Download PDF</a>
     @endif
   </div>

@@ -360,6 +360,22 @@ function initMap() {
   });
 }
 
+var facilitiesData = [
+    @foreach(\App\Models\Facility::where('is_active',true)->get() as $f)
+    @if($f->latitude && $f->longitude)
+    {name: "{{ addslashes($f->name) }}", lat: {{ $f->latitude }}, lng: {{ $f->longitude }}},
+    @endif
+    @endforeach
+  ];
+
+function focusHospital(index) {
+  if (facilitiesData[index]) {
+    var pos = {lat: parseFloat(facilitiesData[index].lat), lng: parseFloat(facilitiesData[index].lng)};
+    map.setCenter(pos);
+    map.setZoom(15);
+  }
+}
+
 function getLocation() {
   var status = document.getElementById('location-status');
   status.innerHTML = '<span style="color:#2563eb;font-size:13px;">Getting your location... please wait.</span>';

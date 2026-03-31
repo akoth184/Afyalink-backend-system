@@ -11,8 +11,6 @@
 @endif
 <style>
 body{font-family:'Inter',sans-serif;}
-.section{display:none;}
-.section.active{display:block;}
 .slink{display:block;padding:10px 20px;font-size:13px;color:rgba(255,255,255,.55);border-left:3px solid transparent;cursor:pointer;text-decoration:none;}
 .slink:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.05);}
 .slink.on{color:white;background:rgba(59,130,246,.2);border-left-color:#3b82f6;}
@@ -137,7 +135,7 @@ body{font-family:'Inter',sans-serif;}
   <div style="padding:24px 28px;">
 
     <!-- DASHBOARD SECTION -->
-    <div class="section active" id="sec-dashboard">
+    <div id="sec-dashboard" class="section" style="display:block;">
       <!-- STATS ROW -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
       <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;">
@@ -164,7 +162,7 @@ body{font-family:'Inter',sans-serif;}
     </div><!-- END DASHBOARD SECTION -->
 
     <!-- INCOMING REFERRALS FULL WIDTH -->
-    <div class="section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;" id="sec-incoming-referrals">
+    <div id="sec-incoming-referrals" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
 <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
   <div>
     <div style="font-size:20px;font-weight:700;color:#0f172a;">Incoming Referrals</div>
@@ -234,7 +232,7 @@ function filterReferrals(status, el) {
     </div>
 
     <!-- Referral Reports -->
-    <div class="section" id="sec-referral-reports" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
+    <div id="sec-referral-reports" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Referral Reports</span>
         <a href="{{ route('hospital.reports.download') }}" style="background:#2563eb;color:white;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">Download PDF</a>
@@ -304,7 +302,7 @@ function filterReferrals(status, el) {
     </div>
 
     <!-- Medical Records Section -->
-    <div class="section" id="sec-medical-records-section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
+    <div id="sec-medical-records-section" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Medical Records</span>
         <span style="font-size:12px;color:#94a3b8;">Records of accepted referred patients</span>
@@ -344,7 +342,7 @@ function filterReferrals(status, el) {
     <div style="display:block;">
 
       <!-- Transfer Form -->
-      <div class="section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;" id="sec-transfer-form">
+      <div id="sec-transfer-form" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
 <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
   <div>
     <div style="font-size:20px;font-weight:700;color:#0f172a;">Transfer Patient</div>
@@ -499,7 +497,7 @@ document.getElementById('transfer-search-input').addEventListener('keypress', fu
       </div>
 
       <!-- Working Hours -->
-      <div class="section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;" id="sec-working-hours-section">
+      <div id="sec-working-hours-section" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Working Hours</span>
           <span style="font-size:12px;color:#2563eb;cursor:pointer;font-weight:500;" onclick="document.getElementById('edit-hours').style.display=document.getElementById('edit-hours').style.display==='none'?'block':'none'">Edit</span>
@@ -572,7 +570,7 @@ document.getElementById('transfer-search-input').addEventListener('keypress', fu
     </div>
 
     <!-- SETTINGS SECTION -->
-    <div class="section" id="sec-settings">
+    <div id="sec-settings" class="section" style="display:none;">
       <!-- Profile Settings -->
       <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
@@ -864,34 +862,48 @@ function searchFromMap() {
   document.getElementById('nearby-error').style.display = 'none';
   loadNearbyHospitals(selectedLat, selectedLng);
 }
+</script>
+<script>
 function showSection(name, el) {
-  document.querySelectorAll('.section').forEach(function(s) {
-    s.classList.remove('active');
+  document.querySelectorAll('.section').forEach(function(s){s.style.display='none';});
+  document.querySelectorAll('.slink').forEach(function(l){l.classList.remove('on');});
+  var sec = document.getElementById('sec-'+name);
+  if(sec){sec.style.display='block';}
+  if(el){el.classList.add('on');}
+  window.scrollTo({top:0,behavior:'smooth'});
+  localStorage.setItem('hosp-sec',name);
+}
+function filterReferrals(status,el){
+  document.querySelectorAll('.ref-item').forEach(function(item){
+    item.style.display=(status==='all'||item.classList.contains('ref-'+status))?'flex':'none';
   });
-  document.querySelectorAll('.slink').forEach(function(l) {
-    l.classList.remove('on');
+  document.querySelectorAll('.filter-btn').forEach(function(b){
+    b.style.background='white';
+    b.style.color='#64748b';
+    b.style.border='1.5px solid #e2e8f0';
   });
-  var sec = document.getElementById('sec-' + name);
-  if(sec) sec.classList.add('active');
-  if(el) el.classList.add('on');
-  window.scrollTo({top:0, behavior:'smooth'});
-  window.location.hash = name;
-  localStorage.setItem('hospital-section', name);
+  el.style.background='#2563eb';
+  el.style.color='white';
+  el.style.border='none';
 }
 function showReportTab(tab, el) {
   document.getElementById('report-incoming').style.display = tab === 'incoming' ? 'block' : 'none';
   document.getElementById('report-outgoing').style.display = tab === 'outgoing' ? 'block' : 'none';
   document.getElementById('tab-incoming').style.background = tab === 'incoming' ? '#2563eb' : 'white';
   document.getElementById('tab-incoming').style.color = tab === 'incoming' ? 'white' : '#2563eb';
+  document.getElementById('tab-incoming').style.border = tab === 'incoming' ? 'none' : '1.5px solid #2563eb';
   document.getElementById('tab-outgoing').style.background = tab === 'outgoing' ? '#2563eb' : 'white';
   document.getElementById('tab-outgoing').style.color = tab === 'outgoing' ? 'white' : '#2563eb';
+  document.getElementById('tab-outgoing').style.border = tab === 'outgoing' ? 'none' : '1.5px solid #2563eb';
 }
-window.addEventListener('DOMContentLoaded', function(){
-  var hash = window.location.hash.replace('#','');
-  var saved = localStorage.getItem('hospital-section');
-  var section = hash || saved || 'dashboard';
-  var el = document.querySelector('[onclick*='' + section + '']');
-  showSection(section, el);
+window.addEventListener('DOMContentLoaded',function(){
+  window.location.hash = '';
+  var section = 'dashboard';
+  document.querySelectorAll('.section').forEach(function(s){s.style.display='none';});
+  var sec=document.getElementById('sec-'+section);
+  if(sec){sec.style.display='block';}
+  var el=document.querySelector('[onclick*="'+section+'"]');
+  if(el){el.classList.add('on');}
 });
 </script>
 <script>
@@ -929,6 +941,7 @@ document.addEventListener('click', function(e){
     dropdown.style.display = 'none';
   }
 });
+</script>
 
 </body>
 </html>
