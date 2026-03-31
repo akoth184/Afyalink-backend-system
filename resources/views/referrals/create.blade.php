@@ -71,7 +71,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f6ff;color:#1a1f2e;min-heigh
 <div style="padding:24px 28px;">
 <div class="form-card">
 <div class="form-header"><h2>Create Referral</h2><p>Refer a patient from one facility to another</p></div>
-<form method="POST" action="{{ route('referrals.store') }}">@csrf
+<form method="POST" action="{{ route('referrals.store') }}" enctype="multipart/form-data">@csrf
 <div class="form-body">
     <div class="form-group"><label>Patient *</label><select name="patient_id" required><option value="">Select patient...</option>@foreach($patients as $p)<option value="{{ $p->id }}" {{ old('patient_id')==$p->id ? 'selected' : '' }}>{{ $p->first_name }} {{ $p->last_name }}</option>@endforeach</select>@error('patient_id')<div class="field-error">{{ $message }}</div>@enderror</div>
     <div class="form-row">
@@ -113,6 +113,16 @@ body{font-family:'DM Sans',sans-serif;background:#f0f6ff;color:#1a1f2e;min-heigh
       <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Include diagnosis, vital signs and relevant clinical history</div>
     </div>
     <div class="form-group"><label>Additional Notes</label><textarea name="notes" placeholder="Any extra information...">{{ old('notes') }}</textarea>@error('notes')<div class="field-error">{{ $message }}</div>@enderror</div>
+    <!-- ATTACHMENT -->
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Attachments (Optional)</label>
+      <div style="border:2px dashed #e2e8f0;border-radius:8px;padding:20px;text-align:center;background:#f8fafc;cursor:pointer;" onclick="document.getElementById('referral-file').click()">
+        <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:4px;">Click to upload files</div>
+        <div style="font-size:11px;color:#94a3b8;">Lab results, X-rays, scans — PDF, JPG, PNG (max 10MB)</div>
+        <div id="file-name" style="font-size:12px;color:#2563eb;margin-top:8px;display:none;"></div>
+      </div>
+      <input type="file" id="referral-file" name="attachment" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="showFileName(this)">
+    </div>
 </div>
 <div class="form-footer"><button type="submit" class="btn btn-primary">Create Referral</button><a href="{{ route('referrals.index') }}" class="btn btn-sm" style="background:#f0f2f5;color:#5a6275">Cancel</a></div>
 </form>
@@ -136,6 +146,12 @@ document.addEventListener('DOMContentLoaded', function(){
   if(checked) setPriority(checked.value);
   else setPriority('routine');
 });
+function showFileName(input) {
+  var name = input.files[0] ? input.files[0].name : '';
+  var el = document.getElementById('file-name');
+  el.textContent = '✓ ' + name;
+  el.style.display = name ? 'block' : 'none';
+}
 </script>
 </body>
 </html>

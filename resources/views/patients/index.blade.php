@@ -153,7 +153,7 @@
                                 <div style="font-size:.82rem">{{ $patient->email ?? '—' }}</div>
                                 <div class="td-sub">{{ $patient->phone ?? '—' }}</div>
                             </td>
-                            <td><span class="badge badge-blue">{{ ucfirst($patient->gender ?? 'N/A') }}</span></td>
+                            <td><span class="badge badge-blue">{{ ucfirst($patient->gender ?? $patient->sex ?? 'Not specified') }}</span></td>
                             <td style="font-size:.82rem;color:var(--muted)">{{ optional($patient->facility)->name ?? '—' }}</td>
                             <td style="font-size:.78rem;color:var(--muted)">{{ $patient->created_at->format('d M Y') }}</td>
                             <td>

@@ -138,6 +138,7 @@ class ReferralController extends Controller
             'priority'             => 'nullable|string|in:routine,urgent,emergency',
             'appointment_date'     => 'nullable|date|after:today',
             'clinical_summary'     => 'nullable|string',
+            'attachment'           => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);
 
         $data['status']      = 'pending';
@@ -145,6 +146,15 @@ class ReferralController extends Controller
         $data['priority'] = $request->priority ?? 'routine';
         $data['appointment_date'] = $request->appointment_date;
         $data['clinical_summary'] = $request->clinical_summary;
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/referral_attachments', $filename);
+            $attachmentPath = 'referral_attachments/' . $filename;
+        }
+        $data['attachment_path'] = $attachmentPath;
 
         $referral = Referral::create($data);
 

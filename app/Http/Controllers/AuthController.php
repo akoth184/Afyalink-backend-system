@@ -78,6 +78,7 @@ class AuthController extends Controller
             'last_name'  => ['required', 'string', 'max:255'],
             'email'      => ['required', 'email', 'unique:users'],
             'phone'      => ['required', 'string', 'max:20'],
+            'gender'     => ['nullable', 'string', 'in:Male,Female,Other'],
             'password'   => ['required', 'min:8', 'confirmed'],
             'role'       => $roleRules,
         ]);
@@ -98,6 +99,7 @@ class AuthController extends Controller
             'last_name'  => $data['last_name'],
             'email'      => $data['email'],
             'phone'      => $data['phone'],
+            'gender'     => $data['gender'] ?? null,
             'password'   => Hash::make($data['password']),
             'role'       => $role,
             'patient_id' => $patientId,
