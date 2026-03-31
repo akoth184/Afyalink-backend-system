@@ -96,11 +96,18 @@ class HospitalAuthController extends Controller
             return redirect('/hospital/login')->with('error', 'No facility linked to your account. Please contact admin.');
         }
 
+        $facilityId = optional($facility)->id;
         $stats = [
-            'total_patients' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->distinct('patient_id')->count(),
-            'pending_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->where('status', 'pending')->count(),
-            'accepted_referrals' => \App\Models\Referral::where('receiving_facility_id', $facility->id)->where('status', 'accepted')->count(),
-            'staff_count' => \App\Models\User::where('facility_id', $facility->id)->count(),
+            'incoming_today' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
+                ->whereDate('created_at', today())
+                ->count(),
+            'accepted' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
+                ->where('status', 'accepted')
+                ->count(),
+            'transferred_out' => \App\Models\Referral::where('referring_facility_id', $facilityId)
+                ->count(),
+            'total_referrals' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
+                ->count(),
         ];
 
         $referrals = \App\Models\Referral::where('receiving_facility_id', $facility->id)
@@ -165,24 +172,29 @@ class HospitalAuthController extends Controller
             ->orWhere('id', $user->facility_id)
             ->first();
         $facilityId = optional($facility)->id;
-        $referrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])
-            ->where(function($q) use ($facilityId) {
-                $q->where('receiving_facility_id', $facilityId)
-                  ->orWhere('referring_facility_id', $facilityId);
-            })
+
+        $incomingReferrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])
+            ->where('receiving_facility_id', $facilityId)
             ->latest()->get();
+
+        $outgoingReferrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])
+            ->where('referring_facility_id', $facilityId)
+            ->latest()->get();
+
+        $allReferrals = $incomingReferrals->merge($outgoingReferrals);
+
         $stats = [
-            'total' => $referrals->count(),
-            'accepted' => $referrals->where('status','accepted')->count(),
-            'pending' => $referrals->where('status','pending')->count(),
-            'rejected' => $referrals->where('status','rejected')->count(),
-            'incoming' => $referrals->where('receiving_facility_id', $facilityId)->count(),
-            'outgoing' => $referrals->where('referring_facility_id', $facilityId)->count(),
+            'total' => $allReferrals->count(),
+            'accepted' => $allReferrals->where('status','accepted')->count(),
+            'pending' => $allReferrals->where('status','pending')->count(),
+            'rejected' => $allReferrals->where('status','rejected')->count(),
+            'incoming' => $incomingReferrals->count(),
+            'outgoing' => $outgoingReferrals->count(),
         ];
         $generatedAt = now()->format('d M Y, h:i A');
         $facilityName = optional($facility)->name ?? 'Hospital';
         $rows = '';
-        foreach($referrals as $r) {
+        foreach($allReferrals as $r) {
             $patient = optional($r->patient)->first_name . ' ' . optional($r->patient)->last_name;
             $from = optional($r->referringFacility)->name ?? 'N/A';
             $to = optional($r->receivingFacility)->name ?? 'N/A';
@@ -227,6 +239,8 @@ class HospitalAuthController extends Controller
             <div class="stat"><div class="stat-num" style="color:#16a34a">' . $stats['accepted'] . '</div><div class="stat-label">Accepted</div></div>
             <div class="stat"><div class="stat-num" style="color:#d97706">' . $stats['pending'] . '</div><div class="stat-label">Pending</div></div>
             <div class="stat"><div class="stat-num" style="color:#dc2626">' . $stats['rejected'] . '</div><div class="stat-label">Rejected</div></div>
+            <div class="stat"><div class="stat-num" style="color:#2563eb">' . $stats['incoming'] . '</div><div class="stat-label">Incoming</div></div>
+            <div class="stat"><div class="stat-num" style="color:#9333ea">' . $stats['outgoing'] . '</div><div class="stat-label">Outgoing</div></div>
         </div>
         <div class="body">
             <div class="section-title">All Referrals</div>

@@ -71,9 +71,14 @@ class MedicalRecordController extends Controller
             }
         }
 
-        // Hospital/facility can only view records for their facility
-        if (in_array($user->role, ['hospital', 'facility']) && $user->facility_id) {
-            if ($record->facility_id !== $user->facility_id) {
+        // Hospital/facility can view records for their facility or accepted referred patients
+        if (in_array($user->role, ['hospital', 'facility'])) {
+            $facilityId = $user->facility_id;
+            $acceptedPatientIds = \App\Models\Referral::where('receiving_facility_id', $facilityId)
+                ->where('status', 'accepted')
+                ->pluck('patient_id')
+                ->toArray();
+            if ($record->facility_id !== $facilityId && !in_array($record->patient_id, $acceptedPatientIds)) {
                 abort(403, 'You are not authorized to view this medical record.');
             }
         }

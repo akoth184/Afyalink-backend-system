@@ -221,14 +221,14 @@ class ReferralController extends Controller
     {
         $referral = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])->findOrFail($id);
         $user = Auth::user();
-        
+
         // Only the receiving facility can accept/reject referrals
         if (in_array($user->role, ['hospital', 'facility']) && $user->facility_id) {
             if ($referral->receiving_facility_id !== $user->facility_id) {
                 abort(403, 'Only the receiving facility can accept or reject this referral.');
             }
         }
-        
+
         $status = $request->input('status');
         $rejectionReason = $request->input('rejection_reason');
 
@@ -291,6 +291,7 @@ class ReferralController extends Controller
         }
 
         // Notify receiving hospital when new referral is created
-        return back()->with('success', 'Referral ' . $status . ' successfully.');
+        $redirectTo = $request->input('redirect_to', '');
+        return redirect()->back()->with('success', 'Referral ' . $status . ' successfully.')->withFragment($redirectTo);
     }
 }

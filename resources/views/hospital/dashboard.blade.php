@@ -203,6 +203,7 @@ body{font-family:'Inter',sans-serif;}
       <form method="POST" action="{{ route('referrals.status', $referral->id) }}">
         @csrf
         <input type="hidden" name="status" value="accepted">
+        <input type="hidden" name="redirect_to" value="referrals">
         <button type="submit" style="background:#dcfce7;color:#16a34a;border:1.5px solid #bbf7d0;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Accept</button>
       </form>
       <button type="button" onclick="openRejectModal({{ $referral->id }},'{{ addslashes(optional($referral->patient)->first_name) }} {{ addslashes(optional($referral->patient)->last_name) }}')" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Reject</button>
