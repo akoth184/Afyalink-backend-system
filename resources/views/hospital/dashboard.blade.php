@@ -307,25 +307,35 @@ function filterReferrals(status, el) {
     <div class="section" id="sec-medical-records-section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Medical Records</span>
-        <span style="font-size:12px;color:#94a3b8;">Records of referred patients</span>
+        <span style="font-size:12px;color:#94a3b8;">Records of accepted referred patients</span>
       </div>
       @php
-        $acceptedPatientIds = $referrals->where('status','accepted')->pluck('patient_id')->filter()->unique()->values();
-        $patientRecords = \App\Models\MedicalRecord::whereIn('patient_id', $acceptedPatientIds)->with('patient')->latest()->get();
+        $facilityId = optional($facility)->id;
+        $acceptedPatientIds = \App\Models\Referral::where('receiving_facility_id', $facilityId)
+            ->where('status','accepted')
+            ->pluck('patient_id')
+            ->toArray();
+        $hospitalRecords = \App\Models\MedicalRecord::with(['patient','doctor'])
+            ->whereIn('patient_id', $acceptedPatientIds)
+            ->latest()
+            ->get();
       @endphp
-      @forelse($patientRecords as $record)
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;">
-        <div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($record->patient)->first_name ?? 'P',0,1)) }}</div>
+      @forelse($hospitalRecords as $record)
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:10px;">
         <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($record->patient)->first_name ?? 'N/A' }} {{ optional($record->patient)->last_name ?? '' }}</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{{ $record->diagnosis ?? 'No diagnosis' }} · {{ $record->visit_date ? $record->visit_date->format('d M Y') : 'No date' }}</div>
+          <div style="font-size:13px;font-weight:700;color:#0f172a;">{{ optional($record->patient)->first_name ?? 'N/A' }} {{ optional($record->patient)->last_name ?? '' }}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ $record->chief_complaint ?? $record->diagnosis ?? 'No diagnosis' }}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Dr. {{ optional($record->doctor)->first_name ?? 'N/A' }} · {{ $record->visit_date ? \Carbon\Carbon::parse($record->visit_date)->format('d M Y') : 'No date' }}</div>
         </div>
-        <span style="font-size:11px;color:#2563eb;background:#dbeafe;padding:3px 10px;border-radius:20px;font-weight:600;">{{ ucfirst($record->status ?? 'draft') }}</span>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <a href="{{ route('records.show', $record->id) }}" style="background:#dbeafe;color:#1d4ed8;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">View</a>
+          <a href="{{ route('records.download', $record->id) }}" style="background:#2563eb;color:white;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">PDF</a>
+        </div>
       </div>
       @empty
-      <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">
-        <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:6px;">No medical records yet</div>
-        <div>Medical records will appear here once doctors create them for referred patients</div>
+      <div style="text-align:center;padding:40px;color:#94a3b8;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:6px;">No medical records yet</div>
+        <div style="font-size:13px;">Records for accepted referred patients will appear here</div>
       </div>
       @endforelse
     </div>
@@ -855,23 +865,18 @@ function searchFromMap() {
   loadNearbyHospitals(selectedLat, selectedLng);
 }
 function showSection(name, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.slink').forEach(l => l.classList.remove('on'));
+  document.querySelectorAll('.section').forEach(function(s) {
+    s.classList.remove('active');
+  });
+  document.querySelectorAll('.slink').forEach(function(l) {
+    l.classList.remove('on');
+  });
   var sec = document.getElementById('sec-' + name);
   if(sec) sec.classList.add('active');
   if(el) el.classList.add('on');
   window.scrollTo({top:0, behavior:'smooth'});
   window.location.hash = name;
-  var titles = {
-    'dashboard': 'Dashboard',
-    'referrals': 'Incoming Referrals',
-    'transfer': 'Hospital Transfer',
-    'reports': 'Referral Reports',
-    'records': 'Medical Records',
-    'hours': 'Working Hours',
-    'settings': 'Settings'
-  };
-  document.title = (titles[name] || name) + ' — Hospital Portal';
+  localStorage.setItem('hospital-section', name);
 }
 function showReportTab(tab, el) {
   document.getElementById('report-incoming').style.display = tab === 'incoming' ? 'block' : 'none';
@@ -883,12 +888,10 @@ function showReportTab(tab, el) {
 }
 window.addEventListener('DOMContentLoaded', function(){
   var hash = window.location.hash.replace('#','');
-  if(hash){
-    var el = document.querySelector('.slink[onclick*="' + hash + '"]');
-    showSection(hash, el);
-  } else {
-    showSection('dashboard', document.querySelector('.slink'));
-  }
+  var saved = localStorage.getItem('hospital-section');
+  var section = hash || saved || 'dashboard';
+  var el = document.querySelector('[onclick*='' + section + '']');
+  showSection(section, el);
 });
 </script>
 <script>
