@@ -17,6 +17,9 @@ class Referral extends Model
         'reason',
         'notes',
         'referred_by',
+        'priority',
+        'appointment_date',
+        'clinical_summary',
     ];
 
     // ── Relationships ──────────────────────────────────────────────────────

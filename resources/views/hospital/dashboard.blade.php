@@ -183,6 +183,9 @@ body{font-family:'Inter',sans-serif;}
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <div style="font-size:14px;font-weight:700;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</div>
         <span style="background:{{ $referral->status === 'accepted' ? '#dcfce7' : ($referral->status === 'rejected' ? '#fee2e2' : '#fef3c7') }};color:{{ $referral->status === 'accepted' ? '#16a34a' : ($referral->status === 'rejected' ? '#dc2626' : '#d97706') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($referral->status ?? 'pending') }}</span>
+        @if($referral->priority && $referral->priority !== 'routine')
+        <span style="background:{{ $referral->priority === 'emergency' ? '#fee2e2' : '#fef3c7' }};color:{{ $referral->priority === 'emergency' ? '#dc2626' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($referral->priority) }}</span>
+        @endif
         @if($referral->status === 'pending')
         <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">Action Required</span>
         @endif

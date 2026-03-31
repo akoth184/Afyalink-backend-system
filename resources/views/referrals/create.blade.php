@@ -79,11 +79,63 @@ body{font-family:'DM Sans',sans-serif;background:#f0f6ff;color:#1a1f2e;min-heigh
         <div class="form-group"><label>Receiving Facility *</label><select name="receiving_facility_id" required><option value="">To facility...</option>@foreach($facilities as $f)<option value="{{ $f->id }}" {{ old('receiving_facility_id')==$f->id ? 'selected' : '' }}>{{ $f->name }}</option>@endforeach</select>@error('receiving_facility_id')<div class="field-error">{{ $message }}</div>@enderror</div>
     </div>
     <div class="form-group"><label>Reason for Referral *</label><textarea name="reason" required placeholder="Describe the clinical reason for this referral...">{{ old('reason') }}</textarea>@error('reason')<div class="field-error">{{ $message }}</div>@enderror</div>
+    <!-- PRIORITY LEVEL -->
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px;">Priority Level <span style="color:#dc2626;">*</span></label>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <label style="border:2px solid #e2e8f0;border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;" id="lbl-routine">
+          <input type="radio" name="priority" value="routine" style="display:none;" {{ old('priority','routine')==='routine'?'checked':'' }} onchange="setPriority('routine')">
+          <div style="font-size:13px;font-weight:700;color:#0f172a;">Routine</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px;">Within 24-48 hrs</div>
+        </label>
+        <label style="border:2px solid #e2e8f0;border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;" id="lbl-urgent">
+          <input type="radio" name="priority" value="urgent" style="display:none;" {{ old('priority')==='urgent'?'checked':'' }} onchange="setPriority('urgent')">
+          <div style="font-size:13px;font-weight:700;color:#d97706;">Urgent</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px;">Within 4-6 hrs</div>
+        </label>
+        <label style="border:2px solid #e2e8f0;border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;" id="lbl-emergency">
+          <input type="radio" name="priority" value="emergency" style="display:none;" {{ old('priority')==='emergency'?'checked':'' }} onchange="setPriority('emergency')">
+          <div style="font-size:13px;font-weight:700;color:#dc2626;">Emergency</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px;">Immediate</div>
+        </label>
+      </div>
+    </div>
+    <!-- EXPECTED APPOINTMENT DATE -->
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Expected Appointment Date</label>
+      <input type="date" name="appointment_date" value="{{ old('appointment_date') }}" min="{{ date('Y-m-d') }}" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
+      <div style="font-size:11px;color:#94a3b8;margin-top:4px;">When should the patient be seen at the receiving facility?</div>
+    </div>
+    <!-- CLINICAL SUMMARY -->
+    <div style="margin-bottom:16px;">
+      <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Clinical Summary</label>
+      <textarea name="clinical_summary" rows="3" placeholder="Brief clinical summary: diagnosis, vital signs, current medications, relevant history..." style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;resize:vertical;">{{ old('clinical_summary') }}</textarea>
+      <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Include diagnosis, vital signs and relevant clinical history</div>
+    </div>
     <div class="form-group"><label>Additional Notes</label><textarea name="notes" placeholder="Any extra information...">{{ old('notes') }}</textarea>@error('notes')<div class="field-error">{{ $message }}</div>@enderror</div>
 </div>
 <div class="form-footer"><button type="submit" class="btn btn-primary">Create Referral</button><a href="{{ route('referrals.index') }}" class="btn btn-sm" style="background:#f0f2f5;color:#5a6275">Cancel</a></div>
 </form>
 </div>
 </div></div></div>
+<script>
+function setPriority(type) {
+  ['routine','urgent','emergency'].forEach(function(t){
+    var el = document.getElementById('lbl-'+t);
+    el.style.borderColor = '#e2e8f0';
+    el.style.background = 'white';
+  });
+  var colors = {routine:'#2563eb',urgent:'#d97706',emergency:'#dc2626'};
+  var sel = document.getElementById('lbl-'+type);
+  sel.style.borderColor = colors[type];
+  sel.style.background = type==='routine'?'#f0f6ff':type==='urgent'?'#fef3c7':'#fee2e2';
+  document.querySelector('[name=priority][value='+type+']').checked = true;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  var checked = document.querySelector('[name=priority]:checked');
+  if(checked) setPriority(checked.value);
+  else setPriority('routine');
+});
+</script>
 </body>
 </html>

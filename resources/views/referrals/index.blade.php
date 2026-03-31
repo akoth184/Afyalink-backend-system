@@ -109,6 +109,9 @@
                             <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->toFacility)->name ?? '&mdash;' }}</td>
                             <td style="font-size:.82rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ $ref->reason ?? '&mdash;' }}</td>
                             <td><span class="badge {{ $bc }}">{{ ucfirst($s) }}</span>
+                            @if($ref->priority)
+                            <span style="background:{{ $ref->priority === 'emergency' ? '#fee2e2' : ($ref->priority === 'urgent' ? '#fef3c7' : '#dbeafe') }};color:{{ $ref->priority === 'emergency' ? '#dc2626' : ($ref->priority === 'urgent' ? '#d97706' : '#2563eb') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($ref->priority) }}</span>
+                            @endif
                             @if($ref->status === 'rejected' && $ref->rejection_reason)
                             <div style="margin-top:8px;background:#fee2e2;border-left:3px solid #dc2626;padding:8px 12px;border-radius:0 6px 6px 0;">
                               <div style="font-size:10px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Rejection Reason</div>

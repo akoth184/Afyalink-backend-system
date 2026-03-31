@@ -33,6 +33,24 @@
             <div class="detail-row"><div class="detail-label">Date Created</div><div class="detail-value">{{ $referral->created_at->format('d M Y, H:i') }}</div></div>
             <div class="detail-row"><div class="detail-label">Last Updated</div><div class="detail-value">{{ $referral->updated_at->diffForHumans() }}</div></div>
         </div>
+        @if($referral->priority)
+        <div style="padding:16px 22px;border-top:1px solid var(--border)">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Priority</div>
+            <span style="background:{{ $referral->priority === 'emergency' ? '#fee2e2' : ($referral->priority === 'urgent' ? '#fef3c7' : '#dbeafe') }};color:{{ $referral->priority === 'emergency' ? '#dc2626' : ($referral->priority === 'urgent' ? '#d97706' : '#2563eb') }};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">{{ ucfirst($referral->priority) }}</span>
+        </div>
+        @endif
+        @if($referral->appointment_date)
+        <div style="padding:16px 22px;border-top:1px solid var(--border)">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px">Expected Appointment</div>
+            <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ \Carbon\Carbon::parse($referral->appointment_date)->format('d M Y') }}</div>
+        </div>
+        @endif
+        @if($referral->clinical_summary)
+        <div style="padding:16px 22px;border-top:1px solid var(--border)">
+            <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Clinical Summary</div>
+            <div style="font-size:13px;color:#0f172a;line-height:1.6;background:#f8fafc;padding:10px 12px;border-radius:8px;">{{ $referral->clinical_summary }}</div>
+        </div>
+        @endif
         <div style="padding:20px 22px;border-top:1px solid var(--border)">
             <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Reason</div>
             <div style="font-size:.9rem;line-height:1.65;color:var(--ink)">{{ $referral->reason ?? '—' }}</div>

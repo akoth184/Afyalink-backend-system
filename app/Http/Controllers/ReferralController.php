@@ -135,10 +135,16 @@ class ReferralController extends Controller
             'receiving_facility_id' => 'required|exists:facilities,id|different:referring_facility_id',
             'reason'               => 'required|string',
             'notes'                => 'nullable|string',
+            'priority'             => 'nullable|string|in:routine,urgent,emergency',
+            'appointment_date'     => 'nullable|date|after:today',
+            'clinical_summary'     => 'nullable|string',
         ]);
 
         $data['status']      = 'pending';
         $data['referred_by'] = auth()->id();
+        $data['priority'] = $request->priority ?? 'routine';
+        $data['appointment_date'] = $request->appointment_date;
+        $data['clinical_summary'] = $request->clinical_summary;
 
         $referral = Referral::create($data);
 

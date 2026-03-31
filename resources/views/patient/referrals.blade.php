@@ -311,6 +311,9 @@
                                             @default
                                                 <span class="badge badge-pending">{{ $referral->status }}</span>
                                         @endswitch
+                                        @if($referral->priority)
+                                        <span style="background:{{ $referral->priority === 'emergency' ? '#fee2e2' : ($referral->priority === 'urgent' ? '#fef3c7' : '#dbeafe') }};color:{{ $referral->priority === 'emergency' ? '#dc2626' : ($referral->priority === 'urgent' ? '#d97706' : '#2563eb') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($referral->priority) }}</span>
+                                        @endif
                                         @if($referral->status === 'rejected' && $referral->rejection_reason)
                                         <div style="margin-top:8px;background:#fee2e2;border-left:3px solid #dc2626;padding:8px 12px;border-radius:0 6px 6px 0;">
                                           <div style="font-size:10px;font-weight:700;color:#dc2626;margin-bottom:3px;">Hospital Response</div>
