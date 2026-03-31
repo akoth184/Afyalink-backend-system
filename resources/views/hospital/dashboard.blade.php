@@ -165,34 +165,71 @@ body{font-family:'Inter',sans-serif;}
 
     <!-- INCOMING REFERRALS FULL WIDTH -->
     <div class="section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;" id="sec-incoming-referrals">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Incoming Referrals</span>
-        <button onclick="showSection('referrals', document.querySelector('[onclick*=\'referrals\']'))" style="background:none;border:none;color:#2563eb;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">View All →</button>
-      </div>
-      @forelse($referrals as $referral)
-      <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
-        <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($referral->patient)->first_name ?? 'P',0,1)) }}</div>
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }} <span style="font-size:11px;color:#94a3b8;font-weight:400;">{{ optional($referral->patient)->patient_id ?? '' }}</span></div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{{ optional($referral->referringFacility)->name ?? 'N/A' }} · {{ $referral->reason ?? 'No reason' }} · {{ $referral->created_at->format('M d') }}</div>
-        </div>
-        <span class="badge-{{ $referral->status ?? 'pending' }}" style="margin-right:8px;">{{ ucfirst($referral->status ?? 'pending') }}</span>
-        @if(($referral->status ?? 'pending') === 'pending' && $referral->receiving_facility_id == optional($facility)->id)
-        <div style="display:flex;gap:6px;">
-          <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
-            @csrf @method('PATCH')
-            <input type="hidden" name="status" value="accepted">
-            <button type="submit" style="background:#2563eb;color:white;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Accept</button>
-          </form>
-          <button type="button" onclick="openRejectModal({{ $referral->id }}, '{{ optional($referral->patient)->first_name }} {{ optional($referral->patient)->last_name }}')" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Reject</button>
-        </div>
-        @else
-        <span style="font-size:12px;color:#94a3b8;">{{ ($referral->status ?? 'pending') === 'pending' ? 'Awaiting response' : 'No action needed' }}</span>
+<div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+  <div>
+    <div style="font-size:20px;font-weight:700;color:#0f172a;">Incoming Referrals</div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:3px;">All referrals sent to your facility</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="filterReferrals('all',this)" style="background:#2563eb;color:white;border:none;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" class="filter-btn">All ({{ $referrals->count() }})</button>
+    <button onclick="filterReferrals('pending',this)" style="background:white;color:#d97706;border:1.5px solid #fde68a;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" class="filter-btn">Pending ({{ $referrals->where('status','pending')->count() }})</button>
+    <button onclick="filterReferrals('accepted',this)" style="background:white;color:#16a34a;border:1.5px solid #bbf7d0;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" class="filter-btn">Accepted ({{ $referrals->where('status','accepted')->count() }})</button>
+    <button onclick="filterReferrals('rejected',this)" style="background:white;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;" class="filter-btn">Rejected ({{ $referrals->where('status','rejected')->count() }})</button>
+  </div>
+</div>
+<div style="padding:24px 28px;">
+  @forelse($referrals->sortByDesc(function($r){ return $r->status === 'pending' ? 1 : 0; }) as $referral)
+  <div class="ref-item ref-{{ $referral->status ?? 'pending' }}" style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:10px;">
+    <div style="width:38px;height:38px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr(optional($referral->patient)->first_name ?? 'P',0,1)) }}</div>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="font-size:14px;font-weight:700;color:#0f172a;">{{ optional($referral->patient)->first_name ?? 'N/A' }} {{ optional($referral->patient)->last_name ?? '' }}</div>
+        <span style="background:{{ $referral->status === 'accepted' ? '#dcfce7' : ($referral->status === 'rejected' ? '#fee2e2' : '#fef3c7') }};color:{{ $referral->status === 'accepted' ? '#16a34a' : ($referral->status === 'rejected' ? '#dc2626' : '#d97706') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($referral->status ?? 'pending') }}</span>
+        @if($referral->status === 'pending')
+        <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">Action Required</span>
         @endif
       </div>
-      @empty
-      <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No referrals yet</div>
-      @endforelse
+      <div style="font-size:12px;color:#64748b;">From: {{ optional($referral->referringFacility)->name ?? 'N/A' }}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:2px;">Reason: {{ $referral->reason ?? 'N/A' }} · {{ $referral->created_at ? $referral->created_at->format('d M Y') : '' }}</div>
+      @if($referral->rejection_reason)
+      <div style="margin-top:8px;background:#fee2e2;border-left:3px solid #dc2626;padding:8px 12px;border-radius:0 6px 6px 0;">
+        <div style="font-size:10px;font-weight:700;color:#dc2626;margin-bottom:2px;">Rejection Reason</div>
+        <div style="font-size:12px;color:#991b1b;">{{ $referral->rejection_reason }}</div>
+      </div>
+      @endif
+    </div>
+    @if($referral->status === 'pending')
+    <div style="display:flex;gap:8px;flex-shrink:0;margin-top:4px;">
+      <form method="POST" action="{{ route('referrals.status', $referral->id) }}">
+        @csrf
+        <input type="hidden" name="status" value="accepted">
+        <button type="submit" style="background:#dcfce7;color:#16a34a;border:1.5px solid #bbf7d0;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Accept</button>
+      </form>
+      <button type="button" onclick="openRejectModal({{ $referral->id }},'{{ addslashes(optional($referral->patient)->first_name) }} {{ addslashes(optional($referral->patient)->last_name) }}')" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Reject</button>
+    </div>
+    @endif
+  </div>
+  @empty
+  <div style="text-align:center;padding:40px;color:#94a3b8;">
+    <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:6px;">No incoming referrals yet</div>
+    <div style="font-size:13px;">Referrals sent to your facility will appear here</div>
+  </div>
+  @endforelse
+</div>
+<script>
+function filterReferrals(status, el) {
+  document.querySelectorAll('.ref-item').forEach(function(item) {
+    item.style.display = (status === 'all' || item.classList.contains('ref-' + status)) ? 'flex' : 'none';
+  });
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.style.background = 'white';
+    btn.style.borderWidth = '1.5px';
+  });
+  el.style.background = '#2563eb';
+  el.style.color = 'white';
+  el.style.borderColor = '#2563eb';
+}
+</script>
     </div>
 
     <!-- Referral Reports -->
@@ -293,7 +330,7 @@ body{font-family:'Inter',sans-serif;}
     </div>
 
     <!-- TRANSFER + WORKING HOURS -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div style="display:block;">
 
       <!-- Transfer Form -->
       <div class="section" style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;" id="sec-transfer-form">
@@ -333,19 +370,15 @@ body{font-family:'Inter',sans-serif;}
           <button type="button" onclick="clearTransferPatient()" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;font-family:inherit;">✕ Change</button>
         </div>
       </div>
-      <!-- RECEIVING HOSPITAL SEARCH -->
-      <div style="margin-bottom:16px;position:relative;">
+      <!-- RECEIVING HOSPITAL -->
+      <div style="margin-bottom:16px;">
         <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Receiving Hospital</label>
-        <input type="text" id="hospital-search-input" placeholder="Type hospital name..." oninput="filterHospitals()" onfocus="showHospitalDropdown()" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
-        <input type="hidden" name="receiving_facility_id" id="selected-hospital-id">
-        <div id="hospital-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:50;margin-top:4px;max-height:200px;overflow-y:auto;">
-          @foreach(\App\Models\Facility::where('is_active',true)->where('id','!=',optional($facility)->id)->get() as $f)
-          <div onmousedown="selectHospital({{ $f->id }}, '{{ addslashes($f->name) }}')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;" onmouseover="this.style.background='#f0f6ff'" onmouseout="this.style.background='white'">
-            <div><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $f->name }}</div><div style="font-size:11px;color:#64748b;">{{ $f->county }} · {{ ucfirst($f->type) }}</div></div>
-            <span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;">Active</span>
-          </div>
+        <select name="receiving_facility_id" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;cursor:pointer;color:#0f172a;">
+          <option value="">-- Select receiving hospital --</option>
+          @foreach(\App\Models\Facility::where('is_active',true)->where('id','!=',optional($facility)->id)->orderBy('name')->get() as $f)
+          <option value="{{ $f->id }}">{{ $f->name }} — {{ $f->county }}</option>
           @endforeach
-        </div>
+        </select>
       </div>
       <!-- PRIORITY -->
       <div style="margin-bottom:16px;">
