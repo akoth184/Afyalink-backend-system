@@ -34,9 +34,12 @@
 </aside>
 <div style="margin-left:220px;flex:1;background:#f0f6ff;">
 <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
-  <div>
-    <div style="font-size:20px;font-weight:700;color:#0f172a;">Medical Records</div>
-    <div style="font-size:12px;color:#94a3b8;margin-top:3px;">View and manage patient medical records</div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <a href="{{ route('doctor.dashboard') }}" style="font-size:12px;color:#2563eb;text-decoration:none;">← Back to Dashboard</a>
+    <div>
+      <div style="font-size:20px;font-weight:700;color:#0f172a;">Medical Records</div>
+      <div style="font-size:12px;color:#94a3b8;margin-top:3px;">View and manage patient medical records</div>
+    </div>
   </div>
   <a href="{{ route('records.create') }}" style="background:#2563eb;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">+ Add Record</a>
 </div>

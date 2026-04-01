@@ -145,9 +145,14 @@ body{font-family:'Inter',sans-serif;}
     <!-- STATS -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
       <div class="stat-card">
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Patients Today</div>
-        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['patients_today'] ?? 0 }}</div>
-        <div style="font-size:11px;color:#16a34a;margin-top:5px;">Registered today</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="width:36px;height:36px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <span style="font-size:11px;color:#16a34a;">Today</span>
+        </div>
+        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\Referral::where('referred_by', Auth::id())->whereDate('created_at', today())->count() }}</div>
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-top:4px;">Referrals Today</div>
       </div>
       <div class="stat-card">
         <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div>

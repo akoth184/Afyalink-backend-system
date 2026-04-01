@@ -81,7 +81,7 @@ class AdminController extends Controller
         $stats = [
             'total_patients' => \App\Models\User::where('role', 'patient')->count(),
             'total_doctors' => User::where('role', 'doctor')->count(),
-            'total_hospitals' => Facility::where('is_active', true)->count(),
+            'total_facilities' => Facility::where('is_active', true)->count(),
             'total_referrals' => Referral::count(),
             'pending_referrals' => Referral::where('status', 'pending')->count(),
             'completed_referrals' => Referral::where('status', 'completed')->count(),

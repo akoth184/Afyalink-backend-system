@@ -346,7 +346,7 @@ body{font-family:'Inter',sans-serif;}
       </div>
       <div class="card" style="margin-bottom:0;">
         <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Top Referring Facilities</div>
-        @foreach(\App\Models\Facility::withCount('referralsFrom')->orderByDesc('referrals_from_count')->take(5)->get() as $f)
+        @foreach(\App\Models\Facility::where('is_active', true)->withCount('referralsFrom')->orderByDesc('referrals_from_count')->take(5)->get() as $f)
         <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13px;">
           <span style="color:#0f172a;">{{ $f->name }}</span>
           <span style="background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $f->referrals_from_count }} referrals</span>

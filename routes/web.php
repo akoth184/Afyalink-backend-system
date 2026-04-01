@@ -158,6 +158,8 @@ Route::middleware('auth')->group(function () {
     // ── PATIENT RECORDS ──
     // Dedicated route for patients to view their own medical records
     Route::get('/patient/records', [PatientController::class, 'myRecords'])->name('patient.records');
+    // Patient can view their own medical record details
+    Route::get('/patient/records/{id}', [MedicalRecordController::class, 'show'])->name('patient.records.show');
     // Patient can download their own medical records (PDF)
     Route::get('/patient/medical-record/{id}/download', [MedicalRecordController::class, 'downloadPDF'])->name('patient.record.download');
     // Patient can download attached files from their medical records

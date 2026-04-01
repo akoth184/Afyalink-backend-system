@@ -94,7 +94,7 @@
 
         <div style="margin-bottom:14px;">
             <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Gender</label>
-            <select name="gender" style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
+            <select name="gender" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
                 <option value="">Select gender...</option>
                 <option value="Male" {{ old('gender')==='Male'?'selected':'' }}>Male</option>
                 <option value="Female" {{ old('gender')==='Female'?'selected':'' }}>Female</option>

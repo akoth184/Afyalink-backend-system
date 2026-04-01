@@ -34,6 +34,10 @@
                     <p class="text-gray-900 font-medium">{{ ucfirst($patient->role) }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-xl p-4">
+                    <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Gender</p>
+                    <p class="text-gray-900 font-medium">{{ Auth::user()->gender ?? $patient->gender ?? 'Not specified' }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4">
                     <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Registered</p>
                     <p class="text-gray-900 font-medium">{{ $patient->created_at->format('d M Y') }}</p>
                 </div>

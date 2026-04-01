@@ -138,6 +138,7 @@ body{font-family:'Inter',sans-serif;}
       <div style="font-size:26px;font-weight:700;color:white;margin-bottom:6px;">Welcome back, {{ Auth::user()->first_name ?? 'Patient' }} 👋</div>
       <div style="font-size:13px;color:rgba(255,255,255,.7);">Here's your health summary and today's updates</div>
       <div style="display:inline-block;background:rgba(255,255,255,.15);color:white;padding:4px 12px;border-radius:20px;font-size:11px;margin-top:8px;">Patient ID: {{ Auth::user()->patient_id ?? 'N/A' }}</div>
+      <div style="display:inline-block;background:rgba(255,255,255,.15);color:white;padding:4px 12px;border-radius:20px;font-size:11px;margin-top:8px;margin-left:8px;">Gender: {{ Auth::user()->gender ?? 'Not set' }}</div>
     </div>
     <a href="#" style="background:white;color:#2563eb;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;flex-shrink:0;">Make a Payment</a>
   </div>

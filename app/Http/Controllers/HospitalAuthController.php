@@ -90,35 +90,37 @@ class HospitalAuthController extends Controller
 
     public function dashboard()
     {
-        $user = Auth::user();
-        $facility = $user->facility;
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        $facility = \App\Models\Facility::where('id', $user->facility_id)
+            ->orWhere('hospital_id', $user->hospital_id)
+            ->orWhere('email', $user->email)
+            ->first();
+
         if (!$facility) {
-            return redirect('/hospital/login')->with('error', 'No facility linked to your account. Please contact admin.');
+            $facility = \App\Models\Facility::where('name', 'like', '%' . $user->first_name . '%')->first();
         }
 
         $facilityId = optional($facility)->id;
+
+        $referrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])
+            ->where('receiving_facility_id', $facilityId)
+            ->latest()
+            ->get();
+
+        $outgoingReferrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])
+            ->where('referring_facility_id', $facilityId)
+            ->latest()
+            ->get();
+
         $stats = [
             'incoming_today' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
-                ->whereDate('created_at', today())
-                ->count(),
+                ->whereDate('created_at', today())->count(),
             'accepted' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
-                ->where('status', 'accepted')
-                ->count(),
-            'transferred_out' => \App\Models\Referral::where('referring_facility_id', $facilityId)
-                ->count(),
-            'total_referrals' => \App\Models\Referral::where('receiving_facility_id', $facilityId)
-                ->count(),
+                ->where('status','accepted')->count(),
+            'transferred_out' => \App\Models\Referral::where('referring_facility_id', $facilityId)->count(),
+            'total_referrals' => \App\Models\Referral::where('receiving_facility_id', $facilityId)->count(),
         ];
-
-        $referrals = \App\Models\Referral::where('receiving_facility_id', $facility->id)
-            ->with(['patient', 'referringFacility', 'receivingFacility'])
-            ->latest()
-            ->get();
-
-        $outgoingReferrals = \App\Models\Referral::where('referring_facility_id', $facility->id)
-            ->with(['patient', 'referringFacility', 'receivingFacility'])
-            ->latest()
-            ->get();
 
         return view('hospital.dashboard', compact('facility', 'referrals', 'outgoingReferrals', 'stats'));
     }
