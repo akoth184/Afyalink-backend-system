@@ -138,27 +138,47 @@ body{font-family:'Inter',sans-serif;}
     <div id="sec-dashboard" class="section" style="display:block;">
       <!-- STATS ROW -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
-      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;">
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Incoming Today</div>
-        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['pending_referrals'] ?? 0 }}</div>
-        <div style="font-size:11px;color:#d97706;margin-top:5px;">Pending action</div>
-      </div>
-      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;">
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Accepted</div>
-        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['accepted_referrals'] ?? 0 }}</div>
-        <div style="font-size:11px;color:#16a34a;margin-top:5px;">This week</div>
-      </div>
-      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;">
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Transferred Out</div>
-        <div style="font-size:26px;font-weight:700;color:#0f172a;">0</div>
-        <div style="font-size:11px;color:#2563eb;margin-top:5px;">This month</div>
-      </div>
-      <div style="background:white;border-radius:10px;padding:18px;border:1px solid #e2e8f0;">
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Referrals</div>
-        <div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $referrals->count() ?? 0 }}</div>
-        <div style="font-size:11px;color:#2563eb;margin-top:5px;">All time</div>
-      </div>
-    </div>
+  <div style="background:white;border-radius:10px;padding:18px;border:1px solid #bfdbfe;background:#f0f6ff;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Incoming</div>
+    <div style="font-size:28px;font-weight:800;color:#2563eb;">{{ $referrals->count() }}</div>
+    <div style="font-size:11px;color:#2563eb;margin-top:5px;">All referrals received</div>
+  </div>
+  <div style="background:#f0fdf4;border-radius:10px;padding:18px;border:1px solid #bbf7d0;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Accepted</div>
+    <div style="font-size:28px;font-weight:800;color:#16a34a;">{{ $referrals->where('status','accepted')->count() }}</div>
+    <div style="font-size:11px;color:#16a34a;margin-top:5px;">Successfully accepted</div>
+  </div>
+  <div style="background:#fef9c3;border-radius:10px;padding:18px;border:1px solid #fde68a;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Pending Action</div>
+    <div style="font-size:28px;font-weight:800;color:#d97706;">{{ $referrals->where('status','pending')->count() }}</div>
+    <div style="font-size:11px;color:#d97706;margin-top:5px;">Needs review</div>
+  </div>
+  <div style="background:#fff1f2;border-radius:10px;padding:18px;border:1px solid #fca5a5;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Rejected</div>
+    <div style="font-size:28px;font-weight:800;color:#dc2626;">{{ $referrals->where('status','rejected')->count() }}</div>
+    <div style="font-size:11px;color:#dc2626;margin-top:5px;">All time</div>
+  </div>
+  <div style="background:#faf5ff;border-radius:10px;padding:18px;border:1px solid #e9d5ff;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Transferred Out</div>
+    <div style="font-size:28px;font-weight:800;color:#9333ea;">{{ $outgoingReferrals->count() }}</div>
+    <div style="font-size:11px;color:#9333ea;margin-top:5px;">Outgoing transfers</div>
+  </div>
+  <div style="background:#fdf2f8;border-radius:10px;padding:18px;border:1px solid #fbcfe8;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Today's Incoming</div>
+    <div style="font-size:28px;font-weight:800;color:#be185d;">{{ $referrals->filter(function($r){ return $r->created_at && $r->created_at->isToday(); })->count() }}</div>
+    <div style="font-size:11px;color:#be185d;margin-top:5px;">New today</div>
+  </div>
+  <div style="background:#f0fdf4;border-radius:10px;padding:18px;border:1px solid #bbf7d0;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Active Patients</div>
+    <div style="font-size:28px;font-weight:800;color:#16a34a;">{{ $referrals->where('status','accepted')->unique('patient_id')->count() }}</div>
+    <div style="font-size:11px;color:#16a34a;margin-top:5px;">Accepted referrals</div>
+  </div>
+  <div style="background:#f0f6ff;border-radius:10px;padding:18px;border:1px solid #bfdbfe;">
+    <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total All Referrals</div>
+    <div style="font-size:28px;font-weight:800;color:#2563eb;">{{ $referrals->count() + $outgoingReferrals->count() }}</div>
+    <div style="font-size:11px;color:#2563eb;margin-top:5px;">Incoming + Outgoing</div>
+  </div>
+</div>
     </div><!-- END DASHBOARD SECTION -->
 
     <!-- INCOMING REFERRALS FULL WIDTH -->
