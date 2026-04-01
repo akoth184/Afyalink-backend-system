@@ -105,8 +105,8 @@
                         @endphp
                         <tr>
                             <td><div class="td-name">{{ optional($ref->patient)->first_name }} {{ optional($ref->patient)->last_name }}</div></td>
-                            <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->fromFacility)->name ?? '&mdash;' }}</td>
-                            <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->toFacility)->name ?? '&mdash;' }}</td>
+                            <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->referringFacility)->name ?? '&mdash;' }}</td>
+                            <td style="font-size:.82rem;color:var(--muted)">{{ optional($ref->receivingFacility)->name ?? '&mdash;' }}</td>
                             <td style="font-size:.82rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ $ref->reason ?? '&mdash;' }}</td>
                             <td><span class="badge {{ $bc }}">{{ ucfirst($s) }}</span>
                             @if($ref->priority)

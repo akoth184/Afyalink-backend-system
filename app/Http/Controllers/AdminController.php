@@ -102,7 +102,7 @@ class AdminController extends Controller
         $pendingFacilities = \App\Models\Facility::where('is_active', false)->get();
 
         $recent_patients = Patient::latest()->take(5)->get();
-        $recent_referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
+        $recent_referrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
             ->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(

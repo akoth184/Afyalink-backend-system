@@ -280,11 +280,11 @@
                                     </td>
                                     <td>
                                         <div class="info-label">Facility</div>
-                                        <div class="info-value">{{ $referral->fromFacility->name ?? 'N/A' }}</div>
+                                        <div class="info-value">{{ $referral->referringFacility->name ?? 'N/A' }}</div>
                                     </td>
                                     <td>
                                         <div class="info-label">Hospital</div>
-                                        <div class="info-value">{{ $referral->toFacility->name ?? 'N/A' }}</div>
+                                        <div class="info-value">{{ $referral->receivingFacility->name ?? 'N/A' }}</div>
                                     </td>
                                     <td>
                                         <div class="info-label">Reason</div>

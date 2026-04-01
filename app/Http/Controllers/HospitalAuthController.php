@@ -92,13 +92,17 @@ class HospitalAuthController extends Controller
     {
         $user = \Illuminate\Support\Facades\Auth::user();
 
-        $facility = \App\Models\Facility::where('id', $user->facility_id)
-            ->orWhere('hospital_id', $user->hospital_id)
-            ->orWhere('email', $user->email)
-            ->first();
+        // First try to find facility by user's facility_id (most reliable)
+        $facility = \App\Models\Facility::where('id', $user->facility_id)->first();
 
-        if (!$facility) {
-            $facility = \App\Models\Facility::where('name', 'like', '%' . $user->first_name . '%')->first();
+        // If not found, try by hospital_id
+        if (!$facility && $user->hospital_id) {
+            $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)->first();
+        }
+
+        // If still not found, try by email
+        if (!$facility && $user->email) {
+            $facility = \App\Models\Facility::where('email', $user->email)->first();
         }
 
         $facilityId = optional($facility)->id;
@@ -128,9 +132,15 @@ class HospitalAuthController extends Controller
     public function updateHours(Request $request)
     {
         $user = Auth::user();
-        $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)
-            ->orWhere('id', $user->facility_id)
-            ->first();
+
+        // First try to find facility by user's facility_id (most reliable)
+        $facility = \App\Models\Facility::where('id', $user->facility_id)->first();
+
+        // If not found, try by hospital_id
+        if (!$facility && $user->hospital_id) {
+            $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)->first();
+        }
+
         if (!$facility) {
             return back()->with('error', 'Facility not found.');
         }
@@ -170,9 +180,15 @@ class HospitalAuthController extends Controller
     public function downloadReport()
     {
         $user = \Illuminate\Support\Facades\Auth::user();
-        $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)
-            ->orWhere('id', $user->facility_id)
-            ->first();
+
+        // First try to find facility by user's facility_id (most reliable)
+        $facility = \App\Models\Facility::where('id', $user->facility_id)->first();
+
+        // If not found, try by hospital_id
+        if (!$facility && $user->hospital_id) {
+            $facility = \App\Models\Facility::where('hospital_id', $user->hospital_id)->first();
+        }
+
         $facilityId = optional($facility)->id;
 
         $incomingReferrals = \App\Models\Referral::with(['patient','referringFacility','receivingFacility'])

@@ -109,10 +109,10 @@ body{font-family:'Inter',sans-serif;}
   </div>
   <div style="padding:24px 28px;">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_patients'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">Registered</div></div>
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Doctors</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_doctors'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Verified</div></div>
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Facilities</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_facilities'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Active</div></div>
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Referrals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_referrals'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">All time</div></div>
+      <div class="stat-card" onclick="showSection('users',document.querySelector('[onclick*=\'users\']'))" style="cursor:pointer;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_patients'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">Click to view all</div></div>
+      <div class="stat-card" onclick="showSection('doctors',document.querySelector('[onclick*=\'doctors\']'))" style="cursor:pointer;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Doctors</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_doctors'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Click to view all</div></div>
+      <div class="stat-card" onclick="showSection('facilities',document.querySelector('[onclick*=\'facilities\']'))" style="cursor:pointer;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Facilities</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_facilities'] ?? 0 }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Click to view all</div></div>
+      <div class="stat-card" onclick="showSection('referrals',document.querySelector('[onclick*=\'referrals\']'))" style="cursor:pointer;"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Total Referrals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ $stats['total_referrals'] ?? 0 }}</div><div style="font-size:11px;color:#16a34a;margin-top:5px;">Click to view all</div></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
       <div class="card" style="margin-bottom:0;">
@@ -123,8 +123,8 @@ body{font-family:'Inter',sans-serif;}
           <div style="width:30px;height:30px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($doctor->first_name ?? 'D', 0, 1)) }}</div>
           <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:11px;color:#94a3b8;">Doctor Application · {{ $doctor->specialization ?? 'General' }}</div></div>
           <div style="display:flex;gap:6px;">
-            <form method="POST" action="{{ route('admin.approve.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Approve</button></form>
-            <form method="POST" action="{{ route('admin.reject.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Reject</button></form>
+            <form method="POST" action="{{ route('admin.doctor.approve', $doctor->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Approve</button></form>
+            <form method="POST" action="{{ route('admin.doctor.reject', $doctor->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:5px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;">Reject</button></form>
           </div>
         </div>
         @empty
@@ -182,8 +182,8 @@ body{font-family:'Inter',sans-serif;}
         <div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($doctor->first_name ?? 'D',0,1)) }}</div>
         <div style="flex:1;"><div style="font-size:13px;font-weight:700;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:12px;color:#64748b;">{{ $doctor->email }} · {{ $doctor->specialization ?? 'General Practice' }} · {{ $doctor->license_number ?? 'N/A' }}</div></div>
         <div style="display:flex;gap:8px;">
-          <form method="POST" action="{{ route('admin.approve.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button></form>
-          <form method="POST" action="{{ route('admin.reject.doctor', $doctor->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button></form>
+          <form method="POST" action="{{ route('admin.doctor.approve', $doctor->id) }}">@csrf<button type="submit" style="background:#2563eb;color:white;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button></form>
+          <form method="POST" action="{{ route('admin.doctor.reject', $doctor->id) }}">@csrf<button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Reject</button></form>
         </div>
       </div>
       @empty
@@ -239,21 +239,56 @@ body{font-family:'Inter',sans-serif;}
 <div id="sec-users" class="section">
   <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Manage Users</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">View all system users</div></div>
   <div style="padding:24px 28px;">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;">
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Patients</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','patient')->count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Registered</div></div>
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Doctors</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','doctor')->count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Verified</div></div>
-      <div class="stat-card"><div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Hospitals</div><div style="font-size:26px;font-weight:700;color:#0f172a;">{{ \App\Models\User::where('role','hospital')->count() }}</div><div style="font-size:11px;color:#2563eb;margin-top:5px;">Active</div></div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button onclick="showUserTab('patients',this)" id="utab-patients" style="background:#2563eb;color:white;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Patients ({{ \App\Models\User::where('role','patient')->count() }})</button>
+      <button onclick="showUserTab('doctors',this)" id="utab-doctors" style="background:white;color:#2563eb;border:1.5px solid #2563eb;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Doctors ({{ \App\Models\User::where('role','doctor')->count() }})</button>
+      <button onclick="showUserTab('hospitals',this)" id="utab-hospitals" style="background:white;color:#2563eb;border:1.5px solid #2563eb;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Hospitals ({{ \App\Models\User::where('role','hospital')->count() }})</button>
     </div>
-    <div class="card">
-      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Patients</div>
+
+    <div id="utab-content-patients">
       @foreach(\App\Models\User::where('role','patient')->latest()->get() as $user)
       <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
-        <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($user->first_name ?? 'P',0,1)) }}</div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->patient_id ?? 'N/A' }} · {{ $user->email }} · {{ $user->created_at->format('d M Y') }}</div></div>
-        <span class="badge-active">Active</span>
+        <div style="width:34px;height:34px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($user->first_name ?? 'P',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->patient_id ?? 'N/A' }} · {{ $user->email }} · {{ $user->gender ?? 'N/A' }}</div></div>
+        <span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">Active</span>
       </div>
       @endforeach
     </div>
+
+    <div id="utab-content-doctors" style="display:none;">
+      @foreach(\App\Models\User::where('role','doctor')->latest()->get() as $user)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:34px;height:34px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($user->first_name ?? 'D',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->doctor_id ?? 'N/A' }} · {{ $user->email }} · {{ $user->specialization ?? 'General' }}</div></div>
+        <span style="background:{{ $user->is_active ? '#dcfce7' : '#fef3c7' }};color:{{ $user->is_active ? '#16a34a' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $user->is_active ? 'Active' : 'Pending' }}</span>
+      </div>
+      @endforeach
+    </div>
+
+    <div id="utab-content-hospitals" style="display:none;">
+      @foreach(\App\Models\User::where('role','hospital')->latest()->get() as $user)
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+        <div style="width:34px;height:34px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($user->first_name ?? 'H',0,1)) }}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->email }} · Facility ID: {{ $user->facility_id ?? 'Not linked' }}</div></div>
+        <span style="background:{{ $user->is_active ? '#dcfce7' : '#fef3c7' }};color:{{ $user->is_active ? '#16a34a' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $user->is_active ? 'Active' : 'Pending' }}</span>
+      </div>
+      @endforeach
+    </div>
+
+    <script>
+    function showUserTab(tab, el) {
+      ['patients','doctors','hospitals'].forEach(function(t) {
+        document.getElementById('utab-content-'+t).style.display = 'none';
+        document.getElementById('utab-'+t).style.background = 'white';
+        document.getElementById('utab-'+t).style.color = '#2563eb';
+        document.getElementById('utab-'+t).style.border = '1.5px solid #2563eb';
+      });
+      document.getElementById('utab-content-'+tab).style.display = 'block';
+      el.style.background = '#2563eb';
+      el.style.color = 'white';
+      el.style.border = 'none';
+    }
+    </script>
   </div>
 </div>
 

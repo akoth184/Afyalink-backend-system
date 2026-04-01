@@ -157,7 +157,7 @@ class DashboardController extends Controller
         }
 
         // Get recent referrals
-        $recentReferrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
+        $recentReferrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
             ->where(function($query) use ($facilityId) {
                 $query->where('receiving_facility_id', $facilityId)
                     ->orWhere('referring_facility_id', $facilityId);
@@ -196,7 +196,7 @@ class DashboardController extends Controller
         ];
 
         $recent_patients = Patient::latest()->take(5)->get();
-        $recent_referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
+        $recent_referrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
             ->latest()->take(5)->get();
         $recent_records = MedicalRecord::with('patient')
             ->latest()->take(5)->get();

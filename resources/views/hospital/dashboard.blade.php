@@ -221,7 +221,8 @@ body{font-family:'Inter',sans-serif;}
     </div>
     @if($referral->status === 'pending')
     <div style="display:flex;gap:8px;flex-shrink:0;margin-top:4px;">
-      <form method="POST" action="{{ route('referrals.status', $referral->id) }}">
+      <form method="POST" action="{{ route('referrals.updateStatus', $referral->id) }}">
+        @method('PATCH')
         @csrf
         <input type="hidden" name="status" value="accepted">
         <input type="hidden" name="redirect_to" value="referrals">

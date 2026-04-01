@@ -125,6 +125,10 @@ class FacilityController extends Controller
             'longitude' => 'nullable|numeric',
             'working_hours' => 'nullable|json',
         ]);
+
+        // Set is_active to false by default - requires admin approval
+        $data['is_active'] = false;
+
         return response()->json(Facility::create($data), 201);
     }
 

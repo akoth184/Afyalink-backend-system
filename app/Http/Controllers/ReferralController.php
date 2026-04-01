@@ -46,7 +46,7 @@ class ReferralController extends Controller
 
         // Hospital/facility admins see all referrals for their facility
         if (in_array($user->role, ['hospital', 'facility']) && $user->facility_id) {
-            $referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
+            $referrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
                 ->where(function($query) use ($user) {
                     $query->where('referring_facility_id', $user->facility_id)
                         ->orWhere('receiving_facility_id', $user->facility_id);
@@ -59,7 +59,7 @@ class ReferralController extends Controller
 
         // Admins see all referrals
         if ($user->role === 'admin') {
-            $referrals = Referral::with(['patient', 'fromFacility', 'toFacility'])
+            $referrals = Referral::with(['patient', 'referringFacility', 'receivingFacility'])
                 ->latest()
                 ->paginate(10);
 
@@ -103,7 +103,7 @@ class ReferralController extends Controller
             }
         }
 
-        $referral->load(['patient', 'fromFacility', 'toFacility', 'referredBy']);
+        $referral->load(['patient', 'referringFacility', 'receivingFacility', 'referredBy']);
         return view('referrals.show', compact('referral'));
     }
 
