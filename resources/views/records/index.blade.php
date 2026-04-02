@@ -35,7 +35,13 @@
 <div style="margin-left:220px;flex:1;background:#f0f6ff;">
 <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
   <div style="display:flex;align-items:center;gap:16px;">
-    <a href="{{ route('doctor.dashboard') }}" style="font-size:12px;color:#2563eb;text-decoration:none;">← Back to Dashboard</a>
+    @if(Auth::user()->role === 'patient')
+    <a href="{{ route('patient.dashboard') }}" style="font-size:12px;color:#2563eb;text-decoration:none;">← Dashboard</a>
+    @elseif(Auth::user()->role === 'hospital')
+    <a href="{{ route('hospital.dashboard') }}" style="font-size:12px;color:#2563eb;text-decoration:none;">← Dashboard</a>
+    @else
+    <a href="{{ route('doctor.dashboard') }}" style="font-size:12px;color:#2563eb;text-decoration:none;">← Dashboard</a>
+    @endif
     <div>
       <div style="font-size:20px;font-weight:700;color:#0f172a;">Medical Records</div>
       <div style="font-size:12px;color:#94a3b8;margin-top:3px;">View and manage patient medical records</div>

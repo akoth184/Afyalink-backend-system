@@ -342,24 +342,26 @@ function filterReferrals(status, el) {
             ->latest()
             ->get();
       @endphp
-      @forelse($hospitalRecords as $record)
+      @if($hospitalRecords->isEmpty())
+      <div style="text-align:center;padding:40px;color:#94a3b8;">
+        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:6px;">No medical records yet</div>
+        <div style="font-size:13px;">Medical records for accepted referred patients will appear here</div>
+      </div>
+      @else
+      @foreach($hospitalRecords as $record)
       <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:10px;">
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:700;color:#0f172a;">{{ optional($record->patient)->first_name ?? 'N/A' }} {{ optional($record->patient)->last_name ?? '' }}</div>
           <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ $record->chief_complaint ?? $record->diagnosis ?? 'No diagnosis' }}</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Dr. {{ optional($record->doctor)->first_name ?? 'N/A' }} · {{ $record->visit_date ? \Carbon\Carbon::parse($record->visit_date)->format('d M Y') : 'No date' }}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Dr. {{ optional($record->doctor)->first_name ?? 'N/A' }} {{ optional($record->doctor)->last_name ?? '' }} · {{ $record->visit_date ? \Carbon\Carbon::parse($record->visit_date)->format('d M Y') : 'No date' }}</div>
         </div>
         <div style="display:flex;gap:6px;flex-shrink:0;">
           <a href="{{ route('records.show', $record->id) }}" style="background:#dbeafe;color:#1d4ed8;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">View</a>
           <a href="{{ route('records.download', $record->id) }}" style="background:#2563eb;color:white;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">PDF</a>
         </div>
       </div>
-      @empty
-      <div style="text-align:center;padding:40px;color:#94a3b8;">
-        <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:6px;">No medical records yet</div>
-        <div style="font-size:13px;">Records for accepted referred patients will appear here</div>
-      </div>
-      @endforelse
+      @endforeach
+      @endif
     </div>
 
     <!-- TRANSFER + WORKING HOURS -->
