@@ -695,6 +695,7 @@ document.getElementById('transfer-search-input').addEventListener('keypress', fu
       <div style="font-size:11px;color:#b91c1c;">The referring doctor and patient will be notified with your reason.</div>
     </div>
     <form id="reject-form" method="POST">
+      @method('PATCH')
       @csrf
       <input type="hidden" name="status" value="rejected">
       <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">Reason for Rejection <span style="color:#dc2626;">*</span></div>

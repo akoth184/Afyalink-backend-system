@@ -6,10 +6,14 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\MpesaController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// M-Pesa Callback (outside auth middleware - called by Safaricom)
+Route::post('/mpesa/callback', [MpesaController::class, 'callback'])->name('api.mpesa.callback');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {

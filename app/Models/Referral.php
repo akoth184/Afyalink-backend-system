@@ -20,6 +20,7 @@ class Referral extends Model
         'priority',
         'appointment_date',
         'clinical_summary',
+        'attachment_path',
     ];
 
     // ── Relationships ──────────────────────────────────────────────────────

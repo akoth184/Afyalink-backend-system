@@ -32,7 +32,7 @@ class MpesaController extends Controller
     private function getAccessToken()
     {
         $credentials = base64_encode($this->consumerKey . ':' . $this->consumerSecret);
-        $response = Http::withHeaders([
+        $response = Http::withoutVerifying()->timeout(30)->withHeaders([
             'Authorization' => 'Basic ' . $credentials
         ])->get($this->baseUrl . '/oauth/v1/generate?grant_type=client_credentials');
         return $response->json()['access_token'] ?? null;
@@ -73,7 +73,7 @@ class MpesaController extends Controller
             return back()->with('error', 'Could not connect to M-PESA. Please try again.');
         }
 
-        $response = Http::withHeaders([
+        $response = Http::withoutVerifying()->timeout(30)->withHeaders([
             'Authorization' => 'Bearer ' . $token,
             'Content-Type' => 'application/json',
         ])->post($this->baseUrl . '/mpesa/stkpush/v1/processrequest', [
@@ -107,14 +107,21 @@ class MpesaController extends Controller
     public function callback(Request $request)
     {
         $data = $request->all();
+        \Illuminate\Support\Facades\Log::info('M-Pesa Callback Received', $data);
+        
         $body = $data['Body']['stkCallback'] ?? null;
         if (!$body) return response()->json(['status' => 'ok']);
 
         $checkoutRequestId = $body['CheckoutRequestID'];
         $resultCode = $body['ResultCode'];
 
+        \Illuminate\Support\Facades\Log::info('Looking for payment with checkout_request_id: ' . $checkoutRequestId);
+        
         $payment = Payment::where('checkout_request_id', $checkoutRequestId)->first();
-        if (!$payment) return response()->json(['status' => 'ok']);
+        if (!$payment) {
+            \Illuminate\Support\Facades\Log::warning('Payment not found for checkout_request_id: ' . $checkoutRequestId);
+            return response()->json(['status' => 'ok']);
+        }
 
         if ($resultCode == 0) {
             $items = collect($body['CallbackMetadata']['Item'] ?? []);
@@ -124,8 +131,10 @@ class MpesaController extends Controller
                 'mpesa_receipt' => $receipt,
                 'paid_at' => now(),
             ]);
+            \Illuminate\Support\Facades\Log::info('Payment completed for checkout_request_id: ' . $checkoutRequestId);
         } else {
             $payment->update(['status' => 'failed']);
+            \Illuminate\Support\Facades\Log::info('Payment failed for checkout_request_id: ' . $checkoutRequestId);
         }
 
         return response()->json(['status' => 'ok']);

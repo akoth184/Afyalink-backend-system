@@ -136,7 +136,7 @@ class ReferralController extends Controller
             'reason'               => 'required|string',
             'notes'                => 'nullable|string',
             'priority'             => 'nullable|string|in:routine,urgent,emergency',
-            'appointment_date'     => 'nullable|date|after:today',
+            'appointment_date'     => 'nullable|date|after_or_equal:today',
             'clinical_summary'     => 'nullable|string',
             'attachment'           => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
         ]);

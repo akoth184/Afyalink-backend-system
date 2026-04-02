@@ -33,7 +33,7 @@ class MpesaService
             ? 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
             : 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
 
-        $response = Http::withBasicAuth($this->consumerKey, $this->consumerSecret)
+        $response = Http::withoutVerifying()->timeout(30)->withBasicAuth($this->consumerKey, $this->consumerSecret)
             ->get($url);
 
         if ($response->successful()) {
@@ -92,7 +92,7 @@ class MpesaService
             'TransactionDesc' => $transactionDesc ?? 'AfyaLink Payment',
         ];
 
-        $response = Http::withToken($accessToken)
+        $response = Http::withoutVerifying()->timeout(30)->withToken($accessToken)
             ->post($url, $payload);
 
         if ($response->successful()) {
@@ -143,7 +143,7 @@ class MpesaService
             'CheckoutRequestID' => $checkoutRequestId,
         ];
 
-        $response = Http::withToken($accessToken)
+        $response = Http::withoutVerifying()->timeout(30)->withToken($accessToken)
             ->post($url, $payload);
 
         if ($response->successful()) {
