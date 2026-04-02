@@ -71,7 +71,7 @@ body{font-family:'Inter',sans-serif;}
     <a href="#transfer-form" class="slink" onclick="showSection('transfer-form', this)">Transfer Patient</a>
     <a href="#referral-reports" onclick="showSection('referral-reports', this)" class="slink">Referral Reports</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Management</div>
-    <div class="slink" onclick="showSection('medical-records-section', this)">Medical Records</div>
+    <div class="slink" onclick="showSection('records', this)">Medical Records</div>
     <div class="slink" onclick="showSection('working-hours-section', this)">Working Hours</div>
     <div class="slink" onclick="showSection('settings', this)">Settings</div>
   </nav>
@@ -326,7 +326,7 @@ function filterReferrals(status, el) {
     </div>
 
     <!-- Medical Records Section -->
-    <div id="sec-medical-records-section" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
+    <div id="sec-records" class="section" style="display:none;background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <span style="font-size:14px;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Medical Records</span>
         <span style="font-size:12px;color:#94a3b8;">Records of accepted referred patients</span>

@@ -158,6 +158,10 @@ class ReferralController extends Controller
 
         $referral = Referral::create($data);
 
+        // Get patient name for notification
+        $patient = \App\Models\User::find($request->patient_id);
+        $patientName = $patient ? ($patient->first_name . ' ' . $patient->last_name) : 'Unknown Patient';
+
         // Notify receiving hospital
         $receivingFacility = \App\Models\Facility::find($request->receiving_facility_id);
         if ($receivingFacility) {
@@ -169,7 +173,7 @@ class ReferralController extends Controller
                     $hospitalUser->id,
                     'new_referral',
                     'New Referral Received',
-                    'A new referral has been sent to ' . $receivingFacility->name . ' for patient ' . Auth::user()->first_name . '.',
+                    'A new referral has been sent to ' . $receivingFacility->name . ' for patient ' . $patientName . '.',
                     $referral->id
                 );
             }
