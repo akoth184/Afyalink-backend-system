@@ -67,6 +67,7 @@ body{font-family:'Inter',sans-serif;}
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Health</div>
     <a href="{{ route('patient.dashboard') }}" class="slink on">Dashboard</a>
     <a href="{{ route('patient.records') }}" class="slink">Medical Records</a>
+    <a href="{{ route('patient.lab-tests') }}" class="slink">Lab Results</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Referrals</div>
     <a href="{{ route('patient.referrals') }}" class="slink">My Referrals</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Payments</div>

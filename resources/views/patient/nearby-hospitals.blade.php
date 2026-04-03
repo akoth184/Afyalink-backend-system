@@ -238,6 +238,7 @@
                 <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
                 Use My Current Location
             </button>
+            <input type="text" id="location-search" placeholder="Search for a location in Kenya..." style="width:100%;max-width:400px;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;margin-top:12px;">
             <div id="location-status" style="margin-top:8px;min-height:20px;"></div>
         </div>
 
@@ -265,7 +266,7 @@
                     </div>
                 @else
                     @foreach($facilitiesWithDistance as $facility)
-                        <div class="hospital-card" onclick="focusHospital({{ $loop->index }})" style="cursor:pointer">
+                        <div class="hospital-card" id="facility-{{ $facility['id'] ?? $loop->index }}" onclick="focusHospital({{ $loop->index }})" style="cursor:pointer">
                             <div class="hospital-icon">
                                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                             </div>
@@ -323,6 +324,17 @@
 var map;
 var userMarker;
 
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371;
+  var dLat = (lat2-lat1) * Math.PI/180;
+  var dLon = (lon2-lon1) * Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLon/2)*Math.sin(dLon/2);
+  var c = 2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  return (R*c).toFixed(1);
+}
+
 function initMap() {
   var nairobi = {lat: -1.2921, lng: 36.8219};
   map = new google.maps.Map(document.getElementById('map'), {
@@ -337,11 +349,39 @@ function initMap() {
     var lng = event.latLng.lng();
     window.open('https://www.google.com/maps?q=' + lat + ',' + lng, '_blank');
   });
+
+  var searchInput = document.getElementById('location-search');
+  if(searchInput) {
+    var autocomplete = new google.maps.places.Autocomplete(searchInput, {
+      componentRestrictions: {country: 'ke'},
+      types: ['establishment', 'geocode']
+    });
+    autocomplete.addListener('place_changed', function() {
+      var place = autocomplete.getPlace();
+      if(!place.geometry) return;
+      map.setCenter(place.geometry.location);
+      map.setZoom(14);
+      if(userMarker) userMarker.setMap(null);
+      userMarker = new google.maps.Marker({
+        position: place.geometry.location,
+        map: map,
+        title: 'Selected Location',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: '#2563eb',
+          fillOpacity: 1,
+          strokeColor: 'white',
+          strokeWeight: 3
+        }
+      });
+      document.getElementById('location-status').innerHTML = '<span style="color:#16a34a;font-size:13px;">✓ Showing hospitals near ' + place.name + '</span>';
+    });
+  }
+
   var facilities = [
-    @foreach(\App\Models\Facility::where('is_active',true)->get() as $f)
-    @if($f->latitude && $f->longitude)
-    {name: "{{ addslashes($f->name) }}", lat: {{ $f->latitude }}, lng: {{ $f->longitude }}},
-    @endif
+    @foreach(\App\Models\Facility::where('is_active',true)->whereNotNull('latitude')->whereNotNull('longitude')->get() as $f)
+    {id:{{ $f->id }}, name:"{{ addslashes($f->name) }}", lat:{{ $f->latitude }}, lng:{{ $f->longitude }}, phone:"{{ $f->phone ?? 'N/A' }}", type:"{{ $f->type }}"},
     @endforeach
   ];
   facilities.forEach(function(f) {
@@ -361,10 +401,8 @@ function initMap() {
 }
 
 var facilitiesData = [
-    @foreach(\App\Models\Facility::where('is_active',true)->get() as $f)
-    @if($f->latitude && $f->longitude)
-    {name: "{{ addslashes($f->name) }}", lat: {{ $f->latitude }}, lng: {{ $f->longitude }}},
-    @endif
+    @foreach(\App\Models\Facility::where('is_active',true)->whereNotNull('latitude')->whereNotNull('longitude')->get() as $f)
+    {id:{{ $f->id }}, name:"{{ addslashes($f->name) }}", lat:{{ $f->latitude }}, lng:{{ $f->longitude }}},
     @endforeach
   ];
 
@@ -427,6 +465,36 @@ function getLocation() {
           ? 'GPS accurate to ' + Math.round(bestPosition.coords.accuracy) + 'm'
           : 'Best available location (±' + Math.round(bestPosition.coords.accuracy) + 'm — laptop GPS is limited)';
         status.innerHTML = '<span style="color:#16a34a;font-size:13px;">✓ Location found! ' + accuracyText + '</span>';
+
+        var facilities = [
+          @foreach(\App\Models\Facility::where('is_active',true)->whereNotNull('latitude')->whereNotNull('longitude')->get() as $f)
+          {id:{{ $f->id }}, name:"{{ addslashes($f->name) }}", lat:{{ $f->latitude }}, lng:{{ $f->longitude }}, phone:"{{ $f->phone ?? 'N/A' }}", type:"{{ $f->type }}"},
+          @endforeach
+        ];
+
+        var userLat = bestPosition.coords.latitude;
+        var userLng = bestPosition.coords.longitude;
+
+        facilities.forEach(function(f) {
+          var dist = calculateDistance(userLat, userLng, f.lat, f.lng);
+          var marker = new google.maps.Marker({
+            position: {lat: f.lat, lng: f.lng},
+            map: map,
+            title: f.name
+          });
+          var info = new google.maps.InfoWindow({
+            content: '<div style="padding:8px;font-family:Inter,sans-serif;">' +
+              '<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:4px;">' + f.name + '</div>' +
+              '<div style="font-size:11px;color:#64748b;">' + f.type + '</div>' +
+              '<div style="font-size:11px;color:#2563eb;margin-top:4px;">' + dist + ' km away</div>' +
+              '<div style="font-size:11px;color:#64748b;">' + f.phone + '</div>' +
+              '</div>'
+          });
+          marker.addListener('click', function(){ info.open(map, marker); });
+
+          var listEl = document.getElementById('facility-'+f.id);
+          if(listEl) listEl.textContent = dist + ' km';
+        });
       }
     },
     function(error) {

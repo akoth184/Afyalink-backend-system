@@ -8,7 +8,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\FacilityController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\MpesaController;
 
 /*
@@ -216,6 +216,14 @@ Route::get('/api/facilities/nearby', [FacilityController::class, 'nearbyHospital
     Route::get('/records', [MedicalRecordController::class, 'index'])->name('records.index');
     Route::get('/records/{record}', [MedicalRecordController::class, 'show'])->name('records.show');
     Route::get('/records/{id}/download', [MedicalRecordController::class, 'downloadPDF'])->name('records.download');
+
+    // ── LAB TESTS ROUTES ──
+    Route::get('/lab-tests', [LabTestController::class, 'index'])->name('lab-tests.index');
+    Route::get('/lab-tests/create', [LabTestController::class, 'create'])->name('lab-tests.create');
+    Route::post('/lab-tests', [LabTestController::class, 'store'])->name('lab-tests.store');
+    Route::post('/lab-tests/{id}/upload', [LabTestController::class, 'uploadResult'])->name('lab-tests.upload');
+    Route::get('/lab-tests/{id}/download', [LabTestController::class, 'downloadResult'])->name('lab-tests.download');
+    Route::get('/patient/lab-tests', [LabTestController::class, 'index'])->name('patient.lab-tests');
 
 
 

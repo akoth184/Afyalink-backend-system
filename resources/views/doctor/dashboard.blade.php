@@ -71,6 +71,7 @@ body{font-family:'Inter',sans-serif;}
     <a href="{{ route('referrals.create') }}" class="slink">Create Referral</a>
     <a href="{{ route('referrals.index') }}" class="slink">My Referrals</a>
     <a href="{{ route('records.index') }}" class="slink">Medical Records</a>
+    <a href="{{ route('lab-tests.index') }}" class="slink">Lab Tests</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Tools</div>
     <a href="{{ route('patient.nearby-hospitals') }}" class="slink">Nearby Hospitals</a>
     <a href="{{ route('facilities.index') }}" class="slink">Facilities</a>
