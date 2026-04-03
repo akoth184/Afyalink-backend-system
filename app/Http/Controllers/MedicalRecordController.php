@@ -133,20 +133,18 @@ class MedicalRecordController extends Controller
         ]);
 
         $data = [
-            'patient_id'    => $request->patient_id,
-            'doctor_id'     => $user->id,
-            'facility_id'   => $request->facility_id ?? $user->facility_id ?? 1,
-            'visit_date'    => $request->visit_date,
-            'chief_complaint' => $request->chief_complaint ?? $request->diagnosis ?? 'General Visit',
-            'diagnosis'     => $request->diagnosis,
-            'treatment_plan' => $request->treatment_plan ?? '',
-        'medications' => $request->medications ?? '',
-        'notes' => $request->notes ?? '',
-        'history_of_present_illness' => $request->history_of_present_illness ?? '',
-        'examination_findings' => $request->examination_findings ?? '',
-            'medications'   => $request->medications,
-            'notes'         => $request->notes ?? '',
-            'status'        => 'draft',
+            'patient_id'     => $request->patient_id,
+            'doctor_id'      => $user->id,
+            'facility_id'    => $request->facility_id ?? $user->facility_id ?? 1,
+            'visit_date'     => $request->visit_date,
+            'chief_complaint'=> $request->title ?? $request->diagnosis ?? 'General Visit',
+            'diagnosis'      => $request->diagnosis,
+            'treatment_plan' => $request->treatment ?? '',
+            'medications'    => $request->prescription ?? '',
+            'notes'          => $request->notes ?? '',
+            'history_of_present_illness' => '',
+            'examination_findings'       => '',
+            'status'         => 'finalized',
         ];
 
         if ($request->hasFile('file')) {
@@ -157,6 +155,15 @@ class MedicalRecordController extends Controller
         }
 
         $record = \App\Models\MedicalRecord::create($data);
+
+        // Notify patient
+        \App\Models\Notification::send(
+            $record->patient_id,
+            'record_created',
+            'New Medical Record Added',
+            'Dr. ' . $user->first_name . ' ' . $user->last_name . ' has added a medical record for your visit on ' . $request->visit_date . '. You can view and download it from your dashboard.',
+            null
+        );
 
         return redirect()->route('records.index')
             ->with('success', 'Medical record created successfully.');

@@ -132,39 +132,44 @@ body{font-family:'Inter',sans-serif;}
       </div>
     </div>
     <!-- CLINICAL DETAILS -->
-    <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
-      <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Clinical Details</div>
-      @if($record->chief_complaint)
-      <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Chief Complaint</div>
-        <div style="font-size:13px;color:#0f172a;line-height:1.6;">{{ $record->chief_complaint }}</div>
-      </div>
-      @endif
-      @if($record->diagnosis)
-      <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Diagnosis</div>
-        <div style="font-size:13px;color:#0f172a;line-height:1.6;">{{ $record->diagnosis }}</div>
-      </div>
-      @endif
-      @if($record->treatment_plan)
-      <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Treatment Plan</div>
-        <div style="font-size:13px;color:#0f172a;line-height:1.6;">{{ $record->treatment_plan }}</div>
-      </div>
-      @endif
-      @if($record->medications)
-      <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Medications</div>
-        <div style="font-size:13px;color:#0f172a;line-height:1.6;">{{ $record->medications }}</div>
-      </div>
-      @endif
-      @if($record->notes)
-      <div>
-        <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Notes</div>
-        <div style="font-size:13px;color:#0f172a;line-height:1.6;">{{ $record->notes }}</div>
-      </div>
-      @endif
-    </div>
+<div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-bottom:16px;">
+  <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Clinical Details
+  </div>
+  @if($record->chief_complaint)
+  <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+    <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Chief Complaint / Title</div>
+    <div style="font-size:13px;color:#0f172a;line-height:1.6;background:#f8fafc;padding:10px 12px;border-radius:8px;">{{ $record->chief_complaint }}</div>
+  </div>
+  @endif
+  @if($record->diagnosis)
+  <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+    <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Diagnosis</div>
+    <div style="font-size:13px;color:#0f172a;line-height:1.6;background:#f8fafc;padding:10px 12px;border-radius:8px;">{{ $record->diagnosis }}</div>
+  </div>
+  @endif
+  @if($record->treatment_plan)
+  <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+    <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Treatment Plan</div>
+    <div style="font-size:13px;color:#0f172a;line-height:1.6;background:#f8fafc;padding:10px 12px;border-radius:8px;">{{ $record->treatment_plan }}</div>
+  </div>
+  @endif
+  @if($record->medications)
+  <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+    <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Prescription / Medications</div>
+    <div style="font-size:13px;color:#0f172a;line-height:1.6;background:#f8fafc;padding:10px 12px;border-radius:8px;">{{ $record->medications }}</div>
+  </div>
+  @endif
+  @if($record->notes)
+  <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f1f5f9;">
+    <div style="font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Notes</div>
+    <div style="font-size:13px;color:#0f172a;line-height:1.6;background:#f8fafc;padding:10px 12px;border-radius:8px;">{{ $record->notes }}</div>
+  </div>
+  @endif
+  @if(!$record->chief_complaint && !$record->diagnosis && !$record->treatment_plan && !$record->medications && !$record->notes)
+  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No clinical details recorded</div>
+  @endif
+</div>
     <!-- FILE ATTACHMENT -->
     @if($record->file_path)
     <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">

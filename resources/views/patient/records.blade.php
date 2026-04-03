@@ -240,57 +240,40 @@
                         <p class="empty-text">You don't have any medical records yet. Records will appear here after your doctor visits.</p>
                     </div>
                 @else
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Record Date</th>
-                                <th>Doctor Name</th>
-                                <th>Diagnosis</th>
-                                <th>Treatment</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($records as $record)
-                                <tr>
-                                    <td>
-                                        <div class="info-label">Date</div>
-                                        <div class="info-value">{{ $record->visit_date->format('M d, Y') }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="info-label">Doctor</div>
-                                        <div class="info-value">
-                                            @if($record->doctor)
-                                                Dr. {{ $record->doctor->first_name }} {{ $record->doctor->last_name }}
-                                            @else
-                                                N/A
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="info-label">Diagnosis</div>
-                                        <div class="info-value">{{ Str::limit($record->diagnosis ?? 'No diagnosis', 60) }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="info-label">Treatment</div>
-                                        <div class="info-value">{{ Str::limit($record->treatment_plan ?? 'No treatment', 60) }}</div>
-                                    </td>
-                                    <td>
-                                        <div style="display:flex;gap:8px">
-                                            <a href="{{ route('patient.records.show', $record->id) }}" class="btn btn-outline btn-sm">
-                                                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                View
-                                            </a>
-                                            <a href="{{ route('records.download', $record->id) }}" class="btn btn-primary btn-sm">
-                                                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                                PDF
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                @forelse(\App\Models\MedicalRecord::where('patient_id', Auth::id())->with('doctor')->latest()->get() as $record)
+<div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid #f1f5f9;">
+  <div style="width:36px;height:36px;border-radius:8px;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:700;color:#1d4ed8;">R</div>
+  <div style="flex:1;">
+    <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $record->chief_complaint ?? 'Medical Record' }}</div>
+    @if($record->diagnosis)
+    <div style="font-size:12px;color:#64748b;margin-top:3px;"><strong>Diagnosis:</strong> {{ $record->diagnosis }}</div>
+    @endif
+    @if($record->treatment_plan)
+    <div style="font-size:12px;color:#64748b;margin-top:3px;"><strong>Treatment:</strong> {{ $record->treatment_plan }}</div>
+    @endif
+    @if($record->medications)
+    <div style="font-size:12px;color:#64748b;margin-top:3px;"><strong>Prescription:</strong> {{ $record->medications }}</div>
+    @endif
+    <div style="font-size:11px;color:#94a3b8;margin-top:5px;">
+      {{ $record->visit_date ? \Carbon\Carbon::parse($record->visit_date)->format('d M Y') : 'No date' }}
+      · Dr. {{ optional($record->doctor)->first_name ?? 'N/A' }} {{ optional($record->doctor)->last_name ?? '' }}
+      · <span style="background:{{ $record->status === 'finalized' ? '#dcfce7' : '#fef3c7' }};color:{{ $record->status === 'finalized' ? '#16a34a' : '#d97706' }};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;">{{ ucfirst($record->status ?? 'draft') }}</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;flex-shrink:0;">
+    <a href="{{ route('records.show', $record->id) }}" style="background:#dbeafe;color:#1d4ed8;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">View</a>
+    <a href="{{ route('patient.record.download', $record->id) }}" style="background:#2563eb;color:white;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">PDF</a>
+    @if($record->file_path)
+    <a href="{{ route('patient.record.file', $record->id) }}" style="background:#dcfce7;color:#16a34a;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">File</a>
+    @endif
+  </div>
+</div>
+@empty
+<div style="text-align:center;padding:48px 20px;">
+  <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:8px;">No medical records yet</div>
+  <div style="font-size:13px;color:#94a3b8;">Your records will appear here after doctor visits</div>
+</div>
+@endforelse
                 @endif
             </div>
         </div>
