@@ -364,6 +364,44 @@ function filterReferrals(status, el) {
       @endif
     </div>
 
+    <!-- LAB TEST RESULTS FOR REFERRED PATIENTS -->
+<div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
+  <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;"></span>Lab Test Results — Referred Patients
+  </div>
+  @php
+    $labPatientIds = \App\Models\Referral::where('receiving_facility_id', optional($facility)->id)
+        ->where('status','accepted')
+        ->pluck('patient_id')
+        ->toArray();
+    $labTests = \App\Models\LabTest::with(['patient','doctor'])
+        ->whereIn('patient_id', $labPatientIds)
+        ->where('status','completed')
+        ->latest()
+        ->get();
+  @endphp
+  @forelse($labTests as $test)
+  <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:8px;">
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <div style="font-size:13px;font-weight:700;color:#0f172a;">{{ $test->test_name }}</div>
+        <span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;">{{ ucfirst($test->test_category) }}</span>
+      </div>
+      <div style="font-size:12px;color:#64748b;">Patient: {{ optional($test->patient)->first_name ?? 'N/A' }} {{ optional($test->patient)->last_name ?? '' }}</div>
+      <div style="font-size:12px;color:#64748b;">Requested by Dr. {{ optional($test->doctor)->first_name ?? 'N/A' }} · {{ \Carbon\Carbon::parse($test->requested_date)->format('d M Y') }}</div>
+      @if($test->result_notes)
+      <div style="font-size:12px;color:#0f172a;margin-top:6px;background:#f0fdf4;padding:6px 10px;border-radius:6px;border-left:3px solid #16a34a;">{{ $test->result_notes }}</div>
+      @endif
+    </div>
+    @if($test->result_file)
+    <a href="{{ route('lab-tests.download', $test->id) }}" style="background:#2563eb;color:white;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;flex-shrink:0;">Download</a>
+    @endif
+  </div>
+  @empty
+  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No lab results available for referred patients yet</div>
+  @endforelse
+</div>
+
     <!-- TRANSFER + WORKING HOURS -->
     <div style="display:block;">
 
