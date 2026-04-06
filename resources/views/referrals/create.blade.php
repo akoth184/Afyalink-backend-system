@@ -73,7 +73,24 @@ body{font-family:'DM Sans',sans-serif;background:#f0f6ff;color:#1a1f2e;min-heigh
 <div class="form-header"><h2>Create Referral</h2><p>Refer a patient from one facility to another</p></div>
 <form method="POST" action="{{ route('referrals.store') }}" enctype="multipart/form-data">@csrf
 <div class="form-body">
-    <div class="form-group"><label>Patient *</label><select name="patient_id" required><option value="">Select patient...</option>@foreach($patients as $p)<option value="{{ $p->id }}" {{ old('patient_id')==$p->id ? 'selected' : '' }}>{{ $p->first_name }} {{ $p->last_name }}</option>@endforeach</select>@error('patient_id')<div class="field-error">{{ $message }}</div>@enderror</div>
+    <div class="form-group">
+      <label>Patient *</label>
+      <div style="position:relative;">
+        <input type="text" id="patient-search" placeholder="Search by Patient ID, Name, or Phone..." autocomplete="off" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;" onkeyup="searchPatients(this.value)">
+        <div id="patient-results" style="position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #e2e8f0;border-radius:9px;max-height:250px;overflow-y:auto;display:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+      </div>
+      <input type="hidden" name="patient_id" id="patient_id" value="{{ old('patient_id') }}">
+      @error('patient_id')<div class="field-error">{{ $message }}</div>@enderror
+      @if(old('patient_id'))
+      @php $selectedPatient = \App\Models\User::find(old('patient_id')); @endphp
+      @if($selectedPatient)
+      <div id="selected-patient" style="margin-top:8px;padding:10px;background:#dcfce7;border-radius:6px;border:1px solid #bbf7d0;">
+        <span style="font-size:12px;color:#16a34a;font-weight:600;">Selected: {{ $selectedPatient->first_name }} {{ $selectedPatient->last_name }} ({{ $selectedPatient->patient_id ?? 'ID: '.$selectedPatient->id }})</span>
+        <button type="button" onclick="clearPatient()" style="margin-left:8px;background:none;border:none;color:#dc2626;font-size:12px;cursor:pointer;">✕</button>
+      </div>
+      @endif
+      @endif
+    </div>
     <div class="form-row">
         <div class="form-group"><label>Referring Facility *</label><select name="referring_facility_id" required><option value="">From facility...</option>@foreach($facilities as $f)<option value="{{ $f->id }}" {{ old('referring_facility_id')==$f->id ? 'selected' : '' }}>{{ $f->name }}</option>@endforeach</select>@error('referring_facility_id')<div class="field-error">{{ $message }}</div>@enderror</div>
         <div class="form-group"><label>Receiving Facility *</label><select name="receiving_facility_id" required><option value="">To facility...</option>@foreach($facilities as $f)<option value="{{ $f->id }}" {{ old('receiving_facility_id')==$f->id ? 'selected' : '' }}>{{ $f->name }}</option>@endforeach</select>@error('receiving_facility_id')<div class="field-error">{{ $message }}</div>@enderror</div>
@@ -152,6 +169,57 @@ function showFileName(input) {
   el.textContent = '✓ ' + name;
   el.style.display = name ? 'block' : 'none';
 }
+function searchPatients(query) {
+  var results = document.getElementById('patient-results');
+  if(query.length < 2) {
+    results.style.display = 'none';
+    return;
+  }
+  fetch('/patients/search?query=' + encodeURIComponent(query))
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      if(data.length === 0) {
+        results.innerHTML = '<div style="padding:12px;color:#94a3b8;font-size:13px;">No patients found</div>';
+      } else {
+        results.innerHTML = data.map(function(p){
+          var phone = p.phone || '';
+          return '<div onclick="selectPatient(' + p.id + ',\'' + p.first_name + ' ' + p.last_name + '\',\'' + (p.patient_id || 'ID: ' + p.id) + '\',\'' + phone + '\')" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:13px;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'white\'"><strong>' + p.first_name + ' ' + p.last_name + '</strong><span style="color:#64748b;margin-left:8px;">' + (p.patient_id || 'ID: ' + p.id) + '</span>' + (p.phone ? '<span style="color:#94a3b8;margin-left:8px;">' + p.phone + '</span>' : '') + '</div>';
+        }).join('');
+      }
+      results.style.display = 'block';
+    });
+}
+function selectPatient(id, name, patientId, phone) {
+  document.getElementById('patient_id').value = id;
+  document.getElementById('patient-search').value = name + ' (' + patientId + ')';
+  document.getElementById('patient-search').disabled = true;
+  document.getElementById('patient-search').style.borderColor = '#16a34a';
+  document.getElementById('patient-search').style.background = '#f0fdf4';
+  document.getElementById('patient-results').style.display = 'none';
+  var selectedDiv = document.getElementById('selected-patient');
+  if(selectedDiv) selectedDiv.remove();
+  var container = document.getElementById('patient-search').parentNode;
+  var newDiv = document.createElement('div');
+  newDiv.id = 'selected-patient';
+  newDiv.style.cssText = 'margin-top:12px;padding:14px;background:#dcfce7;border-radius:8px;border:2px solid #16a34a;';
+  var phoneDisplay = phone ? '<div style="font-size:12px;color:#64748b;margin-top:4px;">📞 ' + phone + '</div>' : '';
+  newDiv.innerHTML = '<div style="font-size:14px;font-weight:700;color:#15803d;">✓ Patient Selected</div><div style="font-size:13px;color:#0f172a;margin-top:4px;">' + name + '</div><div style="font-size:12px;color:#64748b;">Patient ID: ' + patientId + '</div>' + phoneDisplay + '<button type="button" onclick="clearPatient()" style="margin-top:10px;background:#fef3c7;border:none;padding:6px 12px;border-radius:6px;color:#d97706;font-size:12px;cursor:pointer;">✕ Change Patient</button>';
+  container.appendChild(newDiv);
+}
+function clearPatient() {
+  document.getElementById('patient_id').value = '';
+  document.getElementById('patient-search').value = '';
+  document.getElementById('patient-search').disabled = false;
+  document.getElementById('patient-search').style.borderColor = '#e2e8f0';
+  document.getElementById('patient-search').style.background = 'white';
+  var selectedDiv = document.getElementById('selected-patient');
+  if(selectedDiv) selectedDiv.remove();
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#patient-search') && !e.target.closest('#patient-results')){
+    document.getElementById('patient-results').style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>

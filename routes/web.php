@@ -9,7 +9,9 @@ use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\LabTestController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\AppointmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -224,6 +226,12 @@ Route::get('/api/facilities/nearby', [FacilityController::class, 'nearbyHospital
     Route::post('/lab-tests/{id}/upload', [LabTestController::class, 'uploadResult'])->name('lab-tests.upload');
     Route::get('/lab-tests/{id}/download', [LabTestController::class, 'downloadResult'])->name('lab-tests.download');
     Route::get('/patient/lab-tests', [LabTestController::class, 'index'])->name('patient.lab-tests');
+
+    // ── APPOINTMENTS ROUTES ──
+    Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+    Route::post('/appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::post('/appointments/{id}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.updateStatus');
+    Route::get('/appointments/slots', [AppointmentController::class, 'getAvailableSlots'])->name('appointments.slots');
 
 
 

@@ -154,7 +154,7 @@
                                 <div class="td-sub">{{ $patient->phone ?? '—' }}</div>
                             </td>
                             <td><span class="badge badge-blue">{{ Auth::user()->gender ?? $patient->gender ?? 'Not specified' }}</span></td>
-                            <td style="font-size:.82rem;color:var(--muted)">{{ optional($patient->facility)->name ?? '—' }}</td>
+                            <td style="font-size:.82rem;color:var(--muted)">{{ \App\Models\Facility::find(Auth::user()->facility_id)?->name ?? '—' }}</td>
                             <td style="font-size:.78rem;color:var(--muted)">{{ $patient->created_at->format('d M Y') }}</td>
                             <td>
                                 <a href="{{ route('patients.show', $patient) }}" class="btn btn-sm" style="background:var(--teal-lt);color:var(--teal)">View</a>

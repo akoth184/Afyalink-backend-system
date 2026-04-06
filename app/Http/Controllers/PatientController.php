@@ -183,19 +183,17 @@ class PatientController extends Controller
      */
     public function search(Request $request)
     {
-        if (!request()->wantsJson() && !request()->ajax()) {
-            return response()->json([]);
-        }
         $query = $request->get('query', '');
         $patients = \App\Models\User::where('role', 'patient')
             ->where(function($q) use ($query) {
                 $q->where('first_name', 'like', "%{$query}%")
                   ->orWhere('last_name', 'like', "%{$query}%")
                   ->orWhere('email', 'like', "%{$query}%")
-                  ->orWhere('patient_id', 'like', "%{$query}%");
+                  ->orWhere('patient_id', 'like', "%{$query}%")
+                  ->orWhere('phone', 'like', "%{$query}%");
             })
             ->take(10)
-            ->get(['id','first_name','last_name','email','patient_id']);
+            ->get(['id','first_name','last_name','email','patient_id','phone']);
         return response()->json($patients);
     }
 }

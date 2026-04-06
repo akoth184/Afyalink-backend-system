@@ -68,6 +68,7 @@ body{font-family:'Inter',sans-serif;}
     <div class="slink on" onclick="showSection('dashboard', this)">Dashboard</div>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Referrals</div>
     <a href="#incoming-referrals" class="slink" onclick="showSection('incoming-referrals', this)">Incoming Referrals</a>
+    <div class="slink" onclick="showSection('appointments',this)">Appointments</div>
     <a href="#transfer-form" class="slink" onclick="showSection('transfer-form', this)">Transfer Patient</a>
     <a href="#referral-reports" onclick="showSection('referral-reports', this)" class="slink">Referral Reports</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Management</div>
@@ -231,6 +232,70 @@ body{font-family:'Inter',sans-serif;}
       <button type="button" onclick="openRejectModal({{ $referral->id }},'{{ addslashes(optional($referral->patient)->first_name) }} {{ addslashes(optional($referral->patient)->last_name) }}')" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Reject</button>
     </div>
     @endif
+    @if($referral->status === 'accepted')
+    @php
+      $hasAppointment = \App\Models\Appointment::where('referral_id', $referral->id)->first();
+    @endphp
+    @if($hasAppointment)
+    <div style="background:#dcfce7;border:1px solid #bbf7d0;padding:8px 12px;border-radius:6px;margin-top:8px;">
+      <div style="font-size:11px;font-weight:600;color:#16a34a;">Appointment Booked</div>
+      <div style="font-size:12px;color:#15803d;">{{ \Carbon\Carbon::parse($hasAppointment->appointment_date)->format('d M Y') }} at {{ $hasAppointment->appointment_time }}</div>
+      <div style="font-size:11px;color:#166534;">Dr. {{ optional($hasAppointment->doctor)->first_name ?? '' }} {{ optional($hasAppointment->doctor)->last_name ?? '' }}</div>
+    </div>
+    @else
+    <button type="button" onclick="document.getElementById('book-{{ $referral->id }}').style.display='block'" style="background:#2563eb;color:white;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;">Book Appointment</button>
+    <div id="book-{{ $referral->id }}" style="display:none;margin-top:12px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+      <form method="POST" action="{{ route('appointments.store') }}">
+        @csrf
+        <input type="hidden" name="referral_id" value="{{ $referral->id }}">
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Select Doctor</label>
+          <select name="doctor_id" required style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;">
+            <option value="">Select doctor...</option>
+            @foreach(\App\Models\User::where('role','doctor')->where('facility_id', optional($facility)->id)->get() as $doc)
+            <option value="{{ $doc->id }}">Dr. {{ $doc->first_name }} {{ $doc->last_name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Date</label>
+            <input type="date" name="appointment_date" required min="{{ date('Y-m-d') }}" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Time</label>
+            <select name="appointment_time" required style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;">
+              <option value="">Select time...</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Notes (optional)</label>
+          <textarea name="notes" rows="2" style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;resize:vertical;"></textarea>
+        </div>
+        <button type="submit" style="background:#16a34a;color:white;border:none;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;width:100%;">Confirm Booking</button>
+      </form>
+    </div>
+    @endif
+    @endif
   </div>
   @empty
   <div style="text-align:center;padding:40px;color:#94a3b8;">
@@ -322,6 +387,119 @@ function filterReferrals(status, el) {
         @empty
         <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No outgoing referrals yet</div>
         @endforelse
+      </div>
+    </div>
+
+    <!-- Appointments Section -->
+    <div class="section" id="sec-appointments" style="display:none;">
+      <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+        <div>
+          <div style="font-size:20px;font-weight:700;color:#0f172a;">Appointments</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Book and manage patient appointments</div>
+        </div>
+        <button onclick="document.getElementById('new-appointment-form').style.display='block';this.style.display='none';" style="background:#2563eb;color:white;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">+ Book Appointment</button>
+      </div>
+      <div style="padding:24px 28px;">
+        @if(session('success'))
+        <div style="background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;">✓ {{ session('success') }}</div>
+        @endif
+
+        <!-- NEW APPOINTMENT FORM -->
+        <div id="new-appointment-form" style="display:none;background:white;border-radius:12px;padding:24px;border:1px solid #e2e8f0;margin-bottom:20px;">
+          <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:16px;">Book New Appointment</div>
+          <form method="POST" action="{{ route('appointments.store') }}">
+            @csrf
+            <input type="hidden" name="referral_id" value="">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Patient</label>
+                <select name="patient_id" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
+                  <option value="">Select patient...</option>
+                  @foreach($referrals->where('status','accepted') as $ref)
+                  <option value="{{ optional($ref->patient)->id }}">{{ optional($ref->patient)->first_name }} {{ optional($ref->patient)->last_name }} — REF-{{ str_pad($ref->id,5,'0',STR_PAD_LEFT) }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Assign Doctor</label>
+                <select name="doctor_id" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
+                  <option value="">Select doctor...</option>
+                  @foreach(\App\Models\User::where('role','doctor')->where('is_active',true)->get() as $doc)
+                  <option value="{{ $doc->id }}">Dr. {{ $doc->first_name }} {{ $doc->last_name }} — {{ $doc->specialization ?? 'General' }}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Appointment Date</label>
+                <input type="date" name="appointment_date" min="{{ date('Y-m-d') }}" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Appointment Time</label>
+                <select name="appointment_time" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
+                  <option value="08:00">8:00 AM</option>
+                  <option value="08:30">8:30 AM</option>
+                  <option value="09:00">9:00 AM</option>
+                  <option value="09:30">9:30 AM</option>
+                  <option value="10:00">10:00 AM</option>
+                  <option value="10:30">10:30 AM</option>
+                  <option value="11:00">11:00 AM</option>
+                  <option value="11:30">11:30 AM</option>
+                  <option value="14:00">2:00 PM</option>
+                  <option value="14:30">2:30 PM</option>
+                  <option value="15:00">3:00 PM</option>
+                  <option value="15:30">3:30 PM</option>
+                  <option value="16:00">4:00 PM</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Notes</label>
+              <textarea name="notes" rows="2" placeholder="Additional notes..." style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="submit" style="background:#2563eb;color:white;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Book Appointment</button>
+              <button type="button" onclick="document.getElementById('new-appointment-form').style.display='none';document.querySelector('[onclick*=\'new-appointment-form\']').style.display='inline-block';" style="background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- APPOINTMENTS LIST -->
+        <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>All Appointments</div>
+          @forelse(\App\Models\Appointment::where('facility_id', optional($facility)->id)->with(['patient','doctor'])->latest()->get() as $apt)
+          <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:10px;">
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <div style="font-size:14px;font-weight:700;color:#0f172a;">{{ optional($apt->patient)->first_name ?? 'N/A' }} {{ optional($apt->patient)->last_name ?? '' }}</div>
+                <span style="background:{{ $apt->status === 'completed' ? '#dcfce7' : ($apt->status === 'cancelled' ? '#fee2e2' : '#dbeafe') }};color:{{ $apt->status === 'completed' ? '#16a34a' : ($apt->status === 'cancelled' ? '#dc2626' : '#1d4ed8') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($apt->status) }}</span>
+              </div>
+              <div style="font-size:12px;color:#64748b;">Dr. {{ optional($apt->doctor)->first_name ?? 'N/A' }} {{ optional($apt->doctor)->last_name ?? '' }} · {{ optional($apt->doctor)->specialization ?? 'General' }}</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">{{ \Carbon\Carbon::parse($apt->appointment_date)->format('d M Y') }} at {{ \Carbon\Carbon::parse($apt->appointment_time)->format('h:i A') }}</div>
+              @if($apt->notes)
+              <div style="font-size:11px;color:#94a3b8;margin-top:3px;">{{ $apt->notes }}</div>
+              @endif
+            </div>
+            @if($apt->status === 'scheduled')
+            <div style="display:flex;gap:6px;flex-shrink:0;">
+              <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
+                @csrf
+                <input type="hidden" name="status" value="completed">
+                <button type="submit" style="background:#dcfce7;color:#16a34a;border:1.5px solid #bbf7d0;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Mark Complete</button>
+              </form>
+              <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
+                @csrf
+                <input type="hidden" name="status" value="cancelled">
+                <button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+              </form>
+            </div>
+            @endif
+          </div>
+          @empty
+          <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No appointments booked yet</div>
+          @endforelse
+        </div>
       </div>
     </div>
 
