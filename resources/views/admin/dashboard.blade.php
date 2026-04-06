@@ -394,19 +394,42 @@ body{font-family:'Inter',sans-serif;}
 
 <!-- AUDIT LOGS SECTION -->
 <div id="sec-logs" class="section">
-  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;"><div style="font-size:20px;font-weight:700;color:#0f172a;">Audit Logs</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">System activity and change history</div></div>
+  <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+    <div><div style="font-size:20px;font-weight:700;color:#0f172a;">Audit Logs</div><div style="font-size:12px;color:#94a3b8;margin-top:3px;">System activity and change history</div></div>
+    <a href="{{ route('admin.audit-logs') }}" style="background:#2563eb;color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:inline-block;">View Full Logs</a>
+  </div>
   <div style="padding:24px 28px;">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+      <div style="background:white;border-radius:10px;padding:16px;border:1px solid #e2e8f0;">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Total Logs</div>
+        <div style="font-size:24px;font-weight:700;color:#0f172a;">{{ \App\Models\AuditLog::count() }}</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:16px;border:1px solid #e2e8f0;">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Logins</div>
+        <div style="font-size:24px;font-weight:700;color:#7c3aed;">{{ \App\Models\AuditLog::where('action','login')->count() }}</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:16px;border:1px solid #e2e8f0;">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Updates</div>
+        <div style="font-size:24px;font-weight:700;color:#d97706;">{{ \App\Models\AuditLog::where('action','updated')->count() }}</div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:16px;border:1px solid #e2e8f0;">
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">This Week</div>
+        <div style="font-size:24px;font-weight:700;color:#2563eb;">{{ \App\Models\AuditLog::where('created_at', '>=', now()->subWeek())->count() }}</div>
+      </div>
+    </div>
     <div class="card">
       <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>Recent System Activity</div>
       <div class="tl">
-        @foreach(\App\Models\Referral::with(['patient','referringFacility'])->latest()->take(8)->get() as $r)
+        @forelse(\App\Models\AuditLog::latest()->take(8)->get() as $log)
         <div class="tli">
-          <div class="tldot" style="background:{{ $r->status === 'accepted' ? '#16a34a' : ($r->status === 'rejected' ? '#dc2626' : '#d97706') }};"></div>
-          <div style="font-size:13px;font-weight:600;color:#0f172a;">Referral {{ ucfirst($r->status ?? 'created') }}</div>
-          <div style="font-size:11px;color:#94a3b8;">{{ $r->created_at->format('d M Y, h:i A') }}</div>
-          <div style="font-size:12px;color:#64748b;margin-top:3px;">{{ optional($r->patient)->first_name ?? 'N/A' }} · {{ optional($r->referringFacility)->name ?? 'N/A' }} · {{ $r->reason ?? '' }}</div>
+          <div class="tldot" style="background:{{ $log->action === 'login' ? '#7c3aed' : ($log->action === 'updated' ? '#d97706' : ($log->action === 'created' ? '#16a34a' : '#dc2626')) }};"></div>
+          <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ ucfirst($log->action) }}</div>
+          <div style="font-size:11px;color:#94a3b8;">{{ $log->created_at->format('d M Y, h:i A') }}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:3px;">{{ $log->description ?? 'No description' }}</div>
         </div>
-        @endforeach
+        @empty
+        <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No audit logs yet</div>
+        @endforelse
       </div>
     </div>
   </div>

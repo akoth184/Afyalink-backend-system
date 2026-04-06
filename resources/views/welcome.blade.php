@@ -112,32 +112,44 @@ body{font-family:'Inter',sans-serif;background:white;color:#0f172a}
   <h2 style="font-size:34px;font-weight:800;color:#0f172a;letter-spacing:-.5px;margin-bottom:10px;">Everything You Need,<br>Nothing You Don't</h2>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px;">
     <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
-      <div style="width:50px;height:50px;border-radius:14px;background:#dbeafe;margin-bottom:18px;"></div>
+      <div style="width:50px;height:50px;border-radius:14px;background:#dbeafe;margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
       <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Digital Referrals</h3>
       <p style="font-size:13px;color:#64748b;line-height:1.65;">Instant referrals from doctor to hospital. Real-time accept or reject. Status visible to patient immediately.</p>
     </div>
     <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
-      <div style="width:50px;height:50px;border-radius:14px;background:#dcfce7;margin-bottom:18px;"></div>
+      <div style="width:50px;height:50px;border-radius:14px;background:#dcfce7;margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
       <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Medical Records</h3>
       <p style="font-size:13px;color:#64748b;line-height:1.65;">Your complete health history — diagnoses, prescriptions, lab results. Download as PDF anytime.</p>
     </div>
     <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
-      <div style="width:50px;height:50px;border-radius:14px;background:#fef3c7;margin-bottom:18px;"></div>
+      <div style="width:50px;height:50px;border-radius:14px;background:#fef3c7;margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
       <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">GPS Hospital Finder</h3>
       <p style="font-size:13px;color:#64748b;line-height:1.65;">Find verified hospitals near you using GPS. See working hours, contact details and specialties.</p>
     </div>
     <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
-      <div style="width:50px;height:50px;border-radius:14px;background:#f0fdf4;margin-bottom:18px;"></div>
+      <div style="width:50px;height:50px;border-radius:14px;background:#f0fdf4;margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
       <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">M-PESA Payments</h3>
       <p style="font-size:13px;color:#64748b;line-height:1.65;">Pay consultation, pharmacy, lab tests and inpatient bills directly from your phone via M-PESA.</p>
     </div>
     <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
-      <div style="width:50px;height:50px;border-radius:14px;background:#fce7f3;margin-bottom:18px;"></div>
+      <div style="width:50px;height:50px;border-radius:14px;background:#fce7f3;margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" fill="none" stroke="#db2777" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+      </div>
       <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Hospital Network</h3>
       <p style="font-size:13px;color:#64748b;line-height:1.65;">Verified hospital network across Kenya. Seamless hospital-to-hospital transfers when required.</p>
     </div>
     <div class="feat-card" style="background:white;border-radius:14px;padding:28px;border:1px solid #e2e8f0;">
-      <div style="width:50px;height:50px;border-radius:14px;background:#f5f3ff;margin-bottom:18px;"></div>
+      <div style="width:50px;height:50px;border-radius:14px;background:#f5f3ff;margin-bottom:18px;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
       <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:8px;">Private and Secure</h3>
       <p style="font-size:13px;color:#64748b;line-height:1.65;">Role-based access means only you and your authorized care team can view your health data.</p>
     </div>

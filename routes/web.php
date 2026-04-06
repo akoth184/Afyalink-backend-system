@@ -10,6 +10,7 @@ use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\FacilityController;
 use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\MpesaController;
 use App\Http\Controllers\AppointmentController;
 
@@ -91,6 +92,9 @@ Route::prefix('admin')->group(function () {
 
     // Reports
     Route::get('/reports/export', [AdminController::class, 'exportReport'])->name('admin.reports.export')->middleware('auth');
+
+    // Audit Logs
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('admin.audit-logs')->middleware('auth');
 });
 
 // Guest-only routes (redirect to dashboard if already logged in)

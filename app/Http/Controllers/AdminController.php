@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Patient;
 use App\Models\Referral;
 use App\Models\Facility;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -136,6 +137,8 @@ class AdminController extends Controller
 
         $doctor->update(['is_active' => true]);
 
+        AuditLog::recordUpdated($doctor, "Doctor approved: Dr. {$doctor->first_name} {$doctor->last_name}");
+
         return redirect()->back()->with('success', 'Doctor application approved successfully.');
     }
 
@@ -195,6 +198,8 @@ class AdminController extends Controller
 
         $doctor->update(['is_active' => false]);
 
+        AuditLog::recordUpdated($doctor, "Doctor rejected: Dr. {$doctor->first_name} {$doctor->last_name}");
+
         return redirect()->back()->with('success', 'Doctor application rejected.');
     }
 
@@ -216,6 +221,8 @@ class AdminController extends Controller
 
         $facility->update(['is_active' => true]);
 
+        AuditLog::recordUpdated($facility, "Facility approved: {$facility->name}");
+
         return redirect()->back()->with('success', 'Facility approved successfully.');
     }
 
@@ -236,6 +243,8 @@ class AdminController extends Controller
         }
 
         $facility->update(['is_active' => false]);
+
+        AuditLog::recordUpdated($facility, "Facility rejected: {$facility->name}");
 
         return redirect()->back()->with('success', 'Facility rejected.');
     }

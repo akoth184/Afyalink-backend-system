@@ -261,6 +261,8 @@ class ReferralController extends Controller
         }
         $referral->save();
 
+        \App\Models\AuditLog::recordUpdated($referral, "Referral status changed to {$status}");
+
         $patientName = optional($referral->patient)->first_name . ' ' . optional($referral->patient)->last_name;
         $receivingHospital = optional($referral->receivingFacility)->name ?? 'Hospital';
         $referringFacility = optional($referral->referringFacility)->name ?? 'Facility';
