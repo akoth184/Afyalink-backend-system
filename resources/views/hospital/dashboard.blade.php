@@ -69,6 +69,7 @@ body{font-family:'Inter',sans-serif;}
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Referrals</div>
     <a href="#incoming-referrals" class="slink" onclick="showSection('incoming-referrals', this)">Incoming Referrals</a>
     <div class="slink" onclick="showSection('appointments',this)">Appointments</div>
+    <div class="slink" onclick="showSection('lab',this)">Lab Tests</div>
     <a href="#transfer-form" class="slink" onclick="showSection('transfer-form', this)">Transfer Patient</a>
     <a href="#referral-reports" onclick="showSection('referral-reports', this)" class="slink">Referral Reports</a>
     <div style="font-size:10px;color:rgba(255,255,255,.25);padding:12px 20px 5px;text-transform:uppercase;letter-spacing:.07em;">Management</div>
@@ -542,43 +543,83 @@ function filterReferrals(status, el) {
       @endif
     </div>
 
-    <!-- LAB TEST RESULTS FOR REFERRED PATIENTS -->
-<div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
-  <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-    <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;"></span>Lab Test Results — Referred Patients
-  </div>
-  @php
-    $labPatientIds = \App\Models\Referral::where('receiving_facility_id', optional($facility)->id)
-        ->where('status','accepted')
-        ->pluck('patient_id')
-        ->toArray();
-    $labTests = \App\Models\LabTest::with(['patient','doctor'])
-        ->whereIn('patient_id', $labPatientIds)
-        ->where('status','completed')
-        ->latest()
-        ->get();
-  @endphp
-  @forelse($labTests as $test)
-  <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:8px;">
-    <div style="flex:1;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <div style="font-size:13px;font-weight:700;color:#0f172a;">{{ $test->test_name }}</div>
-        <span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;">{{ ucfirst($test->test_category) }}</span>
+    <!-- LAB TESTS SECTION -->
+    <div class="section" id="sec-lab" style="display:none;">
+      <div style="background:white;padding:16px 28px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+        <div>
+          <div style="font-size:20px;font-weight:700;color:#0f172a;">Lab Tests</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:3px;">Manage lab test requests and upload results</div>
+        </div>
       </div>
-      <div style="font-size:12px;color:#64748b;">Patient: {{ optional($test->patient)->first_name ?? 'N/A' }} {{ optional($test->patient)->last_name ?? '' }}</div>
-      <div style="font-size:12px;color:#64748b;">Requested by Dr. {{ optional($test->doctor)->first_name ?? 'N/A' }} · {{ \Carbon\Carbon::parse($test->requested_date)->format('d M Y') }}</div>
-      @if($test->result_notes)
-      <div style="font-size:12px;color:#0f172a;margin-top:6px;background:#f0fdf4;padding:6px 10px;border-radius:6px;border-left:3px solid #16a34a;">{{ $test->result_notes }}</div>
-      @endif
+      <div style="padding:24px 28px;">
+        @if(session('success'))
+        <div style="background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;">✓ {{ session('success') }}</div>
+        @endif
+        <div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>
+            Lab Test Requests
+            <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">
+              {{ \App\Models\LabTest::whereIn('patient_id', $referrals->where('status','accepted')->pluck('patient_id'))->where('status','requested')->count() }} Pending
+            </span>
+          </div>
+          @forelse(\App\Models\LabTest::whereIn('patient_id', $referrals->where('status','accepted')->pluck('patient_id'))->with(['patient','doctor'])->latest()->get() as $test)
+          <div style="padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:10px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                  <div style="font-size:14px;font-weight:700;color:#0f172a;">{{ $test->test_name }}</div>
+                  <span style="background:{{ $test->status === 'completed' ? '#dcfce7' : '#fef3c7' }};color:{{ $test->status === 'completed' ? '#16a34a' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($test->status) }}</span>
+                  <span style="background:#dbeafe;color:#1d4ed8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($test->test_category) }}</span>
+                </div>
+                <div style="font-size:12px;color:#64748b;">Patient: {{ optional($test->patient)->first_name ?? 'N/A' }} {{ optional($test->patient)->last_name ?? '' }}</div>
+                <div style="font-size:12px;color:#64748b;margin-top:2px;">Requested by Dr. {{ optional($test->doctor)->first_name ?? 'N/A' }} · {{ \Carbon\Carbon::parse($test->requested_date)->format('d M Y') }}</div>
+                @if($test->clinical_notes)
+                <div style="font-size:12px;color:#64748b;margin-top:4px;">Clinical Notes: {{ $test->clinical_notes }}</div>
+                @endif
+                @if($test->result_notes)
+                <div style="font-size:12px;color:#16a34a;margin-top:6px;background:#f0fdf4;padding:8px 10px;border-radius:6px;border-left:3px solid #16a34a;">Result: {{ $test->result_notes }}</div>
+                @endif
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+                @if($test->status === 'requested')
+                <button onclick="document.getElementById('lab-upload-{{ $test->id }}').style.display='block';this.style.display='none';" style="background:#2563eb;color:white;border:none;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Upload Results</button>
+                @endif
+                @if($test->result_file)
+                <a href="{{ route('lab-tests.download', $test->id) }}" style="background:#dcfce7;color:#16a34a;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;text-align:center;">Download</a>
+                @endif
+              </div>
+            </div>
+            <div id="lab-upload-{{ $test->id }}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #e2e8f0;">
+              <form method="POST" action="{{ route('lab-tests.upload', $test->id) }}" enctype="multipart/form-data">
+                @csrf
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result File</label>
+                    <input type="file" name="result_file" required accept=".pdf,.jpg,.jpeg,.png" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;font-family:inherit;">
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Date</label>
+                    <input type="date" name="result_date" value="{{ date('Y-m-d') }}" required style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
+                  </div>
+                </div>
+                <div style="margin-bottom:12px;">
+                  <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Summary</label>
+                  <textarea name="result_notes" placeholder="Brief summary of results..." style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:60px;"></textarea>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button type="submit" style="background:#16a34a;color:white;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Save Results</button>
+                  <button type="button" onclick="document.getElementById('lab-upload-{{ $test->id }}').style.display='none'" style="background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          @empty
+          <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No lab test requests for your facility's patients</div>
+          @endforelse
+        </div>
+      </div>
     </div>
-    @if($test->result_file)
-    <a href="{{ route('lab-tests.download', $test->id) }}" style="background:#2563eb;color:white;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;flex-shrink:0;">Download</a>
-    @endif
-  </div>
-  @empty
-  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No lab results available for referred patients yet</div>
-  @endforelse
-</div>
 
     <!-- TRANSFER + WORKING HOURS -->
     <div style="display:block;">
