@@ -180,6 +180,35 @@ body{font-family:'Inter',sans-serif;}
       </div>
     </div>
     @endif
+@php
+  $patientLabTests = \App\Models\LabTest::where('patient_id', $record->patient_id)
+      ->with('doctor')->latest()->get();
+@endphp
+@if($patientLabTests->count() > 0)
+<div style="background:white;border-radius:10px;padding:20px;border:1px solid #e2e8f0;margin-top:16px;">
+  <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
+    Lab Test History
+  </div>
+  @foreach($patientLabTests as $test)
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $test->test_name }}</div>
+      <div style="font-size:11px;color:#94a3b8;">{{ ucfirst($test->test_category) }} · Dr. {{ optional($test->doctor)->first_name ?? 'N/A' }} · {{ \Carbon\Carbon::parse($test->requested_date)->format('d M Y') }}</div>
+      @if($test->result_notes)
+      <div style="font-size:11px;color:#16a34a;margin-top:3px;">Result: {{ $test->result_notes }}</div>
+      @endif
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="background:{{ $test->status === 'completed' ? '#dcfce7' : '#fef3c7' }};color:{{ $test->status === 'completed' ? '#16a34a' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $test->status === 'completed' ? 'Results Ready' : 'Pending' }}</span>
+      @if($test->result_file)
+      <a href="{{ route('lab-tests.download', $test->id) }}" style="background:#dbeafe;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">Download</a>
+      @endif
+    </div>
+  </div>
+  @endforeach
+</div>
+@endif
   </div>
 </div>
 </div>

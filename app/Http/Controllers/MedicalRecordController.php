@@ -406,6 +406,31 @@ class MedicalRecordController extends Controller
         $generatedAt = now()->format('d M Y, h:i A');
         $recordNumber = 'MR-' . str_pad($record->id, 5, '0', STR_PAD_LEFT);
         $statusColor = $record->status === 'finalized' ? '#16a34a' : '#d97706';
+        $labTests = \App\Models\LabTest::where('patient_id', $record->patient_id)
+            ->where('status','completed')
+            ->get();
+        $labRows = '';
+        foreach($labTests as $lt) {
+            $labRows .= '<tr>
+                <td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">' . htmlspecialchars($lt->test_name) . '</td>
+                <td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">' . ucfirst($lt->test_category) . '</td>
+                <td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">' . ($lt->result_notes ?? 'See attached file') . '</td>
+                <td style="padding:6px 0;border-bottom:1px solid #f1f5f9;font-size:11px;">' . ($lt->result_date ? date('d M Y', strtotime($lt->result_date)) : 'N/A') . '</td>
+            </tr>';
+        }
+        $labSection = $labTests->count() > 0 ? '
+        <div class="section">
+          <div class="section-header"><div class="section-dot"></div><div class="section-title">Lab Test Results</div></div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr>
+              <th style="text-align:left;padding:6px 0;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0;">Test</th>
+              <th style="text-align:left;padding:6px 0;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0;">Category</th>
+              <th style="text-align:left;padding:6px 0;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0;">Result</th>
+              <th style="text-align:left;padding:6px 0;font-size:9px;color:#94a3b8;text-transform:uppercase;border-bottom:1px solid #e2e8f0;">Date</th>
+            </tr></thead>
+            <tbody>' . $labRows . '</tbody>
+          </table>
+        </div>' : '';
         $html = '
 <!DOCTYPE html>
 <html>
@@ -490,6 +515,7 @@ body { font-family: DejaVu Sans, Arial, sans-serif; color: #0f172a; font-size: 1
     ' . ($record->medications ? '<div class="clinical-item"><div class="clinical-label">Medications</div><div class="clinical-value">' . htmlspecialchars($record->medications) . '</div></div>' : '') . '
     ' . ($record->notes ? '<div class="clinical-item"><div class="clinical-label">Notes</div><div class="clinical-value">' . htmlspecialchars($record->notes) . '</div></div>' : '') . '
   </div>
+  ' . $labSection . '
   <div class="disclaimer">
     <div class="disclaimer-title">Confidential Medical Document</div>
     <div class="disclaimer-text">This document contains confidential medical information protected under the Kenya Health Act. It is intended solely for the patient named above and authorized healthcare providers. Unauthorized disclosure is prohibited.</div>

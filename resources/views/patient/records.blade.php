@@ -274,6 +274,43 @@
   <div style="font-size:13px;color:#94a3b8;">Your records will appear here after doctor visits</div>
 </div>
 @endforelse
+
+<!-- LAB TEST RESULTS -->
+<div style="margin-top:24px;">
+  <div style="font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
+    Lab Test Results
+  </div>
+  @forelse(\App\Models\LabTest::where('patient_id', Auth::id())->with('doctor')->latest()->get() as $test)
+  <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;">
+    <div style="width:36px;height:36px;border-radius:8px;background:{{ $test->status === 'completed' ? '#dcfce7' : '#fef3c7' }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg width="16" height="16" fill="none" stroke="{{ $test->status === 'completed' ? '#16a34a' : '#d97706' }}" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v11m0 0H5a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2h-4m-6 0h6"/></svg>
+    </div>
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:600;color:#0f172a;">{{ $test->test_name }}</div>
+      <div style="font-size:11px;color:#94a3b8;margin-top:2px;">
+        {{ ucfirst($test->test_category) }} ·
+        Dr. {{ optional($test->doctor)->first_name ?? 'N/A' }} {{ optional($test->doctor)->last_name ?? '' }} ·
+        {{ \Carbon\Carbon::parse($test->requested_date)->format('d M Y') }}
+      </div>
+      @if($test->result_notes)
+      <div style="font-size:12px;color:#0f172a;margin-top:6px;background:#f0fdf4;padding:8px 12px;border-radius:6px;border-left:3px solid #16a34a;">
+        <div style="font-size:10px;font-weight:700;color:#16a34a;margin-bottom:2px;">RESULT</div>
+        {{ $test->result_notes }}
+      </div>
+      @endif
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end;">
+      <span style="background:{{ $test->status === 'completed' ? '#dcfce7' : '#fef3c7' }};color:{{ $test->status === 'completed' ? '#16a34a' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $test->status === 'completed' ? 'Results Ready' : 'Pending' }}</span>
+      @if($test->result_file)
+      <a href="{{ route('lab-tests.download', $test->id) }}" style="background:#2563eb;color:white;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;margin-top:4px;">Download</a>
+      @endif
+    </div>
+  </div>
+  @empty
+  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;">No lab tests requested yet</div>
+  @endforelse
+</div>
                 @endif
             </div>
         </div>

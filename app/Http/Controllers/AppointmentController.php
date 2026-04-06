@@ -39,7 +39,25 @@ class AppointmentController extends Controller
             'appointment_time' => 'required',
         ]);
 
-        $appointment = Appointment::create([
+        $exists = Appointment::where('appointment_date', $request->appointment_date)
+            ->where('appointment_time', $request->appointment_time)
+            ->where(function($query) use ($request) {
+                $query->where('patient_id', $request->patient_id)
+                      ->where('doctor_id', $request->doctor_id);
+            })->exists();
+
+        if ($exists) {
+            return back()->with('error', 'This appointment slot is already booked for this patient with this doctor.');
+        }
+
+        $doctorBooked = Appointment::where('appointment_date', $request->appointment_date)
+            ->where('appointment_time', $request->appointment_time)
+            ->where('doctor_id', $request->doctor_id)
+            ->exists();
+
+        if ($doctorBooked) {
+            return back()->with('error', 'This doctor already has an appointment at this time.');
+        }
             'patient_id'       => $request->patient_id,
             'doctor_id'        => $request->doctor_id,
             'facility_id'      => $request->facility_id,
