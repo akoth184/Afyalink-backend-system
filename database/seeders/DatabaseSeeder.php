@@ -56,66 +56,24 @@ class DatabaseSeeder extends Seeder
                 ]),
             ],
             [
-                'name' => 'Aga Khan University Hospital',
+                'name' => 'Nairobi West Hospital',
                 'type' => 'hospital',
-                'mfl_code' => 'AKUH001',
-                'county' => 'Nairobi',
-                'sub_county' => 'Starehe',
-                'ward' => 'Nairobi Central',
-                'phone' => '+254-020-366-2000',
-                'email' => 'info@akuahs.org',
-                'latitude' => -1.2667,
-                'longitude' => 36.8000,
-                'working_hours' => json_encode([
-                    'Monday' => '24 Hours',
-                    'Tuesday' => '24 Hours',
-                    'Wednesday' => '24 Hours',
-                    'Thursday' => '24 Hours',
-                    'Friday' => '24 Hours',
-                    'Saturday' => '24 Hours',
-                    'Sunday' => '24 Hours'
-                ]),
-            ],
-            [
-                'name' => 'MP Shah Hospital',
-                'type' => 'hospital',
-                'mfl_code' => 'MPS001',
-                'county' => 'Nairobi',
-                'sub_county' => 'Dagoretti',
-                'ward' => 'Kenyatta Golf',
-                'phone' => '+254-020-429-1000',
-                'email' => 'info@mpshahhosp.org',
-                'latitude' => -1.3100,
-                'longitude' => 36.7850,
-                'working_hours' => json_encode([
-                    'Monday' => '24 Hours',
-                    'Tuesday' => '24 Hours',
-                    'Wednesday' => '24 Hours',
-                    'Thursday' => '24 Hours',
-                    'Friday' => '24 Hours',
-                    'Saturday' => '24 Hours',
-                    'Sunday' => '24 Hours'
-                ]),
-            ],
-            [
-                'name' => 'Westlands Health Centre',
-                'type' => 'health_center',
-                'mfl_code' => 'WHC001',
+                'mfl_code' => 'NWH001',
                 'county' => 'Nairobi',
                 'sub_county' => 'Westlands',
                 'ward' => 'Kitisuru',
                 'phone' => '+254-020-445-1234',
-                'email' => 'info@westlandshealth.org',
+                'email' => 'info@nairobiwest.org',
                 'latitude' => -1.2550,
                 'longitude' => 36.7900,
                 'working_hours' => json_encode([
-                    'Monday' => '8:00 AM - 6:00 PM',
-                    'Tuesday' => '8:00 AM - 6:00 PM',
-                    'Wednesday' => '8:00 AM - 6:00 PM',
-                    'Thursday' => '8:00 AM - 6:00 PM',
-                    'Friday' => '8:00 AM - 6:00 PM',
-                    'Saturday' => '9:00 AM - 2:00 PM',
-                    'Sunday' => 'Closed'
+                    'Monday' => '24 Hours',
+                    'Tuesday' => '24 Hours',
+                    'Wednesday' => '24 Hours',
+                    'Thursday' => '24 Hours',
+                    'Friday' => '24 Hours',
+                    'Saturday' => '24 Hours',
+                    'Sunday' => '24 Hours'
                 ]),
             ],
             [
@@ -168,6 +126,44 @@ class DatabaseSeeder extends Seeder
             'facility_id' => $facility->id,
             'license_number' => 'KMB-12345',
             'specialization' => 'General Medicine',
+            'is_active' => true,
         ]);
+
+        // Create doctors for each facility
+        $facilities = Facility::all();
+        
+        $doctors = [
+            ['first_name' => 'John', 'last_name' => 'Otieno', 'email' => 'johnson@doctor.ke', 'specialization' => 'General Practitioner'],
+            ['first_name' => 'Sarah', 'last_name' => 'Kemunto', 'email' => 'sarah@doctor.ke', 'specialization' => 'Pediatrics'],
+            ['first_name' => 'David', 'last_name' => 'Mwangi', 'email' => 'david@doctor.ke', 'specialization' => 'Internal Medicine'],
+            ['first_name' => 'Grace', 'last_name' => 'Akinyi', 'email' => 'grace@doctor.ke', 'specialization' => 'Surgery'],
+            ['first_name' => 'Peter', 'last_name' => 'Kariuki', 'email' => 'peter@doctor.ke', 'specialization' => 'Cardiology'],
+            ['first_name' => 'Mary', 'last_name' => 'Wambui', 'email' => 'mary@doctor.ke', 'specialization' => 'Obstetrics & Gynecology'],
+            ['first_name' => 'James', 'last_name' => 'Ouma', 'email' => 'james@doctor.ke', 'specialization' => 'General Practitioner'],
+            ['first_name' => 'Faith', 'last_name' => 'Njoroge', 'email' => 'faith@doctor.ke', 'specialization' => 'Dermatology'],
+        ];
+
+        $licenseNumbers = ['KMB-54321', 'KMB-54322', 'KMB-54323', 'KMB-54324', 'KMB-54325', 'KMB-54326', 'KMB-54327', 'KMB-54328'];
+        
+        $i = 0;
+        foreach ($facilities as $fac) {
+            // Create 2 doctors per facility
+            for ($j = 0; $j < 2; $j++) {
+                if (isset($doctors[$i])) {
+                    User::create([
+                        'first_name' => $doctors[$i]['first_name'],
+                        'last_name' => $doctors[$i]['last_name'],
+                        'email' => $doctors[$i]['email'],
+                        'password' => Hash::make('Password@123'),
+                        'role' => 'doctor',
+                        'facility_id' => $fac->id,
+                        'license_number' => $licenseNumbers[$i] ?? 'KMB-' . rand(10000, 99999),
+                        'specialization' => $doctors[$i]['specialization'],
+                        'is_active' => true,
+                    ]);
+                    $i++;
+                }
+            }
+        }
     }
 }

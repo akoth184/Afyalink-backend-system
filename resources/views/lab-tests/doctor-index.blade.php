@@ -69,36 +69,15 @@ body{font-family:'Inter',sans-serif;}
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
             @if($test->status === 'requested')
-            <button onclick="document.getElementById('upload-{{ $test->id }}').style.display='block'" style="background:#2563eb;color:white;border:none;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Upload Result</button>
+            <span style="background:#fef3c7;color:#d97706;padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;">Awaiting Lab Results</span>
+            @endif
+            @if($test->status === 'completed')
+            <a href="{{ route('records.create') }}?lab_test_id={{ $test->id }}" style="background:#fef3c7;color:#d97706;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;text-align:center;">Add to Record</a>
             @endif
             @if($test->result_file)
             <a href="{{ route('lab-tests.download', $test->id) }}" style="background:#dcfce7;color:#16a34a;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;text-align:center;">Download</a>
             @endif
           </div>
-        </div>
-        <!-- Upload Result Form -->
-        <div id="upload-{{ $test->id }}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #e2e8f0;">
-          <form method="POST" action="{{ route('lab-tests.upload', $test->id) }}" enctype="multipart/form-data">
-            @csrf
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-              <div>
-                <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result File (PDF/Image)</label>
-                <input type="file" name="result_file" required accept=".pdf,.jpg,.jpeg,.png" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;font-family:inherit;">
-              </div>
-              <div>
-                <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Date</label>
-                <input type="date" name="result_date" value="{{ date('Y-m-d') }}" required style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
-              </div>
-            </div>
-            <div style="margin-bottom:12px;">
-              <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Summary</label>
-              <textarea name="result_notes" placeholder="Brief summary of results..." style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:60px;"></textarea>
-            </div>
-            <div style="display:flex;gap:8px;">
-              <button type="submit" style="background:#16a34a;color:white;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Save Results</button>
-              <button type="button" onclick="document.getElementById('upload-{{ $test->id }}').style.display='none'" style="background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
-            </div>
-          </form>
         </div>
       </div>
       @empty

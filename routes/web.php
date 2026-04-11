@@ -197,6 +197,9 @@ Route::get('/api/facilities/nearby', [FacilityController::class, 'nearbyHospital
     Route::get('/referrals', [ReferralController::class, 'index'])->name('referrals.index');
     Route::get('/referrals/{referral}', [ReferralController::class, 'show'])->name('referrals.show');
     Route::patch('/referrals/{id}/status', [ReferralController::class, 'updateStatus'])->name('referrals.updateStatus');
+    Route::post('/referrals/{id}/consent', [ReferralController::class, 'giveConsent'])->name('referrals.consent');
+    Route::post('/referrals/{id}/feedback', [ReferralController::class, 'submitFeedback'])->name('referrals.feedback');
+    Route::get('/referrals/{id}/letter', [ReferralController::class, 'downloadLetter'])->name('referrals.letter');
 
     // Edit, update, delete - only for doctors and admins
     Route::middleware(['can:create-referrals'])->group(function () {

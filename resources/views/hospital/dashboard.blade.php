@@ -249,6 +249,8 @@ body{font-family:'Inter',sans-serif;}
       <form method="POST" action="{{ route('appointments.store') }}">
         @csrf
         <input type="hidden" name="referral_id" value="{{ $referral->id }}">
+        <input type="hidden" name="facility_id" value="{{ optional($facility)->id }}">
+        <input type="hidden" name="patient_id" value="{{ optional($referral->patient)->id }}">
         <div style="margin-bottom:10px;">
           <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Select Doctor</label>
           <select name="doctor_id" required style="width:100%;padding:8px;border:1.5px solid #e2e8f0;border-radius:6px;font-size:12px;">
@@ -296,6 +298,20 @@ body{font-family:'Inter',sans-serif;}
       </form>
     </div>
     @endif
+    @if($referral->status === 'accepted')
+<div style="margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;">
+  <button onclick="document.getElementById('feedback-{{ $referral->id }}').style.display='block';this.style.display='none';" style="background:#dbeafe;color:#1d4ed8;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Send Treatment Feedback to Referring Doctor</button>
+  <div id="feedback-{{ $referral->id }}" style="display:none;margin-top:10px;">
+    <form method="POST" action="{{ route('referrals.feedback', $referral->id) }}">
+      @csrf
+      <textarea name="feedback" required placeholder="e.g. Patient received surgery successfully. Discharged on 5 Apr 2026. Follow-up in 2 weeks..." style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:70px;margin-bottom:8px;"></textarea>
+      <div style="display:flex;gap:8px;">
+        <button type="submit" style="background:#2563eb;color:white;border:none;padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Send Feedback</button>
+        <button type="button" onclick="document.getElementById('feedback-{{ $referral->id }}').style.display='none'" style="background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
     @endif
   </div>
   @empty
@@ -411,6 +427,7 @@ function filterReferrals(status, el) {
           <form method="POST" action="{{ route('appointments.store') }}">
             @csrf
             <input type="hidden" name="referral_id" value="">
+            <input type="hidden" name="facility_id" value="{{ optional($facility)->id }}">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
               <div>
                 <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Patient</label>
@@ -425,7 +442,7 @@ function filterReferrals(status, el) {
                 <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;">Assign Doctor</label>
                 <select name="doctor_id" required style="width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;">
                   <option value="">Select doctor...</option>
-                  @foreach(\App\Models\User::where('role','doctor')->where('is_active',true)->get() as $doc)
+                  @foreach(\App\Models\User::where('role','doctor')->where('is_active',true)->where('facility_id', optional($facility)->id)->get() as $doc)
                   <option value="{{ $doc->id }}">Dr. {{ $doc->first_name }} {{ $doc->last_name }} — {{ $doc->specialization ?? 'General' }}</option>
                   @endforeach
                 </select>
@@ -482,20 +499,6 @@ function filterReferrals(status, el) {
               <div style="font-size:11px;color:#94a3b8;margin-top:3px;">{{ $apt->notes }}</div>
               @endif
             </div>
-            @if($apt->status === 'scheduled')
-            <div style="display:flex;gap:6px;flex-shrink:0;">
-              <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
-                @csrf
-                <input type="hidden" name="status" value="completed">
-                <button type="submit" style="background:#dcfce7;color:#16a34a;border:1.5px solid #bbf7d0;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Mark Complete</button>
-              </form>
-              <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
-                @csrf
-                <input type="hidden" name="status" value="cancelled">
-                <button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
-              </form>
-            </div>
-            @endif
           </div>
           @empty
           <div style="text-align:center;padding:30px;color:#94a3b8;font-size:13px;">No appointments booked yet</div>
@@ -560,10 +563,10 @@ function filterReferrals(status, el) {
             <span style="width:8px;height:8px;border-radius:50%;background:#2563eb;display:inline-block;"></span>
             Lab Test Requests
             <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">
-              {{ \App\Models\LabTest::whereIn('patient_id', $referrals->where('status','accepted')->pluck('patient_id'))->where('status','requested')->count() }} Pending
+              {{ \App\Models\LabTest::whereHas('doctor', function($q) use ($facilityId) { $q->where('facility_id', $facilityId); })->where('status','requested')->count() }} Pending
             </span>
           </div>
-          @forelse(\App\Models\LabTest::whereIn('patient_id', $referrals->where('status','accepted')->pluck('patient_id'))->with(['patient','doctor'])->latest()->get() as $test)
+          @forelse(\App\Models\LabTest::whereHas('doctor', function($q) use ($facilityId) { $q->where('facility_id', $facilityId); })->with(['patient','doctor'])->latest()->get() as $test)
           <div style="padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:10px;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
               <div style="flex:1;">
@@ -593,23 +596,59 @@ function filterReferrals(status, el) {
             <div id="lab-upload-{{ $test->id }}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #e2e8f0;">
               <form method="POST" action="{{ route('lab-tests.upload', $test->id) }}" enctype="multipart/form-data">
                 @csrf
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-                  <div>
-                    <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result File</label>
-                    <input type="file" name="result_file" required accept=".pdf,.jpg,.jpeg,.png" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;font-family:inherit;">
+                <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:12px;border:1px solid #e2e8f0;">
+                  <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:12px;">📋 Enter Lab Test Results</div>
+                  <div style="margin-bottom:16px;">
+                    <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Date *</label>
+                    <input type="date" name="result_date" value="{{ date('Y-m-d') }}" required style="width:100%;max-width:200px;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
+                  </div>
+                  <div style="margin-bottom:16px;padding:12px;background:#fefce7;border:1px solid #fef08a;border-radius:8px;">
+                    <label style="font-size:11px;font-weight:600;color:#854d0e;display:block;margin-bottom:6px;">📝 Detailed Results / Findings *</label>
+                    <textarea name="result_notes" placeholder="Enter complete lab results here. You can use any format:
+
+For Simple Tests:
+- Hemoglobin: 12.5 g/dL
+- Blood Glucose: 95 mg/dL
+
+For Complex Tests (CBC):
+- WBC: 6,500/mcL (4,500-11,000)
+- RBC: 4.8 M/mcL (4.5-5.5)
+- Hemoglobin: 14.2 g/dL (13.5-17.5)
+- Platelets: 250,000/mcL (150,000-400,000)
+
+For Pathology/Narrative:
+- Full descriptive findings..." style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 12px;font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:120px;"></textarea>
+                  </div>
+                  <div style="font-size:11px;color:#64748b;margin-bottom:16px;padding:10px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;">
+                    <strong>💡 Optional - Quick Values:</strong> Use these only for simple numeric tests. For complex results, just fill in the detailed results above.
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div>
+                      <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Numeric Value</label>
+                      <input type="text" name="result_value" placeholder="e.g., 12.5" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
+                    </div>
+                    <div>
+                      <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Reference Range</label>
+                      <input type="text" name="reference_range" placeholder="e.g., 11.0 - 17.5" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
+                    </div>
+                    <div>
+                      <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Status</label>
+                      <select name="test_status" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
+                        <option value="">Select status...</option>
+                        <option value="normal">Normal</option>
+                        <option value="abnormal">Abnormal</option>
+                        <option value="critical">Critical</option>
+                      </select>
+                    </div>
                   </div>
                   <div>
-                    <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Date</label>
-                    <input type="date" name="result_date" value="{{ date('Y-m-d') }}" required style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;">
+                    <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Attach File (PDF/Image) - Optional</label>
+                    <input type="file" name="result_file" accept=".pdf,.jpg,.jpeg,.png" style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;font-family:inherit;">
                   </div>
-                </div>
-                <div style="margin-bottom:12px;">
-                  <label style="font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;">Result Summary</label>
-                  <textarea name="result_notes" placeholder="Brief summary of results..." style="width:100%;background:white;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:12px;font-family:inherit;outline:none;resize:vertical;min-height:60px;"></textarea>
                 </div>
                 <div style="display:flex;gap:8px;">
-                  <button type="submit" style="background:#16a34a;color:white;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Save Results</button>
-                  <button type="button" onclick="document.getElementById('lab-upload-{{ $test->id }}').style.display='none'" style="background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+                  <button type="submit" style="background:#16a34a;color:white;border:none;padding:10px 20px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Submit Results</button>
+                  <button type="button" onclick="document.getElementById('lab-upload-{{ $test->id }}').style.display='none'" style="background:white;color:#64748b;border:1.5px solid #e2e8f0;padding:10px 20px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
                 </div>
               </form>
             </div>

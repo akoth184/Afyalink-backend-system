@@ -73,11 +73,23 @@
           @if($apt->notes)<div style="font-size:11px;color:#94a3b8;margin-top:3px;">{{ $apt->notes }}</div>@endif
         </div>
         @if($apt->status === 'scheduled')
-        <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
-          @csrf
-          <input type="hidden" name="status" value="completed">
-          <button type="submit" style="background:#dcfce7;color:#16a34a;border:1.5px solid #bbf7d0;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0;">Mark Complete</button>
-        </form>
+        <div style="display:flex;gap:6px;">
+          <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
+            @csrf
+            <input type="hidden" name="status" value="completed">
+            <button type="submit" style="background:#dcfce7;color:#16a34a;border:1.5px solid #bbf7d0;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Mark Complete</button>
+          </form>
+          <form method="POST" action="{{ route('appointments.updateStatus', $apt->id) }}">
+            @csrf
+            <input type="hidden" name="status" value="cancelled">
+            <button type="submit" style="background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+          </form>
+        </div>
+        @else
+        <div style="display:flex;gap:6px;">
+          <a href="{{ route('records.create') }}?patient_id={{ $apt->patient_id }}" style="background:#2563eb;color:white;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">Create Record</a>
+          <a href="{{ route('records.index') }}?patient={{ $apt->patient_id }}" style="background:#f1f5f9;color:#64748b;padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">View Records</a>
+        </div>
         @endif
       </div>
       @empty

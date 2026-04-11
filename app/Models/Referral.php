@@ -55,4 +55,9 @@ class Referral extends Model
     {
         return $this->belongsTo(User::class, 'referred_by');
     }
+
+    public function referredByUser()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'referred_by');
+    }
 }

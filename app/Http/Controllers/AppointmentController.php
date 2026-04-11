@@ -58,6 +58,8 @@ class AppointmentController extends Controller
         if ($doctorBooked) {
             return back()->with('error', 'This doctor already has an appointment at this time.');
         }
+
+        $appointment = Appointment::create([
             'patient_id'       => $request->patient_id,
             'doctor_id'        => $request->doctor_id,
             'facility_id'      => $request->facility_id,

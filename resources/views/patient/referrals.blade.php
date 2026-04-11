@@ -314,12 +314,62 @@
                                         @if($referral->priority)
                                         <span style="background:{{ $referral->priority === 'emergency' ? '#fee2e2' : ($referral->priority === 'urgent' ? '#fef3c7' : '#dbeafe') }};color:{{ $referral->priority === 'emergency' ? '#dc2626' : ($referral->priority === 'urgent' ? '#d97706' : '#2563eb') }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($referral->priority) }}</span>
                                         @endif
+                                        @if($referral->status === 'pending' && !$referral->patient_consented)
+                                        <div style="margin-top:10px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;">
+                                          <div style="font-size:12px;font-weight:600;color:#d97706;margin-bottom:8px;">Your consent is required</div>
+                                          <div style="font-size:12px;color:#92400e;margin-bottom:10px;">Dr. {{ optional(\App\Models\User::find($referral->referred_by))->first_name ?? 'Your doctor' }} has referred you to {{ optional($referral->receivingFacility)->name ?? 'another facility' }}. Do you consent to this referral?</div>
+                                          <div style="display:flex;gap:8px;">
+                                            <form method="POST" action="{{ route('referrals.consent', $referral->id) }}">
+                                              @csrf
+                                              <button type="submit" style="background:#16a34a;color:white;border:none;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">I Consent to this Referral</button>
+                                            </form>
+                                            <a href="{{ route('patient.nearby-hospitals') }}" style="background:white;color:#dc2626;border:1.5px solid #fca5a5;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">Decline</a>
+                                          </div>
+                                        </div>
+                                        @elseif($referral->patient_consented)
+                                        <div style="margin-top:8px;background:#f0fdf4;border-left:3px solid #16a34a;padding:8px 12px;border-radius:0 6px 6px 0;">
+                                          <div style="font-size:11px;font-weight:600;color:#16a34a;">✓ You consented to this referral on {{ $referral->consented_at ? \Carbon\Carbon::parse($referral->consented_at)->format('d M Y, h:i A') : 'N/A' }}</div>
+                                        </div>
+                                        @endif
                                         @if($referral->status === 'rejected' && $referral->rejection_reason)
                                         <div style="margin-top:8px;background:#fee2e2;border-left:3px solid #dc2626;padding:8px 12px;border-radius:0 6px 6px 0;">
                                           <div style="font-size:10px;font-weight:700;color:#dc2626;margin-bottom:3px;">Hospital Response</div>
                                           <div style="font-size:12px;color:#991b1b;line-height:1.5;">{{ $referral->rejection_reason }}</div>
                                         </div>
                                         @endif
+                                        <div style="margin-top:12px;padding:12px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+                                          <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Referral Journey</div>
+                                          <div style="display:flex;align-items:center;gap:0;overflow-x:auto;">
+                                            @php
+                                              $steps = [
+                                                ['label'=>'Created','done'=>true,'color'=>'#16a34a'],
+                                                ['label'=>'Consent','done'=>$referral->patient_consented,'color'=>$referral->patient_consented?'#16a34a':'#94a3b8'],
+                                                ['label'=>'Hospital Review','done'=>in_array($referral->status,['accepted','rejected']),'color'=>in_array($referral->status,['accepted','rejected'])?'#16a34a':'#94a3b8'],
+                                                ['label'=>'Accepted','done'=>$referral->status==='accepted','color'=>$referral->status==='accepted'?'#16a34a':($referral->status==='rejected'?'#dc2626':'#94a3b8')],
+                                                ['label'=>'Appointment','done'=>\App\Models\Appointment::where('patient_id',$referral->patient_id)->exists(),'color'=>\App\Models\Appointment::where('patient_id',$referral->patient_id)->exists()?'#16a34a':'#94a3b8'],
+                                                ['label'=>'Treated','done'=>\App\Models\Appointment::where('patient_id',$referral->patient_id)->where('status','completed')->exists(),'color'=>\App\Models\Appointment::where('patient_id',$referral->patient_id)->where('status','completed')->exists()?'#16a34a':'#94a3b8'],
+                                              ];
+                                            @endphp
+                                            @foreach($steps as $i => $step)
+                                            <div style="display:flex;align-items:center;flex-shrink:0;">
+                                              <div style="text-align:center;">
+                                                <div style="width:28px;height:28px;border-radius:50%;background:{{ $step['color'] }};display:flex;align-items:center;justify-content:center;margin:0 auto 4px;">
+                                                  @if($step['done'])
+                                                  <svg width="12" height="12" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                                                  @else
+                                                  <div style="width:6px;height:6px;border-radius:50%;background:white;"></div>
+                                                  @endif
+                                                </div>
+                                                <div style="font-size:9px;color:{{ $step['done'] ? '#0f172a' : '#94a3b8' }};font-weight:{{ $step['done'] ? '700' : '400' }};white-space:nowrap;">{{ $step['label'] }}</div>
+                                              </div>
+                                              @if(!$loop->last)
+                                              <div style="width:30px;height:2px;background:{{ $step['done'] ? '#16a34a' : '#e2e8f0' }};margin:0 2px 16px;flex-shrink:0;"></div>
+                                              @endif
+                                            </div>
+                                            @endforeach
+                                          </div>
+                                        </div>
+                                        <a href="{{ route('referrals.letter', $referral->id) }}" style="background:#1e3a5f;color:white;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;margin-top:8px;">Download Referral Letter</a>
                                     </td>
                                 </tr>
                             @endforeach

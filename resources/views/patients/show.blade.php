@@ -35,7 +35,7 @@
                 </div>
                 <div class="bg-gray-50 rounded-xl p-4">
                     <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Gender</p>
-                    <p class="text-gray-900 font-medium">{{ Auth::user()->gender ?? $patient->gender ?? 'Not specified' }}</p>
+                    <p class="text-gray-900 font-medium">{{ $patient->gender ?? 'Not specified' }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-xl p-4">
                     <p class="text-xs text-gray-500 uppercase font-semibold mb-1">Registered</p>

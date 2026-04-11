@@ -120,7 +120,7 @@
                             @endif
                             </td>
                             <td style="font-size:.78rem;color:var(--muted)">{{ $ref->created_at->format('d M Y') }}</td>
-                            <td><a href="{{ route('referrals.show', $ref) }}" class="btn btn-sm" style="background:var(--blue-lt);color:var(--blue)">View</a></td>
+                            <td><a href="{{ route('referrals.show', $ref) }}" class="btn btn-sm" style="background:var(--blue-lt);color:var(--blue)">View</a> <a href="{{ route('referrals.letter', $ref->id) }}" style="background:#1e3a5f;color:white;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;">Letter PDF</a></td>
                         </tr>
                         @endforeach
                     </tbody>

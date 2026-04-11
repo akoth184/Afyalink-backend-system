@@ -59,19 +59,29 @@ class DoctorAuthController extends Controller
             'password'   => ['required', 'min:8', 'confirmed'],
         ]);
 
+        // Find or create the facility based on name
+        $facility = \App\Models\Facility::where('name', 'like', '%' . $data['facility_name'] . '%')
+            ->where('is_active', true)
+            ->first();
+
+        // If no matching facility found, try to find any active facility
+        if (!$facility) {
+            $facility = \App\Models\Facility::where('is_active', true)->first();
+        }
+
         // Create doctor account (inactive until approved)
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
             'email'      => $data['email'],
+            'phone'      => $data['phone'],
             'password'   => Hash::make($data['password']),
             'role'       => 'doctor',
             'license_number' => $data['license_number'],
             'specialization' => $data['specialization'],
+            'facility_id' => $facility ? $facility->id : null,
             'is_active'  => false, // Requires admin approval
         ]);
-
-        // Note: In a real app, you'd also create a Facility record and link the doctor
 
         return redirect()->route('doctor.login')
             ->with('success', 'Your application has been submitted. Please wait for admin approval.');

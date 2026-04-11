@@ -195,7 +195,7 @@ body{font-family:'Inter',sans-serif;}
       @foreach(\App\Models\User::where('role','doctor')->where('is_active',true)->get() as $doctor)
       <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
         <div style="width:30px;height:30px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($doctor->first_name ?? 'D',0,1)) }}</div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $doctor->doctor_id ?? $doctor->license_number ?? 'N/A' }} · {{ $doctor->email }}</div></div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $doctor->first_name }} {{ $doctor->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $doctor->doctor_id ?? $doctor->license_number ?? 'N/A' }} · {{ $doctor->email }} · {{ optional($doctor->facility)->name ?? 'No Facility' }}</div></div>
         <span class="badge-active">Active</span>
       </div>
       @endforeach
@@ -259,7 +259,7 @@ body{font-family:'Inter',sans-serif;}
       @foreach(\App\Models\User::where('role','doctor')->latest()->get() as $user)
       <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
         <div style="width:34px;height:34px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($user->first_name ?? 'D',0,1)) }}</div>
-        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->doctor_id ?? 'N/A' }} · {{ $user->email }} · {{ $user->specialization ?? 'General' }}</div></div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#0f172a;">Dr. {{ $user->first_name }} {{ $user->last_name }}</div><div style="font-size:11px;color:#94a3b8;">{{ $user->doctor_id ?? 'N/A' }} · {{ $user->email }} · {{ $user->specialization ?? 'General' }} · {{ optional($user->facility)->name ?? 'No Facility' }}</div></div>
         <span style="background:{{ $user->is_active ? '#dcfce7' : '#fef3c7' }};color:{{ $user->is_active ? '#16a34a' : '#d97706' }};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ $user->is_active ? 'Active' : 'Pending' }}</span>
       </div>
       @endforeach

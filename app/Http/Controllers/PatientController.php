@@ -64,7 +64,10 @@ class PatientController extends Controller
             $referralPatientIds = \App\Models\Referral::where('referred_by', $user->id)
                 ->pluck('patient_id')
                 ->unique();
-            $allPatientIds = $patientIds->merge($referralPatientIds)->unique();
+            $appointmentPatientIds = \App\Models\Appointment::where('doctor_id', $user->id)
+                ->pluck('patient_id')
+                ->unique();
+            $allPatientIds = $patientIds->merge($referralPatientIds)->merge($appointmentPatientIds)->unique();
             $patients = \App\Models\User::where('role', 'patient')
                 ->whereIn('id', $allPatientIds)
                 ->when($query, function($q) use ($query){

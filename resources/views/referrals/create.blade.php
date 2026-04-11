@@ -92,7 +92,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f6ff;color:#1a1f2e;min-heigh
       @endif
     </div>
     <div class="form-row">
-        <div class="form-group"><label>Referring Facility *</label><select name="referring_facility_id" required><option value="">From facility...</option>@foreach($facilities as $f)<option value="{{ $f->id }}" {{ old('referring_facility_id')==$f->id ? 'selected' : '' }}>{{ $f->name }}</option>@endforeach</select>@error('referring_facility_id')<div class="field-error">{{ $message }}</div>@enderror</div>
+        <div class="form-group">
+          <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Referring Facility</label>
+          <div style="background:#f0f6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;color:#1d4ed8;">
+            {{ optional(\App\Models\Facility::find(Auth::user()->facility_id))->name ?? 'Your Facility' }}
+          </div>
+          <input type="hidden" name="referring_facility_id" value="{{ Auth::user()->facility_id }}">
+        </div>
         <div class="form-group"><label>Receiving Facility *</label><select name="receiving_facility_id" required><option value="">To facility...</option>@foreach($facilities as $f)<option value="{{ $f->id }}" {{ old('receiving_facility_id')==$f->id ? 'selected' : '' }}>{{ $f->name }}</option>@endforeach</select>@error('receiving_facility_id')<div class="field-error">{{ $message }}</div>@enderror</div>
     </div>
     <div class="form-group"><label>Reason for Referral *</label><textarea name="reason" required placeholder="Describe the clinical reason for this referral...">{{ old('reason') }}</textarea>@error('reason')<div class="field-error">{{ $message }}</div>@enderror</div>

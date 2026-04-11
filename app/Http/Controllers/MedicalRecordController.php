@@ -30,12 +30,22 @@ class MedicalRecordController extends Controller
     {
         $user = Auth::user();
         $query = $request->get('search');
+        $patientFilter = $request->get('patient');
+        
         if ($user->role === 'patient') {
             $records = \App\Models\MedicalRecord::where('patient_id', $user->id)
                 ->latest()->paginate(10);
         } elseif ($user->role === 'doctor' || $user->role === 'nurse') {
-            $records = \App\Models\MedicalRecord::where('doctor_id', $user->id)
-                ->latest()->paginate(10);
+            $queryBuilder = \App\Models\MedicalRecord::query();
+            
+            // If filtering by specific patient
+            if ($patientFilter) {
+                $queryBuilder->where('patient_id', $patientFilter);
+            } else {
+                $queryBuilder->where('doctor_id', $user->id);
+            }
+            
+            $records = $queryBuilder->latest()->paginate(10);
         } else {
             $records = \App\Models\MedicalRecord::latest()->paginate(10);
         }
@@ -111,7 +121,23 @@ class MedicalRecordController extends Controller
 
         $patients = \App\Models\User::where('role', 'patient')->orderBy('first_name')->get();
         $facilities = \App\Models\Facility::orderBy('name')->get();
-        return view('records.create', compact('patients', 'facilities'));
+        
+        $prefillPatient = null;
+        
+        // Handle lab_test_id parameter
+        if (request()->has('lab_test_id')) {
+            $labTest = \App\Models\LabTest::find(request('lab_test_id'));
+            if ($labTest) {
+                $prefillPatient = $labTest->patient_id;
+            }
+        }
+        
+        // Handle patient_id parameter (from appointment)
+        if (request()->has('patient_id') && !$prefillPatient) {
+            $prefillPatient = request('patient_id');
+        }
+        
+        return view('records.create', compact('patients', 'facilities', 'prefillPatient'));
     }
 
     /**

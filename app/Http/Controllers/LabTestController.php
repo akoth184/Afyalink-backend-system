@@ -65,32 +65,52 @@ class LabTestController extends Controller
     public function uploadResult(Request $request, $id)
     {
         $request->validate([
-            'result_file'  => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-            'result_notes' => 'nullable|string',
-            'result_date'  => 'required|date',
+            'result_file'      => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'result_value'    => 'nullable|string',
+            'reference_range' => 'nullable|string',
+            'test_status'     => 'nullable|in:normal,abnormal,critical',
+            'result_notes'    => 'required|string',
+            'result_date'     => 'required|date',
         ]);
 
         $labTest = LabTest::findOrFail($id);
-        $file = $request->file('result_file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $file->storeAs('public/lab_results', $filename);
-
-        $labTest->update([
-            'result_file'  => 'lab_results/' . $filename,
-            'result_notes' => $request->result_notes,
+        
+        $resultNotes = $request->result_notes;
+        
+        if ($request->result_value) {
+            $resultNotes .= "\n\nNumeric Result: " . $request->result_value;
+        }
+        if ($request->reference_range) {
+            $resultNotes .= " (Ref: " . $request->reference_range . ")";
+        }
+        if ($request->test_status) {
+            $resultNotes .= "\nStatus: " . strtoupper($request->test_status);
+        }
+        
+        $updateData = [
+            'result_notes' => $resultNotes,
             'result_date'  => $request->result_date,
-            'status'       => 'completed',
-        ]);
+            'status'      => 'completed',
+        ];
+
+        if ($request->hasFile('result_file')) {
+            $file = $request->file('result_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/lab_results', $filename);
+            $updateData['result_file'] = 'lab_results/' . $filename;
+        }
+
+        $labTest->update($updateData);
 
         \App\Models\Notification::send(
             $labTest->patient_id,
             'lab_result',
             'Lab Results Ready',
-            'Your ' . $labTest->test_name . ' results are ready. You can view and download them from your dashboard.',
+            'Your ' . $labTest->test_name . ' results are ready. Check your patient dashboard for details.',
             null
         );
 
-        return back()->with('success', 'Lab results uploaded successfully.');
+        return back()->with('success', 'Lab results submitted successfully.');
     }
 
     public function downloadResult($id)
