@@ -179,6 +179,19 @@ class ReferralController extends Controller
             }
         }
 
+        $receivingHospitalUser = \App\Models\User::where('role','hospital')
+            ->where('facility_id', $request->receiving_facility_id)
+            ->first();
+        if ($receivingHospitalUser) {
+            \App\Models\Notification::send(
+                $receivingHospitalUser->id,
+                'new_referral',
+                'New Referral Request',
+                'A new referral has been sent to your facility for patient ' . optional(\App\Models\User::find($request->patient_id))->first_name . '. Please review and respond.',
+                $referral->id
+            );
+        }
+
         $user = Auth::user();
         if (in_array($user->role, ['hospital', 'facility'])) {
             return redirect()->route('hospital.dashboard')
@@ -392,6 +405,36 @@ class ReferralController extends Controller
         }
 
         return back()->with('success', 'Feedback sent to referring doctor.');
+    }
+
+    public function updateTransport(Request $request, $id)
+    {
+        $referral = \App\Models\Referral::findOrFail($id);
+        $referral->update(['transport_status' => $request->transport_status]);
+        $statusLabels = [
+            'in_transit'      => 'Patient is on the way to your facility',
+            'arrived'         => 'Patient has arrived at the facility',
+            'under_treatment' => 'Patient is currently under treatment',
+            'discharged'      => 'Patient has been discharged',
+        ];
+        $label = $statusLabels[$request->transport_status] ?? 'Status updated';
+        \App\Models\Notification::send(
+            $referral->patient_id,
+            'transport_update',
+            'Referral Status Update',
+            $label . ' at ' . optional($referral->receivingFacility)->name . '.',
+            $referral->id
+        );
+        if ($referral->referred_by) {
+            \App\Models\Notification::send(
+                $referral->referred_by,
+                'transport_update',
+                'Patient Transport Update',
+                'Patient ' . optional($referral->patient)->first_name . ': ' . $label . '.',
+                $referral->id
+            );
+        }
+        return back()->with('success', 'Transport status updated. Patient and referring doctor have been notified.');
     }
 
     public function downloadLetter($id)

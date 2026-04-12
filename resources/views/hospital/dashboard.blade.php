@@ -37,6 +37,11 @@ body{font-family:'Inter',sans-serif;}
   .overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:399;}
   .overlay.show{display:block;}
 }
+@keyframes pulse {
+  0%{opacity:1}
+  50%{opacity:0.5}
+  100%{opacity:1}
+}
 </style>
 </head>
 <body style="background:#f0f6ff;font-family:'Inter',sans-serif;">
@@ -154,6 +159,7 @@ body{font-family:'Inter',sans-serif;}
     <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Pending Action</div>
     <div style="font-size:28px;font-weight:800;color:#d97706;">{{ $referrals->where('status','pending')->count() }}</div>
     <div style="font-size:11px;color:#d97706;margin-top:5px;">Needs review</div>
+    <div style="font-size:10px;color:#d97706;margin-top:4px;">Requires your response</div>
   </div>
   <div style="background:#fff1f2;border-radius:10px;padding:18px;border:1px solid #fca5a5;">
     <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Rejected</div>
@@ -210,6 +216,9 @@ body{font-family:'Inter',sans-serif;}
         @endif
         @if($referral->status === 'pending')
         <span style="background:#fef3c7;color:#d97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">Action Required</span>
+        @if($referral->created_at->diffInHours(now()) < 24)
+        <span style="background:#dc2626;color:white;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;animation:pulse 1s infinite;">NEW</span>
+        @endif
         @endif
       </div>
       <div style="font-size:12px;color:#64748b;">From: {{ optional($referral->referringFacility)->name ?? 'N/A' }}</div>
@@ -312,7 +321,22 @@ body{font-family:'Inter',sans-serif;}
     </form>
   </div>
 </div>
-    @endif
+@if($referral->status === 'accepted')
+<div style="margin-top:10px;">
+  <div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:6px;">Update Patient Transport Status</div>
+  <form method="POST" action="{{ route('referrals.transport', $referral->id) }}" style="display:flex;gap:8px;align-items:center;">
+    @csrf
+    <select name="transport_status" style="flex:1;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:7px 12px;font-size:12px;font-family:inherit;outline:none;">
+      <option value="pending" {{ ($referral->transport_status ?? 'pending') === 'pending' ? 'selected' : '' }}>Pending — Not yet transported</option>
+      <option value="in_transit" {{ ($referral->transport_status ?? '') === 'in_transit' ? 'selected' : '' }}>In Transit — Patient on the way</option>
+      <option value="arrived" {{ ($referral->transport_status ?? '') === 'arrived' ? 'selected' : '' }}>Arrived — Patient at facility</option>
+      <option value="under_treatment" {{ ($referral->transport_status ?? '') === 'under_treatment' ? 'selected' : '' }}>Under Treatment — Being treated</option>
+      <option value="discharged" {{ ($referral->transport_status ?? '') === 'discharged' ? 'selected' : '' }}>Discharged — Treatment complete</option>
+    </select>
+    <button type="submit" style="background:#2563eb;color:white;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Update</button>
+  </form>
+</div>
+@endif
   </div>
   @empty
   <div style="text-align:center;padding:40px;color:#94a3b8;">

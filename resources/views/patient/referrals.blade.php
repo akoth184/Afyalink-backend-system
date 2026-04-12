@@ -369,6 +369,22 @@
                                             @endforeach
                                           </div>
                                         </div>
+                                        @if(isset($referral->transport_status) && $referral->transport_status !== 'pending')
+                                        <div style="margin-top:10px;background:#f0f6ff;border-left:3px solid #2563eb;padding:10px 14px;border-radius:0 8px 8px 0;">
+                                          <div style="font-size:10px;font-weight:700;color:#2563eb;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em;">Transport Status</div>
+                                          <div style="font-size:13px;font-weight:600;color:#0f172a;">
+                                            @php
+                                              $transportLabels = [
+                                                'in_transit'      => '🚗 Patient is on the way to the facility',
+                                                'arrived'         => '🏥 Patient has arrived at the facility',
+                                                'under_treatment' => '👨‍⚕️ Patient is currently under treatment',
+                                                'discharged'      => '✅ Patient has been discharged',
+                                              ];
+                                            @endphp
+                                            {{ $transportLabels[$referral->transport_status] ?? 'Status unknown' }}
+                                          </div>
+                                        </div>
+                                        @endif
                                         <a href="{{ route('referrals.letter', $referral->id) }}" style="background:#1e3a5f;color:white;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;display:inline-block;margin-top:8px;">Download Referral Letter</a>
                                     </td>
                                 </tr>

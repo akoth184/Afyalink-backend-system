@@ -199,6 +199,7 @@ Route::get('/api/facilities/nearby', [FacilityController::class, 'nearbyHospital
     Route::patch('/referrals/{id}/status', [ReferralController::class, 'updateStatus'])->name('referrals.updateStatus');
     Route::post('/referrals/{id}/consent', [ReferralController::class, 'giveConsent'])->name('referrals.consent');
     Route::post('/referrals/{id}/feedback', [ReferralController::class, 'submitFeedback'])->name('referrals.feedback');
+    Route::post('/referrals/{id}/transport', [ReferralController::class, 'updateTransport'])->name('referrals.transport');
     Route::get('/referrals/{id}/letter', [ReferralController::class, 'downloadLetter'])->name('referrals.letter');
 
     // Edit, update, delete - only for doctors and admins
